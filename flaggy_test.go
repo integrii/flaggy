@@ -12,11 +12,9 @@ func TestParsePositionalsA(t *testing.T) {
 	inputLine := []string{"thisBinary", "subcommand", "-t", "-n", "dashN", "positionalA", "positionalB"}
 	os.Args = inputLine
 
+	var boolT bool
+
 	parser := flaggy.NewArgumentParser()
-	parser.AddBoolFlag(flaggy.BoolFlag{
-		ShortName:   "t",
-		LongName:    "",
-		Description: "Example boolean flag.",
-	})
+	parser.AddBoolFlag(&boolT, "t", "", "-t test flag for bool arg")
 
 }
