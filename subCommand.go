@@ -48,8 +48,23 @@ func (sc *SubCommand) parse(depth int) error {
 
 	var err error
 
-	// parse this subcommand's flags
-	sc.parseAtDepth(depth)
+	// parse this subcommand's flags out of the command
+	for i, v := range os.Args {
+		argType := determineArgType(v)
+		switch argType {
+		case ArgIsPositional:
+			debugPrint("Arg is positional:", v)
+			// TODO - parse for positional arg or subcommand taking depth into account
+		case ArgIsFlagWithSpace:
+			debugPrint("Arg is flag with space:", v, i)
+			// TODO - parse next arg as value to this flag
+		case ArgIsFlagWithValue:
+			debugPrint("Arg is flag with value:", v)
+			// TODO - parse flag into key and value
+			key, value := parseArgWithValue(v)
+			debugPrint("Parsed key", key, "to value", value)
+		}
+	}
 
 	// parse all child subcommand's flags
 	for _, child := range sc.SubCommands {
@@ -63,18 +78,36 @@ func (sc *SubCommand) parse(depth int) error {
 }
 
 // AddSubcommand adds a possible subcommand to the ArgumentParser.
-func (sc *SubCommand) AddSubcommand(newSC SubCommand) {
+func (sc *SubCommand) AddSubcommand(newSC *SubCommand) {
 	sc.SubCommands = append(sc.SubCommands, newSC)
 }
 
 // AddStringFlag adds a new string flag
-func (sc *SubCommand) AddStringFlag(v StringFlag) {
+func (sc *SubCommand) AddStringFlag(assignmentVar *string, shortName string, longName string, description string) {
+	newStringFlag := StringFlag{}
+	newStringFlag.AssignmentVar = assignmentVar
+	newStringFlag.ShortName = shortName
+	newStringFlag.LongName = longName
+	newStringFlag.Description = description
+	sc.StringFlags = append(sc.StringFlags, &newStringFlag)
 }
 
 // AddBoolFlag adds a new bool flag
-func (sc *SubCommand) AddBoolFlag(v BoolFlag) {
+func (sc *SubCommand) AddBoolFlag(assignmentVar *bool, shortName string, longName string, description string) {
+	newBoolFlag := BoolFlag{}
+	newBoolFlag.AssignmentVar = assignmentVar
+	newBoolFlag.ShortName = shortName
+	newBoolFlag.LongName = longName
+	newBoolFlag.Description = description
+	sc.BoolFlags = append(sc.BoolFlags, &newBoolFlag)
 }
 
-// AddBoolFlag adds a new int flag
-func (sc *SubCommand) AddIntflag(v StringFlag) {
+// AddIntFlag adds a new int flag
+func (sc *SubCommand) AddIntFlag(assignmentVar *int, shortName string, longName string, description string) {
+	newIntFlag := IntFlag{}
+	newIntFlag.AssignmentVar = assignmentVar
+	newIntFlag.ShortName = shortName
+	newIntFlag.LongName = longName
+	newIntFlag.Description = description
+	sc.IntFlags = append(sc.IntFlags, &newIntFlag)
 }

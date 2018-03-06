@@ -14,6 +14,8 @@ type PositionalValue struct {
 	Position      int     // the position, not including switches, of this variable
 }
 
+// NewPositionalValue creates a new positional value at a depth relative to
+// the last positional argument or subcommand
 func NewPositionalValue(relativeDepth int) {
 	if relativeDepth < 1 {
 		fmt.Println("Flaggy: Position of positional arguments must never be below 1")

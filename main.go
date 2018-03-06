@@ -11,6 +11,11 @@
 //
 package flaggy
 
+import "fmt"
+
+// DebugMode indicates that debug output should be enabled
+var DebugMode bool
+
 // var mainArgumentParser *ArgumentParser
 
 func init() {
@@ -23,3 +28,10 @@ func init() {
 // func Parse() {
 // 	mainArgumentParser.Parse()
 // }
+
+// debugPrint prints if debugging is enabled
+func debugPrint(i ...interface{}) {
+	if DebugMode {
+		fmt.Println(i...)
+	}
+}
