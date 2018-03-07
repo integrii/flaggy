@@ -69,6 +69,13 @@ func parseArgWithValue(arg string) (key string, value string) {
 
 	// break at the equals
 	args := strings.SplitN(arg, "=", 2)
+
+	// if its a bool arg, with no explicit value, we return a blank
+	if len(args) == 1 {
+		return args[0], ""
+	}
+
+	// if its a key and value pair, we return those
 	if len(args) == 2 {
 		return args[0], args[1]
 	}

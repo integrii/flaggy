@@ -1,8 +1,10 @@
 package flaggy
 
 import (
+	"errors"
 	"fmt"
 	"os"
+	"strconv"
 )
 
 // SubCommand represents a subcommand which contains a set of child
@@ -49,20 +51,44 @@ func (sc *SubCommand) parse(depth int) error {
 	var err error
 
 	// parse this subcommand's flags out of the command
-	for i, v := range os.Args {
-		argType := determineArgType(v)
+	positionalOnlyArguments := []string{}
+	var skipNext bool // indicates we should skip the next argument
+	for i, a := range os.Args {
+
+		// skip this run if specified
+		if skipNext {
+			skipNext = false
+			continue
+		}
+
+		// determine what kind of flag this is
+		argType := determineArgType(a)
+
+		// depending on the flag type, parse the key and value out, then apply it
 		switch argType {
 		case ArgIsPositional:
-			debugPrint("Arg is positional:", v)
-			// TODO - parse for positional arg or subcommand taking depth into account
+			debugPrint("Arg is positional:", a)
+			// Add this positional argument into a slice of their own, so that
+			// we can determine if its a subcommand or positional value later
+			positionalOnlyArguments = append(positionalOnlyArguments, a)
 		case ArgIsFlagWithSpace:
-			debugPrint("Arg is flag with space:", v, i)
-			// TODO - parse next arg as value to this flag
+			debugPrint("Arg is flag with space:", a, i)
+			// parse next arg as value to this flag and apply to subcommand flags
+			skipNext = true
+			err := sc.setValueForKey(a, os.Args[i+1])
+			if err != nil {
+				return err
+			}
+			continue
 		case ArgIsFlagWithValue:
-			debugPrint("Arg is flag with value:", v)
-			// TODO - parse flag into key and value
-			key, value := parseArgWithValue(v)
-			debugPrint("Parsed key", key, "to value", value)
+			debugPrint("Arg is flag with value:", a)
+			// parse flag into key and value and apply to subcommand flags
+			key, val := parseArgWithValue(a)
+			err := sc.setValueForKey(key, val)
+			if err != nil {
+				return err
+			}
+			debugPrint("Parsed key", key, "to value", val)
 		}
 	}
 
@@ -110,4 +136,51 @@ func (sc *SubCommand) AddIntFlag(assignmentVar *int, shortName string, longName 
 	newIntFlag.LongName = longName
 	newIntFlag.Description = description
 	sc.IntFlags = append(sc.IntFlags, &newIntFlag)
+}
+
+// SetValueForKey sets the value for the specified key. If setting a bool
+// value, then leave the value field empty (``)
+func (sc *SubCommand) setValueForKey(key string, value string) error {
+
+	// check for and assign string flags
+	for _, f := range sc.StringFlags {
+		if f.ShortName == key || f.LongName == key {
+			newValue := value
+			f.AssignmentVar = &newValue
+			debugPrint("Set string flag with key ", key, "to value", value)
+		}
+	}
+
+	// check for and assign int flags
+	for _, f := range sc.IntFlags {
+		if f.ShortName == key || f.LongName == key {
+			newValue, err := strconv.Atoi(value)
+			if err != nil {
+				return errors.New("Unable to convert flag to int: " + err.Error())
+			}
+			f.AssignmentVar = &newValue
+			debugPrint("Set int flag with key ", key, "to value", value)
+		}
+	}
+
+	// check for and assign bool flags
+	for _, f := range sc.BoolFlags {
+		if f.ShortName == key || f.LongName == key {
+
+			// if there is no value specified, we assume the bool flag to be toggled on
+			if value == `` {
+				newValue := true
+				f.AssignmentVar = &newValue
+				return nil
+			}
+			newValue, err := strconv.ParseBool(value)
+			if err != nil {
+				return errors.New("Unable to convert flag to bool: " + err.Error())
+			}
+			f.AssignmentVar = &newValue
+			debugPrint("Set bool flag with key ", key, "to value", value)
+		}
+	}
+
+	return errors.New("An unexpected flag was specified: " + key)
 }

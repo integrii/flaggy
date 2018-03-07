@@ -11,6 +11,8 @@ func TestParseArgWithValue(t *testing.T) {
 	testCases["--flag=test"] = []string{"flag", "test"}
 	testCases["-flag=test"] = []string{"flag", "test"}
 	testCases["----flag=--test"] = []string{"--flag", "--test"}
+	testCases["-b"] = []string{"b", ""}
+	testCases["--bool"] = []string{"bool", ""}
 
 	for arg, correctValues := range testCases {
 		key, value := parseArgWithValue(arg)
