@@ -60,12 +60,15 @@ func determineArgType(arg string) string {
 
 // parseArgWithValue parses a key=value concatentated argument
 func parseArgWithValue(arg string) (key string, value string) {
-	// remove minus from start
-	arg = strings.TrimLeft(arg, "-")
-	arg = strings.TrimLeft(arg, "-")
+
+	// remove up to two minuses from start of flag
+	arg = strings.TrimPrefix(arg, "-")
+	arg = strings.TrimPrefix(arg, "-")
+
+	debugPrint("parseArgWithValue", arg)
 
 	// break at the equals
-	args := strings.SplitN(arg, "=", 1)
+	args := strings.SplitN(arg, "=", 2)
 	if len(args) == 2 {
 		return args[0], args[1]
 	}

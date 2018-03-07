@@ -2,6 +2,28 @@ package flaggy
 
 import "testing"
 
+func TestParseArgWithValue(t *testing.T) {
+	DebugMode = true
+	defer func() { DebugMode = false }()
+	testCases := make(map[string][]string)
+	testCases["-f=test"] = []string{"f", "test"}
+	testCases["--f=test"] = []string{"f", "test"}
+	testCases["--flag=test"] = []string{"flag", "test"}
+	testCases["-flag=test"] = []string{"flag", "test"}
+	testCases["----flag=--test"] = []string{"--flag", "--test"}
+
+	for arg, correctValues := range testCases {
+		key, value := parseArgWithValue(arg)
+		if key != correctValues[0] {
+			t.Fatalf("Flag %s parsed key as %s but expected key %s", arg, key, correctValues[0])
+		}
+		if value != correctValues[1] {
+			t.Fatalf("Flag %s parsed value as %s but expected value %s", arg, value, correctValues[1])
+		}
+		t.Logf("Flag %s parsed key as %s and value as %s correctly", arg, key, value)
+	}
+}
+
 func TestDetermineArgType(t *testing.T) {
 	testCases := make(map[string]string)
 	testCases["-f"] = ArgIsFlagWithSpace
