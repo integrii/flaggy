@@ -30,13 +30,13 @@ type BoolFlag struct {
 	AssignmentVar *bool
 }
 
-const ArgIsPositional = 1    // subcommand or positional value
-const ArgIsFlagWithSpace = 2 // -f path or --file path
-const ArgIsFlagWithValue = 3 // -f=path or --file=path
+const ArgIsPositional = "positional"       // subcommand or positional value
+const ArgIsFlagWithSpace = "flagWithSpace" // -f path or --file path
+const ArgIsFlagWithValue = "flagWithValue" // -f=path or --file=path
 
 // determineArgType determines if the specified arg is a flag with space
 // separated value, a flag with a connected value, or neither (positional)
-func determineArgType(arg string) int {
+func determineArgType(arg string) string {
 	// if it has the prefix --, then its a long flag
 	if strings.HasPrefix(arg, "--") {
 		// if it contains an equals, it is a joined value
