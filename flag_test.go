@@ -1,10 +1,12 @@
 package flaggy
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestParseArgWithValue(t *testing.T) {
 	DebugMode = true
-	defer func() { DebugMode = false }()
+	defer debugOff()
 	testCases := make(map[string][]string)
 	testCases["-f=test"] = []string{"f", "test"}
 	testCases["--f=test"] = []string{"f", "test"}

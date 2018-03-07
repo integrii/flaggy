@@ -22,6 +22,7 @@ type SubCommand struct {
 	IntFlags        []*IntFlag
 	BoolFlags       []*BoolFlag
 	PositionalFlags []*PositionalValue // order matters here
+	// TODO - was the subcommand found?  Do we set a flag? exec a func?
 }
 
 // NewSubCommand creates a new subcommand that can have flags or PositionalFlags
@@ -37,8 +38,6 @@ func NewSubCommand(relativeDepth int) *SubCommand {
 // Parse causes the argument parser to parse based on the os.Args []string.
 // depth specifies the non-flag subcommand positional depth
 func (sc *SubCommand) parse(depth int) error {
-
-	var err error
 
 	// parse this subcommand's flags out of the command
 	positionalOnlyArguments := []string{}
@@ -82,18 +81,53 @@ func (sc *SubCommand) parse(depth int) error {
 		}
 	}
 
-	// TODO - determine positional value flags by positional value
-	// TODO - will parsing positionals before subcommands lead to positionals
-	//        being parsed that shouldnt be?
-	// TODO - determine subcommands and parse them by positional value ane name
+	// loop over positional values and look for their matching positional
+	// parameter, or their positional command.  If neither are found, then
+	// we throw an error
+	for pos, v := range positionalOnlyArguments {
+		// the first positional argument will be human natural at position 1
+		if pos == 0 {
+			continue
+		}
+		debugPrint("Parsing positional only position", pos)
+		var foundPositionalMatch bool
+		// determine positional value flags by positional value and depth of parser
+		relativePos := pos - depth
 
-	// parse all child subcommand's flags
+		// TODO - will parsing positionals before subcommands lead to positionals
+		//        being parsed that shouldnt be?
+		for _, cmd := range sc.SubCommands {
+			fmt.Println(relativePos, "==", cmd.Position, "v", cmd.LongName, "v", cmd.ShortName)
+			if relativePos == cmd.Position && (v == cmd.LongName || v == cmd.ShortName) {
+				debugPrint("Found a positional subcommand at depth", depth, "(", relativePos, ")")
+				err := cmd.parse(depth + 1) // continue recursive positional parsing
+				if err != nil {
+					return err
+				}
+				foundPositionalMatch = true
+			}
+		}
+		// dont keep parsing if a subcommand positional was detected
+		if foundPositionalMatch {
+			continue
+		}
 
-	// parse subcommand if it was specified
-	// err = child.parse(depth + 1) // more depth for the next subcommand
-	// if err != nil {
-	// 	return err
-	// }
+		// TODO - determine subcommands and parse them by positional value ane name
+		for _, val := range sc.PositionalFlags {
+			if relativePos == val.Position {
+				debugPrint("Found a positional value at depth", depth, "(", relativePos, ")")
+				newValue := v
+				val.AssignmentVar = &newValue
+				foundPositionalMatch = true
+			}
+		}
+
+		// if no positional match was detected, then we throw an error because this
+		// argument is unexpected.
+		if !foundPositionalMatch {
+			return errors.New("Was unable to find a positonal subcommand or value at depth: " + strconv.Itoa(depth))
+		}
+	}
 
 	return nil
 }

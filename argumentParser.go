@@ -12,8 +12,12 @@ func NewArgumentParser() *ArgumentParser {
 }
 
 // Parse calculates all flags and subcommands
-func (ap *ArgumentParser) Parse() {
+func (ap *ArgumentParser) Parse() error {
 	for _, command := range ap.SubCommands {
-		command.parse(1) // initial depth of parsing is one command deep
+		err := command.parse(1) // initial depth of parsing is one command deep
+		if err != nil {
+			return err
+		}
 	}
+	return nil
 }
