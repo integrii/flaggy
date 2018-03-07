@@ -38,16 +38,6 @@ func NewSubCommand(relativeDepth int) *SubCommand {
 // depth specifies the non-flag subcommand positional depth
 func (sc *SubCommand) parse(depth int) error {
 
-	// TODO - determine string flags
-	// TODO - determine int flags
-	// TODO - determine bool flags
-	// TODO - exclude normal flags in --key=value, -key=value, --key value,
-	//        and -key value format before continuing
-	// TODO - determine positional value flags by positional value
-	// TODO - will parsing positionals before subcommands lead to positionals
-	//        being parsed that shouldnt be?
-	// TODO - determine subcommands and parse them by positional value ane name
-
 	var err error
 
 	// parse this subcommand's flags out of the command
@@ -92,13 +82,18 @@ func (sc *SubCommand) parse(depth int) error {
 		}
 	}
 
+	// TODO - determine positional value flags by positional value
+	// TODO - will parsing positionals before subcommands lead to positionals
+	//        being parsed that shouldnt be?
+	// TODO - determine subcommands and parse them by positional value ane name
+
 	// parse all child subcommand's flags
-	for _, child := range sc.SubCommands {
-		err = child.parse(depth + 1) // more depth for the next subcommand
-		if err != nil {
-			return err
-		}
-	}
+
+	// parse subcommand if it was specified
+	// err = child.parse(depth + 1) // more depth for the next subcommand
+	// if err != nil {
+	// 	return err
+	// }
 
 	return nil
 }
