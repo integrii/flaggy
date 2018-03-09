@@ -4,6 +4,11 @@ import (
 	"testing"
 )
 
+// debugOff makes defers easier
+func debugOff() {
+	DebugMode = false
+}
+
 func TestParseArgWithValue(t *testing.T) {
 	DebugMode = true
 	defer debugOff()

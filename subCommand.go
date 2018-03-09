@@ -7,42 +7,59 @@ import (
 	"strconv"
 )
 
-// SubCommand represents a subcommand which contains a set of child
+// Subcommand represents a subcommand which contains a set of child
 // subcommands along with a set of flags relevant to it.  Parsing
 // runs until a subcommand is detected by matching its name and
 // position.  Once a matching subcommand is found, the next set
 // of parsing occurs within that matched subcommand.
-type SubCommand struct {
+type Subcommand struct {
 	LongName        string
 	ShortName       string
 	Description     string
 	Position        int // the position of this subcommand, not including flags
-	SubCommands     []*SubCommand
+	Subcommands     []*Subcommand
 	StringFlags     []*StringFlag
 	IntFlags        []*IntFlag
 	BoolFlags       []*BoolFlag
 	PositionalFlags []*PositionalValue // order matters here
-	// TODO - was the subcommand found?  Do we set a flag? exec a func?
+	SubcommandUsed  bool               // indicates this subcommand was parsed
 }
 
-// NewSubCommand creates a new subcommand that can have flags or PositionalFlags
+// NewSubcommand creates a new subcommand that can have flags or PositionalFlags
 // added to it.  The position starts with 1, not 0
-func NewSubCommand(relativeDepth int) *SubCommand {
+func NewSubcommand(relativeDepth int) *Subcommand {
 	if relativeDepth < 0 {
 		fmt.Println("Flaggy: Position of flags and positional arguments must never be below 1")
 		os.Exit(2)
 	}
-	return &SubCommand{}
+	return &Subcommand{}
 }
 
 // Parse causes the argument parser to parse based on the os.Args []string.
 // depth specifies the non-flag subcommand positional depth
-func (sc *SubCommand) parse(depth int) error {
+func (sc *Subcommand) parse(ap *ArgumentParser, depth int) error {
+
+	// if a command is parsed, its used
+	sc.SubcommandUsed = true
 
 	// parse this subcommand's flags out of the command
 	positionalOnlyArguments := []string{}
-	var skipNext bool // indicates we should skip the next argument
+
+	// indicates we should skip the next argument, like when parsing a flag
+	// that seperates key and value by space
+	var skipNext bool
+
+	// endArgfound indicates that a -- was found and everything
+	// remaining should be added to the trailing arguments slices
+	var endArgFound bool
+
+	// find all the normal flags (not positional) and parse them out
 	for i, a := range os.Args {
+
+		if endArgFound {
+			ap.TrailingArguments = append(ap.TrailingArguments, a)
+			continue
+		}
 
 		// skip this run if specified
 		if skipNext {
@@ -55,6 +72,9 @@ func (sc *SubCommand) parse(depth int) error {
 
 		// depending on the flag type, parse the key and value out, then apply it
 		switch argType {
+		case ArgIsFinal:
+			debugPrint("Arg is final:", a)
+			endArgFound = true
 		case ArgIsPositional:
 			debugPrint("Arg is positional:", a)
 			// Add this positional argument into a slice of their own, so that
@@ -94,13 +114,14 @@ func (sc *SubCommand) parse(depth int) error {
 		// determine positional value flags by positional value and depth of parser
 		relativePos := pos - depth
 
+		// determine subcommands and parse them by positional value and name
 		// TODO - will parsing positionals before subcommands lead to positionals
 		//        being parsed that shouldnt be?
-		for _, cmd := range sc.SubCommands {
+		for _, cmd := range sc.Subcommands {
 			fmt.Println(relativePos, "==", cmd.Position, "v", cmd.LongName, "v", cmd.ShortName)
 			if relativePos == cmd.Position && (v == cmd.LongName || v == cmd.ShortName) {
 				debugPrint("Found a positional subcommand at depth", depth, "(", relativePos, ")")
-				err := cmd.parse(depth + 1) // continue recursive positional parsing
+				err := cmd.parse(ap, depth+1) // continue recursive positional parsing
 				if err != nil {
 					return err
 				}
@@ -112,7 +133,7 @@ func (sc *SubCommand) parse(depth int) error {
 			continue
 		}
 
-		// TODO - determine subcommands and parse them by positional value ane name
+		// determine positional args  and parse them by positional value and name
 		for _, val := range sc.PositionalFlags {
 			if relativePos == val.Position {
 				debugPrint("Found a positional value at depth", depth, "(", relativePos, ")")
@@ -122,23 +143,26 @@ func (sc *SubCommand) parse(depth int) error {
 			}
 		}
 
+		// dont keep parsing if a subcommand positional was detected
+		if foundPositionalMatch {
+			continue
+		}
+
 		// if no positional match was detected, then we throw an error because this
 		// argument is unexpected.
-		if !foundPositionalMatch {
-			return errors.New("Was unable to find a positonal subcommand or value at depth: " + strconv.Itoa(depth))
-		}
+		return errors.New("Was unable to find a positonal subcommand or value at depth: " + strconv.Itoa(depth))
 	}
 
 	return nil
 }
 
 // AddSubcommand adds a possible subcommand to the ArgumentParser.
-func (sc *SubCommand) AddSubcommand(newSC *SubCommand) {
-	sc.SubCommands = append(sc.SubCommands, newSC)
+func (sc *Subcommand) AddSubcommand(newSC *Subcommand) {
+	sc.Subcommands = append(sc.Subcommands, newSC)
 }
 
 // AddStringFlag adds a new string flag
-func (sc *SubCommand) AddStringFlag(assignmentVar *string, shortName string, longName string, description string) {
+func (sc *Subcommand) AddStringFlag(assignmentVar *string, shortName string, longName string, description string) {
 	newStringFlag := StringFlag{}
 	newStringFlag.AssignmentVar = assignmentVar
 	newStringFlag.ShortName = shortName
@@ -148,7 +172,7 @@ func (sc *SubCommand) AddStringFlag(assignmentVar *string, shortName string, lon
 }
 
 // AddBoolFlag adds a new bool flag
-func (sc *SubCommand) AddBoolFlag(assignmentVar *bool, shortName string, longName string, description string) {
+func (sc *Subcommand) AddBoolFlag(assignmentVar *bool, shortName string, longName string, description string) {
 	newBoolFlag := BoolFlag{}
 	newBoolFlag.AssignmentVar = assignmentVar
 	newBoolFlag.ShortName = shortName
@@ -158,7 +182,7 @@ func (sc *SubCommand) AddBoolFlag(assignmentVar *bool, shortName string, longNam
 }
 
 // AddIntFlag adds a new int flag
-func (sc *SubCommand) AddIntFlag(assignmentVar *int, shortName string, longName string, description string) {
+func (sc *Subcommand) AddIntFlag(assignmentVar *int, shortName string, longName string, description string) {
 	newIntFlag := IntFlag{}
 	newIntFlag.AssignmentVar = assignmentVar
 	newIntFlag.ShortName = shortName
@@ -169,7 +193,7 @@ func (sc *SubCommand) AddIntFlag(assignmentVar *int, shortName string, longName 
 
 // SetValueForKey sets the value for the specified key. If setting a bool
 // value, then leave the value field empty (``)
-func (sc *SubCommand) setValueForKey(key string, value string) error {
+func (sc *Subcommand) setValueForKey(key string, value string) error {
 
 	// check for and assign string flags
 	for _, f := range sc.StringFlags {
