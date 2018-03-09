@@ -13,36 +13,40 @@ import (
 // position.  Once a matching subcommand is found, the next set
 // of parsing occurs within that matched subcommand.
 type Subcommand struct {
-	LongName        string
-	ShortName       string
+	Name            string
 	Description     string
 	Position        int // the position of this subcommand, not including flags
 	Subcommands     []*Subcommand
 	StringFlags     []*StringFlag
 	IntFlags        []*IntFlag
 	BoolFlags       []*BoolFlag
-	PositionalFlags []*PositionalValue // order matters here
-	SubcommandUsed  bool               // indicates this subcommand was parsed
+	PositionalFlags []*PositionalValue
+	SubcommandUsed  bool // indicates this subcommand was found and parsed
 }
 
 // NewSubcommand creates a new subcommand that can have flags or PositionalFlags
 // added to it.  The position starts with 1, not 0
-func NewSubcommand(relativeDepth int) *Subcommand {
+func NewSubcommand(name string, relativeDepth int) *Subcommand {
 	if relativeDepth < 0 {
 		fmt.Println("Flaggy: Position of flags and positional arguments must never be below 1")
 		os.Exit(2)
 	}
-	return &Subcommand{}
+	return &Subcommand{
+		Name:     name,
+		Position: relativeDepth,
+	}
 }
 
 // Parse causes the argument parser to parse based on the os.Args []string.
 // depth specifies the non-flag subcommand positional depth
-func (sc *Subcommand) parse(ap *ArgumentParser, depth int) error {
+func (sc *Subcommand) parse(p *Parser, args []string, depth int) error {
+
+	debugPrint("Parsing for depth of", depth)
 
 	// if a command is parsed, its used
 	sc.SubcommandUsed = true
 
-	// parse this subcommand's flags out of the command
+	// holds positional arguments after flags are parsed out of the arguments
 	positionalOnlyArguments := []string{}
 
 	// indicates we should skip the next argument, like when parsing a flag
@@ -54,10 +58,10 @@ func (sc *Subcommand) parse(ap *ArgumentParser, depth int) error {
 	var endArgFound bool
 
 	// find all the normal flags (not positional) and parse them out
-	for i, a := range os.Args {
+	for i, a := range args {
 
 		if endArgFound {
-			ap.TrailingArguments = append(ap.TrailingArguments, a)
+			p.TrailingArguments = append(p.TrailingArguments, a)
 			continue
 		}
 
@@ -76,7 +80,7 @@ func (sc *Subcommand) parse(ap *ArgumentParser, depth int) error {
 			debugPrint("Arg is final:", a)
 			endArgFound = true
 		case ArgIsPositional:
-			debugPrint("Arg is positional:", a)
+			// debugPrint("Arg is positional:", a)
 			// Add this positional argument into a slice of their own, so that
 			// we can determine if its a subcommand or positional value later
 			positionalOnlyArguments = append(positionalOnlyArguments, a)
@@ -105,60 +109,73 @@ func (sc *Subcommand) parse(ap *ArgumentParser, depth int) error {
 	// parameter, or their positional command.  If neither are found, then
 	// we throw an error
 	for pos, v := range positionalOnlyArguments {
-		// the first positional argument will be human natural at position 1
-		if pos == 0 {
+
+		// the first relative positional argument will be human natural at position 1
+		// but offset for the depth of relative commands being parsed for currently.
+		relativeDepth := (1 + pos) - depth
+		if relativeDepth < 1 {
+			// debugPrint("relativeDepth", relativeDepth, "<", 1, "skipping")
 			continue
 		}
+
 		debugPrint("Parsing positional only position", pos)
 		var foundPositionalMatch bool
 		// determine positional value flags by positional value and depth of parser
-		relativePos := pos - depth
 
 		// determine subcommands and parse them by positional value and name
 		// TODO - will parsing positionals before subcommands lead to positionals
 		//        being parsed that shouldnt be?
 		for _, cmd := range sc.Subcommands {
-			debugPrint(relativePos, "==", cmd.Position, "v", cmd.LongName, "v", cmd.ShortName)
-			if relativePos == cmd.Position && (v == cmd.LongName || v == cmd.ShortName) {
-				debugPrint("Found a positional subcommand at depth:", depth, "relativePos", relativePos, ")", "value:", v)
-				err := cmd.parse(ap, depth+1) // continue recursive positional parsing
-				if err != nil {
-					return err
-				}
-				foundPositionalMatch = true
+			// debugPrint(relativeDepth, "==", cmd.Position, "and", v, "==", cmd.Name)
+			if relativeDepth == cmd.Position && (v == cmd.Name) {
+				debugPrint("Parsing positional subcommand", cmd.Name, "at relativeDepth", relativeDepth)
+				return cmd.parse(p, args, depth+1) // continue recursive positional parsing
 			}
-		}
-		// dont keep parsing if a subcommand positional was detected
-		if foundPositionalMatch {
-			continue
 		}
 
 		// determine positional args  and parse them by positional value and name
 		for _, val := range sc.PositionalFlags {
-			if relativePos == val.Position {
-				debugPrint("Found a positional value at depth", depth, "(", relativePos, ")")
-				newValue := v
-				val.AssignmentVar = &newValue
+			if relativeDepth == val.Position {
+				debugPrint("Found a positional value at relativePos:", relativeDepth, "value:", v)
+				// defrerence the struct pointer, then set the pointer property within it
+				*val.AssignmentVar = v
+				debugPrint("set positional to value", *val.AssignmentVar)
 				foundPositionalMatch = true
 			}
 		}
 
-		// dont keep parsing if a subcommand positional was detected
-		if foundPositionalMatch {
-			continue
+		// if no match found for this arg, throw an error
+		if !foundPositionalMatch {
+			// if no positional match was detected, then we throw an error because this
+			// argument is unexpected.
+			return errors.New("Unable to find a positional subcommand or argument after " + sc.Name + " at relative pos: " + strconv.Itoa(relativeDepth) + " value was: " + v)
 		}
 
-		// if no positional match was detected, then we throw an error because this
-		// argument is unexpected.
-		return errors.New("Was unable to find a positonal subcommand or value at depth: " + strconv.Itoa(depth))
 	}
 
 	return nil
 }
 
-// AddSubcommand adds a possible subcommand to the ArgumentParser.
-func (sc *Subcommand) AddSubcommand(newSC *Subcommand) {
+// AddSubcommand adds a possible subcommand to the Parser.
+func (sc *Subcommand) AddSubcommand(newSC *Subcommand) error {
+
+	// ensure no subcommands at this depth with this name
+	for _, other := range sc.Subcommands {
+		if newSC.Position == other.Position {
+			return errors.New("Unable to add subcommand because one already exists at position: " + strconv.Itoa(newSC.Position))
+		}
+	}
+
+	// ensure no positionals at this depth
+	for _, other := range sc.PositionalFlags {
+		if newSC.Position == other.Position {
+			return errors.New("Unable to add subcommand because a positional value already exists at position: " + strconv.Itoa(newSC.Position))
+		}
+	}
+
 	sc.Subcommands = append(sc.Subcommands, newSC)
+
+	return nil
 }
 
 // AddStringFlag adds a new string flag
@@ -191,9 +208,40 @@ func (sc *Subcommand) AddIntFlag(assignmentVar *int, shortName string, longName 
 	sc.IntFlags = append(sc.IntFlags, &newIntFlag)
 }
 
+// AddPositionalValue adds a positional value to the subcommand.  the
+// relativePosition starts at 1 and is relative to the subcommand it belongs to
+func (sc *Subcommand) AddPositionalValue(relativePosition int, assignmentVar *string, name string, description string) error {
+
+	// ensure no other positionals are at this depth
+	for _, other := range sc.PositionalFlags {
+		if relativePosition == other.Position {
+			return errors.New("Unable to add positional value because one already exists at position: " + strconv.Itoa(relativePosition))
+		}
+	}
+
+	// ensure no subcommands at this depth
+	for _, other := range sc.Subcommands {
+		if relativePosition == other.Position {
+			return errors.New("Unable to add positional value a subcommand already exists at position: " + strconv.Itoa(relativePosition))
+		}
+	}
+
+	newPositionalValue := PositionalValue{
+		Name:          name,
+		Position:      relativePosition,
+		AssignmentVar: assignmentVar,
+		Description:   description,
+	}
+	sc.PositionalFlags = append(sc.PositionalFlags, &newPositionalValue)
+
+	return nil
+}
+
 // SetValueForKey sets the value for the specified key. If setting a bool
 // value, then leave the value field empty (``)
 func (sc *Subcommand) setValueForKey(key string, value string) error {
+
+	debugPrint("setting value for", key, "to", value)
 
 	// check for and assign string flags
 	for _, f := range sc.StringFlags {

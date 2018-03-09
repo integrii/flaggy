@@ -14,7 +14,7 @@ func TestParsePositionalsA(t *testing.T) {
 
 	var boolT bool
 
-	parser := flaggy.NewArgumentParser()
+	parser := flaggy.NewParser("testParser")
 	parser.AddBoolFlag(&boolT, "t", "", "-t test flag for bool arg")
 
 }
