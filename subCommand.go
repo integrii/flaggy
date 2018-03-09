@@ -118,9 +118,9 @@ func (sc *Subcommand) parse(ap *ArgumentParser, depth int) error {
 		// TODO - will parsing positionals before subcommands lead to positionals
 		//        being parsed that shouldnt be?
 		for _, cmd := range sc.Subcommands {
-			fmt.Println(relativePos, "==", cmd.Position, "v", cmd.LongName, "v", cmd.ShortName)
+			debugPrint(relativePos, "==", cmd.Position, "v", cmd.LongName, "v", cmd.ShortName)
 			if relativePos == cmd.Position && (v == cmd.LongName || v == cmd.ShortName) {
-				debugPrint("Found a positional subcommand at depth", depth, "(", relativePos, ")")
+				debugPrint("Found a positional subcommand at depth:", depth, "relativePos", relativePos, ")", "value:", v)
 				err := cmd.parse(ap, depth+1) // continue recursive positional parsing
 				if err != nil {
 					return err
