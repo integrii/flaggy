@@ -27,7 +27,7 @@ func TestParsePositionalsA(t *testing.T) {
 	parser.AddIntFlag(&intT, "i", "", "test flag for int arg")
 
 	// create a subcommand
-	subCommand := flaggy.NewSubcommand("testSubcommand", 1)
+	subCommand := flaggy.NewSubcommand("subcommand", 1)
 	err := parser.AddSubcommand(subCommand)
 	if err != nil {
 		t.Fatal(err)

@@ -72,7 +72,7 @@ func parseArgWithValue(arg string) (key string, value string) {
 	arg = strings.TrimPrefix(arg, "-")
 	arg = strings.TrimPrefix(arg, "-")
 
-	debugPrint("parseArgWithValue", arg)
+	debugPrint("parseArgWithValue parsing", arg)
 
 	// break at the equals
 	args := strings.SplitN(arg, "=", 2)
@@ -84,6 +84,7 @@ func parseArgWithValue(arg string) (key string, value string) {
 
 	// if its a key and value pair, we return those
 	if len(args) == 2 {
+		debugPrint("parseArgWithValue parsed", args[0], args[1])
 		return args[0], args[1]
 	}
 
