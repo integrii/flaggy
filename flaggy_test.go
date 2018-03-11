@@ -1,10 +1,42 @@
 package flaggy_test
 
 import (
+	"fmt"
+	"log"
+	"os"
 	"testing"
 
 	"github.com/integrii/flaggy"
 )
+
+// ExampleSubcommand shows how subcommands are used with flaggy.
+func ExampleSubcommand() {
+
+	// Simulate some input from the CLI.  Don't do this in your program.
+	os.Args = []string{"subcommandName"}
+
+	// Create a new subcommand at the first position to what it is attached to.
+	// The depth is relative to the thing this subcommand is attached to.
+	newSC := flaggy.NewSubcommand("subcommandName", 1)
+
+	// Attach (add) the subcommand to the parser. This will error if another
+	// positional value or subcommand is already present at the depth
+	// supplied.
+	err := flaggy.AddSubcommand(newSC)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	// Parse the input arguments from the OS (os.Args)
+	flaggy.Parse()
+
+	// see if the subcommand was found during parsing:
+	if newSC.Used {
+		// Do subcommand operations here
+		fmt.Println("Subcommand used")
+	}
+	// Output: Subcommand used
+}
 
 func TestParsePositionalsA(t *testing.T) {
 	flaggy.DebugMode = true

@@ -63,8 +63,8 @@ func TestBadSubcommand(t *testing.T) {
 	//  test what happens if you add a bad subcommand
 	os.Args = []string{"test"}
 	err = p.Parse()
-	if err == nil {
-		t.Fatal("Threw no error when bad subcommand positional was passed")
+	if err != nil {
+		t.Fatal("Threw an error when bad subcommand positional was passed, but should not have")
 	}
 }
 
@@ -83,8 +83,8 @@ func TestBadPositional(t *testing.T) {
 	//  test what happens if you add a bad subcommand
 	os.Args = []string{"test", "badPositional"}
 	err := p.Parse()
-	if err == nil {
-		t.Fatal("Threw no error when bad subcommand positional was passed")
+	if err != nil {
+		t.Fatal("Threw an error when bad positional was passed, but shouldn't have")
 	}
 }
 
