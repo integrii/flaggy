@@ -35,18 +35,18 @@ func TestParseArgWithValue(t *testing.T) {
 
 func TestDetermineArgType(t *testing.T) {
 	testCases := make(map[string]string)
-	testCases["-f"] = ArgIsFlagWithSpace
-	testCases["--f"] = ArgIsFlagWithSpace
-	testCases["-flag"] = ArgIsFlagWithSpace
-	testCases["--flag"] = ArgIsFlagWithSpace
-	testCases["positionalArg"] = ArgIsPositional
-	testCases["subcommand"] = ArgIsPositional
-	testCases["sub--+/\\324command"] = ArgIsPositional
-	testCases["--flag=CONTENT"] = ArgIsFlagWithValue
-	testCases["-flag=CONTENT"] = ArgIsFlagWithValue
-	testCases["-anotherfl-ag=CONTENT"] = ArgIsFlagWithValue
-	testCases["--anotherfl-ag=CONTENT"] = ArgIsFlagWithValue
-	testCases["1--anotherfl-ag=CONTENT"] = ArgIsPositional
+	testCases["-f"] = argIsFlagWithSpace
+	testCases["--f"] = argIsFlagWithSpace
+	testCases["-flag"] = argIsFlagWithSpace
+	testCases["--flag"] = argIsFlagWithSpace
+	testCases["positionalArg"] = argIsPositional
+	testCases["subcommand"] = argIsPositional
+	testCases["sub--+/\\324command"] = argIsPositional
+	testCases["--flag=CONTENT"] = argIsFlagWithValue
+	testCases["-flag=CONTENT"] = argIsFlagWithValue
+	testCases["-anotherfl-ag=CONTENT"] = argIsFlagWithValue
+	testCases["--anotherfl-ag=CONTENT"] = argIsFlagWithValue
+	testCases["1--anotherfl-ag=CONTENT"] = argIsPositional
 
 	for arg, correctArgType := range testCases {
 		argType := determineArgType(arg)

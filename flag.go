@@ -30,10 +30,10 @@ type BoolFlag struct {
 	AssignmentVar *bool
 }
 
-const ArgIsPositional = "positional"       // subcommand or positional value
-const ArgIsFlagWithSpace = "flagWithSpace" // -f path or --file path
-const ArgIsFlagWithValue = "flagWithValue" // -f=path or --file=path
-const ArgIsFinal = "final"                 // the final argument only '--'
+const argIsPositional = "positional"       // subcommand or positional value
+const argIsFlagWithSpace = "flagWithSpace" // -f path or --file path
+const argIsFlagWithValue = "flagWithValue" // -f=path or --file=path
+const argIsFinal = "final"                 // the final argument only '--'
 
 // determineArgType determines if the specified arg is a flag with space
 // separated value, a flag with a connected value, or neither (positional)
@@ -41,28 +41,28 @@ func determineArgType(arg string) string {
 
 	// if the arg is --, then its the final arg
 	if arg == "--" {
-		return ArgIsFinal
+		return argIsFinal
 	}
 
 	// if it has the prefix --, then its a long flag
 	if strings.HasPrefix(arg, "--") {
 		// if it contains an equals, it is a joined value
 		if strings.Contains(arg, "=") {
-			return ArgIsFlagWithValue
+			return argIsFlagWithValue
 		}
-		return ArgIsFlagWithSpace
+		return argIsFlagWithSpace
 	}
 
 	// if it has the prefix -, then its a short flag
 	if strings.HasPrefix(arg, "-") {
 		// if it contains an equals, it is a joined value
 		if strings.Contains(arg, "=") {
-			return ArgIsFlagWithValue
+			return argIsFlagWithValue
 		}
-		return ArgIsFlagWithSpace
+		return argIsFlagWithSpace
 	}
 
-	return ArgIsPositional
+	return argIsPositional
 }
 
 // parseArgWithValue parses a key=value concatentated argument

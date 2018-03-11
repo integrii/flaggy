@@ -1,14 +1,23 @@
-// Package flaggy is a input flag parsing tool that supports
-// subcommands and any-position flags without complexeties.
-//
-// Parsing Order:
-//   - Parse and asign any flags found in the format -key=var,
-//     --key=var, or '-key var'.  Remove these variables from
-//     further consideration.
-//   - Detect any positional values
-//   - Detect any subcommands and parse them
-//   - Repeat parsing order on subcommands until out of subcommands
-//
+// Package flaggy is a input flag parsing tool that supports both subcommands
+// and any-position flags without unnecessary complexeties.
+/*
+
+Supported Flag Types
+
+Strings and Ints
+ -key=var
+ --key=var
+ --key var
+ -key var
+
+Booleans (sets to true if no var specified)
+ --key
+ --key var
+ -k var
+ -k
+
+
+*/
 package flaggy
 
 import (
@@ -21,6 +30,10 @@ var DebugMode bool
 
 var mainParser *Parser
 
+// TrailingArguments holds trailing arguments in the main parser after parsing
+// has been run.
+var TrailingArguments []string
+
 func init() {
 	// allow usage like flaggy.StringVar by enabling a default Parser
 	if len(os.Args) > 0 {
@@ -31,8 +44,8 @@ func init() {
 }
 
 // Parse parses flags as requested in the default package parser
-func Parse() {
-	mainParser.Parse()
+func Parse() error {
+	return mainParser.Parse()
 }
 
 // AddBoolFlag adds a bool flag for parsing, at the global level of the
@@ -54,14 +67,14 @@ func AddStringFlag(assignmentVar *string, shortName string, longName string, des
 }
 
 // AddSubcommand adds a subcommand for parsing
-func AddSubcommand(newSC *Subcommand) error {
-	return mainParser.AddSubcommand(newSC)
+func AddSubcommand(newSC *Subcommand, relativePosition int) error {
+	return mainParser.AddSubcommand(newSC, relativePosition)
 }
 
 // AddPositionalValue adds a positional value to the main parser at the global
 // context
-func AddPositionalValue(relativePosition int, assignmentVar *string, name string, description string) error {
-	return mainParser.AddPositionalValue(relativePosition, assignmentVar, name, description)
+func AddPositionalValue(assignmentVar *string, name string, relativePosition int, description string) error {
+	return mainParser.AddPositionalValue(assignmentVar, name, relativePosition, description)
 }
 
 // debugPrint prints if debugging is enabled

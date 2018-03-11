@@ -24,5 +24,11 @@ func (p *Parser) ParseArgs(args []string) error {
 
 // Parse calculates all flags and subcommands
 func (p *Parser) Parse() error {
-	return p.ParseArgs(os.Args)
+	err := p.ParseArgs(os.Args)
+	if err != nil {
+		return err
+	}
+	TrailingArguments = p.TrailingArguments
+	return nil
+
 }

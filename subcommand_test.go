@@ -17,15 +17,15 @@ func TestSubcommandParse(t *testing.T) {
 	p := flaggy.NewParser("TestSubcommandParse")
 
 	// create a subcommand
-	newSC := flaggy.NewSubcommand("testSubcommand", 1)
+	newSC := flaggy.NewSubcommand("testSubcommand")
 	// add a positional arg into the subcommand
-	err := newSC.AddPositionalValue(1, &positionA, "positionalA", "This is a test positional value")
+	err := newSC.AddPositionalValue(&positionA, "positionalA", 1, "This is a test positional value")
 	if err != nil {
 		t.Fatal("Error adding positional value", err)
 	}
 
 	// add the subcommand into the parser
-	err = p.AddSubcommand(newSC)
+	err = p.AddSubcommand(newSC, 1)
 	if err != nil {
 		t.Fatal("Error adding subcommand", err)
 	}
@@ -54,8 +54,8 @@ func TestBadSubcommand(t *testing.T) {
 	p := flaggy.NewParser("TestBadSubcommand")
 
 	// create a subcommand
-	newSC := flaggy.NewSubcommand("testSubcommand", 1)
-	err := p.AddSubcommand(newSC)
+	newSC := flaggy.NewSubcommand("testSubcommand")
+	err := p.AddSubcommand(newSC, 1)
 	if err != nil {
 		t.Fatal("Error adding subcommand", err)
 	}
@@ -78,13 +78,33 @@ func TestBadPositional(t *testing.T) {
 	// create a subcommand
 	// add a positional arg into the subcommand
 	var positionA string
-	p.AddPositionalValue(1, &positionA, "positionalA", "This is a test positional value")
+	p.AddPositionalValue(&positionA, "positionalA", 1, "This is a test positional value")
 
 	//  test what happens if you add a bad subcommand
 	os.Args = []string{"test", "badPositional"}
 	err := p.Parse()
 	if err != nil {
 		t.Fatal("Threw an error when bad positional was passed, but shouldn't have")
+	}
+}
+
+// TestNakedBoolFlag tests naked boolean flags
+func TestNakedBoolFlag(t *testing.T) {
+	flaggy.DebugMode = true
+	defer debugOff()
+	os.Args = []string{"testBinary", "-t"}
+
+	// add a bool var
+	var boolVar bool
+	flaggy.AddBoolFlag(&boolVar, "t", "boolVar", "A boolean flag for testing")
+
+	err := flaggy.Parse()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if !boolVar {
+		t.Fatal("Boolean naked val not set to true")
 	}
 }
 
