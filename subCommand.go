@@ -21,7 +21,7 @@ type Subcommand struct {
 	IntFlags        []*IntFlag
 	BoolFlags       []*BoolFlag
 	PositionalFlags []*PositionalValue
-	SubcommandUsed  bool // indicates this subcommand was found and parsed
+	Used            bool // indicates this subcommand was found and parsed
 }
 
 // NewSubcommand creates a new subcommand that can have flags or PositionalFlags
@@ -37,17 +37,12 @@ func NewSubcommand(name string, relativeDepth int) *Subcommand {
 	}
 }
 
-// Parse causes the argument parser to parse based on the os.Args []string.
-// depth specifies the non-flag subcommand positional depth
-func (sc *Subcommand) parse(p *Parser, args []string, depth int) error {
+// parseAllFlagsFromArgs parses the non-positional flags such as -f or -v=value
+// out of the supplied args and returns the positional items in order
+func (sc *Subcommand) parseAllFlagsFromArgs(p *Parser, args []string) ([]string, error) {
 
-	debugPrint("Parsing for depth of", depth)
-
-	// if a command is parsed, its used
-	sc.SubcommandUsed = true
-
-	// holds positional arguments after flags are parsed out of the arguments
-	positionalOnlyArguments := []string{}
+	var err error
+	var positionalOnlyArguments []string
 
 	// indicates we should skip the next argument, like when parsing a flag
 	// that seperates key and value by space
@@ -77,7 +72,7 @@ func (sc *Subcommand) parse(p *Parser, args []string, depth int) error {
 		// depending on the flag type, parse the key and value out, then apply it
 		switch argType {
 		case ArgIsFinal:
-			debugPrint("Arg is final:", a)
+			debugPrint("Arg", i, "is final:", a)
 			endArgFound = true
 		case ArgIsPositional:
 			// debugPrint("Arg is positional:", a)
@@ -85,24 +80,71 @@ func (sc *Subcommand) parse(p *Parser, args []string, depth int) error {
 			// we can determine if its a subcommand or positional value later
 			positionalOnlyArguments = append(positionalOnlyArguments, a)
 		case ArgIsFlagWithSpace:
-			debugPrint("Arg is flag with space:", a, i)
+			debugPrint("Arg", i, "is flag with space:", a, i)
 			// parse next arg as value to this flag and apply to subcommand flags
-			skipNext = true
-			err := sc.setValueForKey(a, os.Args[i+1])
-			if err != nil {
-				return err
+			// if the flag is a bool flag, then we check for a following positional
+			if flagIsBool(sc, p, a) {
+				switch {
+				case args[i+1] == "true":
+					err = setValueForParsers(a, "true", p, sc)
+					if err != nil {
+						return []string{}, err
+					}
+					skipNext = true
+				case args[i+1] == "false":
+					err = setValueForParsers(a, "false", p, sc)
+					if err != nil {
+						return []string{}, err
+					}
+					skipNext = true
+				default:
+					// if the next value was not true or false, we assume this bool
+					// flag stands alone and should be assumed to mean true.  In this
+					// case, we do not skip the next flag in the argument list.
+					err = setValueForParsers(a, "true", p, sc)
+					if err != nil {
+						return []string{}, err
+					}
+				}
+				// by default, we just assign the next argument to the value and continue
+				if err != nil {
+					return []string{}, err
+				}
+				continue
 			}
-			continue
+			err = setValueForParsers(a, args[i+1], p, sc)
+			if err != nil {
+				return []string{}, err
+			}
 		case ArgIsFlagWithValue:
-			debugPrint("Arg is flag with value:", a)
+			debugPrint("Arg", i, "is flag with value:", a)
 			// parse flag into key and value and apply to subcommand flags
 			key, val := parseArgWithValue(a)
-			err := sc.setValueForKey(key, val)
+			err = setValueForParsers(key, val, p, sc)
 			if err != nil {
-				return err
+				return []string{}, err
 			}
 			debugPrint("Parsed key", key, "to value", val)
 		}
+	}
+
+	return positionalOnlyArguments, nil
+}
+
+// Parse causes the argument parser to parse based on the supplied []string.
+// depth specifies the non-flag subcommand positional depth
+func (sc *Subcommand) parse(p *Parser, args []string, depth int) error {
+
+	debugPrint("Parsing for depth of", depth)
+
+	// if a command is parsed, its used
+	sc.Used = true
+
+	// Parse the normal flags out of the argument list and retain the positionals.
+	// Apply the flags to the parent parser and the current subcommand context.
+	positionalOnlyArguments, err := sc.parseAllFlagsFromArgs(p, args)
+	if err != nil {
+		return err
 	}
 
 	// loop over positional values and look for their matching positional
@@ -118,8 +160,7 @@ func (sc *Subcommand) parse(p *Parser, args []string, depth int) error {
 			continue
 		}
 
-		debugPrint("Parsing positional only position", pos)
-		var foundPositionalMatch bool
+		debugPrint("Parsing positional only position", pos, "with value", v)
 		// determine positional value flags by positional value and depth of parser
 
 		// determine subcommands and parse them by positional value and name
@@ -140,17 +181,8 @@ func (sc *Subcommand) parse(p *Parser, args []string, depth int) error {
 				// defrerence the struct pointer, then set the pointer property within it
 				*val.AssignmentVar = v
 				debugPrint("set positional to value", *val.AssignmentVar)
-				foundPositionalMatch = true
 			}
 		}
-
-		// if no match found for this arg, throw an error
-		if !foundPositionalMatch {
-			// if no positional match was detected, then we throw an error because this
-			// argument is unexpected.
-			return errors.New("Unable to find a positional subcommand or argument after " + sc.Name + " at relative pos: " + strconv.Itoa(relativeDepth) + " value was: " + v)
-		}
-
 	}
 
 	return nil
@@ -238,50 +270,48 @@ func (sc *Subcommand) AddPositionalValue(relativePosition int, assignmentVar *st
 }
 
 // SetValueForKey sets the value for the specified key. If setting a bool
-// value, then leave the value field empty (``)
-func (sc *Subcommand) setValueForKey(key string, value string) error {
-
-	debugPrint("setting value for", key, "to", value)
+// value, then send "true" or "false" as strings.  The returned bool indicates
+// that a value was set.
+func (sc *Subcommand) SetValueForKey(key string, value string) (bool, error) {
 
 	// check for and assign string flags
 	for _, f := range sc.StringFlags {
 		if f.ShortName == key || f.LongName == key {
+			debugPrint("Setting string value for", key, "to", value)
 			newValue := value
 			f.AssignmentVar = &newValue
 			debugPrint("Set string flag with key ", key, "to value", value)
+			return true, nil
 		}
 	}
 
 	// check for and assign int flags
 	for _, f := range sc.IntFlags {
 		if f.ShortName == key || f.LongName == key {
+			debugPrint("Setting int value for", key, "to", value)
 			newValue, err := strconv.Atoi(value)
 			if err != nil {
-				return errors.New("Unable to convert flag to int: " + err.Error())
+				return false, errors.New("Unable to convert flag to int: " + err.Error())
 			}
 			f.AssignmentVar = &newValue
 			debugPrint("Set int flag with key ", key, "to value", value)
+			return true, nil
 		}
 	}
 
 	// check for and assign bool flags
 	for _, f := range sc.BoolFlags {
 		if f.ShortName == key || f.LongName == key {
-
-			// if there is no value specified, we assume the bool flag to be toggled on
-			if value == `` {
-				newValue := true
-				f.AssignmentVar = &newValue
-				return nil
-			}
+			debugPrint("Setting bool value for", key, "to", value)
 			newValue, err := strconv.ParseBool(value)
 			if err != nil {
-				return errors.New("Unable to convert flag to bool: " + err.Error())
+				return false, errors.New("Unable to convert flag to bool: " + err.Error())
 			}
 			f.AssignmentVar = &newValue
 			debugPrint("Set bool flag with key ", key, "to value", value)
+			return true, nil
 		}
 	}
 
-	return errors.New("An unexpected flag was specified: " + key)
+	return false, nil
 }

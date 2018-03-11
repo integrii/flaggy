@@ -100,3 +100,21 @@ func parseFlagToName(arg string) string {
 	arg = strings.TrimLeft(arg, "-")
 	return arg
 }
+
+// flagIsBool determines if the flag is a bool within the specified parser
+// and subcommand's context
+func flagIsBool(sc *Subcommand, p *Parser, key string) bool {
+	for _, f := range sc.BoolFlags {
+		if f.ShortName == key || f.LongName == key {
+			return true
+		}
+	}
+	for _, f := range p.BoolFlags {
+		if f.ShortName == key || f.LongName == key {
+			return true
+		}
+	}
+
+	// by default, the answer is false
+	return false
+}

@@ -38,7 +38,7 @@ func TestSubcommandParse(t *testing.T) {
 	}
 
 	// ensure subcommand and positional used
-	if !newSC.SubcommandUsed {
+	if !newSC.Used {
 		t.Fatal("Subcommand was not used, but it was expected to be")
 	}
 	if positionA != "testPositional" {
