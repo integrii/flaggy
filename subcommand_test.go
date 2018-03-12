@@ -18,20 +18,21 @@ func TestSubcommandParse(t *testing.T) {
 
 	// create a subcommand
 	newSC := flaggy.NewSubcommand("testSubcommand")
-	// add a positional arg into the subcommand
-	err := newSC.AddPositionalValue(&positionA, "positionalA", 1, "This is a test positional value")
-	if err != nil {
-		t.Fatal("Error adding positional value", err)
-	}
 
 	// add the subcommand into the parser
-	err = p.AddSubcommand(newSC, 1)
+	err := p.AddSubcommand(newSC, 1)
 	if err != nil {
 		t.Fatal("Error adding subcommand", err)
 	}
 
+	// add a positional arg onto the subcommand at relative position 1
+	err = newSC.AddPositionalValue(&positionA, "positionalA", 1, "This is a test positional value")
+	if err != nil {
+		t.Fatal("Error adding positional value", err)
+	}
+
 	// override os args and parse them
-	os.Args = []string{"testSubcommand", "testPositional"}
+	os.Args = []string{"binaryName", "testSubcommand", "testPositional"}
 	err = p.Parse()
 	if err != nil {
 		t.Fatal("Error parsing args: " + err.Error())

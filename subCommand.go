@@ -214,14 +214,14 @@ func (sc *Subcommand) AddSubcommand(newSC *Subcommand, relativePosition int) err
 	// ensure no subcommands at this depth with this name
 	for _, other := range sc.Subcommands {
 		if newSC.Position == other.Position {
-			return errors.New("Unable to add subcommand because one already exists at position: " + strconv.Itoa(newSC.Position))
+			return errors.New("Unable to add subcommand because one already exists at position " + strconv.Itoa(newSC.Position) + ": " + other.Name)
 		}
 	}
 
 	// ensure no positionals at this depth
 	for _, other := range sc.PositionalFlags {
 		if newSC.Position == other.Position {
-			return errors.New("Unable to add subcommand because a positional value already exists at position: " + strconv.Itoa(newSC.Position))
+			return errors.New("Unable to add subcommand because a positional value already exists at position " + strconv.Itoa(newSC.Position) + ": " + other.Name)
 		}
 	}
 

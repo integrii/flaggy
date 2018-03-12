@@ -36,6 +36,11 @@ var TrailingArguments []string
 
 func init() {
 	// allow usage like flaggy.StringVar by enabling a default Parser
+	ResetParser()
+}
+
+// ResetParser resets the main default parser to a fresh instance
+func ResetParser() {
 	if len(os.Args) > 0 {
 		mainParser = NewParser(os.Args[0])
 	} else {
