@@ -10,8 +10,6 @@ func debugOff() {
 }
 
 func TestParseArgWithValue(t *testing.T) {
-	DebugMode = true
-	defer debugOff()
 	testCases := make(map[string][]string)
 	testCases["-f=test"] = []string{"f", "test"}
 	testCases["--f=test"] = []string{"f", "test"}

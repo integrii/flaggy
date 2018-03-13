@@ -9,8 +9,6 @@ import (
 
 // TestSubcommandParse tests paring of a single subcommand
 func TestSubcommandParse(t *testing.T) {
-	flaggy.DebugMode = true
-	defer debugOff()
 	var positionA string
 
 	// create the argument parser
@@ -48,8 +46,6 @@ func TestSubcommandParse(t *testing.T) {
 }
 
 func TestBadSubcommand(t *testing.T) {
-	flaggy.DebugMode = true
-	defer debugOff()
 
 	// create the argument parser
 	p := flaggy.NewParser("TestBadSubcommand")
@@ -70,8 +66,6 @@ func TestBadSubcommand(t *testing.T) {
 }
 
 func TestBadPositional(t *testing.T) {
-	flaggy.DebugMode = true
-	defer debugOff()
 
 	// create the argument parser
 	p := flaggy.NewParser("TestBadPositional")
@@ -89,10 +83,10 @@ func TestBadPositional(t *testing.T) {
 	}
 }
 
-// TestNakedBoolFlag tests naked boolean flags
+// TestNakedBoolFlag tests a naked boolean flag, which mean it has no
+// specified value beyond the flag being present.
 func TestNakedBoolFlag(t *testing.T) {
-	flaggy.DebugMode = true
-	defer debugOff()
+	flaggy.ResetParser()
 	os.Args = []string{"testBinary", "-t"}
 
 	// add a bool var
@@ -111,5 +105,5 @@ func TestNakedBoolFlag(t *testing.T) {
 
 // debugOff makes defers easier
 func debugOff() {
-	flaggy.DebugMode = false
+	// flaggy.DebugMode = false
 }
