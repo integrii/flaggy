@@ -25,6 +25,9 @@ import (
 	"os"
 )
 
+// defaultVersion is applied to parsers when they are created
+const defaultVersion = "0.0.1"
+
 // DebugMode indicates that debug output should be enabled
 var DebugMode bool
 
@@ -39,7 +42,8 @@ func init() {
 	ResetParser()
 }
 
-// ResetParser resets the main default parser to a fresh instance
+// ResetParser resets the main default parser to a fresh instance.
+// Normally used in tests.
 func ResetParser() {
 	if len(os.Args) > 0 {
 		mainParser = NewParser(os.Args[0])
@@ -55,20 +59,20 @@ func Parse() error {
 
 // AddBoolFlag adds a bool flag for parsing, at the global level of the
 // default parser
-func AddBoolFlag(assignmentVar *bool, shortName string, longName string, description string) {
-	mainParser.AddBoolFlag(assignmentVar, shortName, longName, description)
+func AddBoolFlag(assignmentVar *bool, shortName string, longName string, description string) error {
+	return mainParser.AddBoolFlag(assignmentVar, shortName, longName, description)
 }
 
 // AddIntFlag adds an int flag for parsing, at the global level of the
 // default parser
-func AddIntFlag(assignmentVar *int, shortName string, longName string, description string) {
-	mainParser.AddIntFlag(assignmentVar, shortName, longName, description)
+func AddIntFlag(assignmentVar *int, shortName string, longName string, description string) error {
+	return mainParser.AddIntFlag(assignmentVar, shortName, longName, description)
 }
 
 // AddStringFlag adds a string flag for parsing, at the global level of the
 // default parser
-func AddStringFlag(assignmentVar *string, shortName string, longName string, description string) {
-	mainParser.AddStringFlag(assignmentVar, shortName, longName, description)
+func AddStringFlag(assignmentVar *string, shortName string, longName string, description string) error {
+	return mainParser.AddStringFlag(assignmentVar, shortName, longName, description)
 }
 
 // AddSubcommand adds a subcommand for parsing

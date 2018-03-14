@@ -1,18 +1,27 @@
 package flaggy
 
-import "os"
+import (
+	"fmt"
+	"os"
+)
 
 // Parser represents the set of vars and subcommands we are expecting
 // from our input args, and the parser than handles them all.
 type Parser struct {
 	Subcommand
-	TrailingArguments []string // everything after a -- is placed here
+	Version              string   // the optional version of the paser.
+	ShowHelpWithHFlag    bool     // display help when -h or --help passed
+	ShowVersionWithVFlag bool     // display the version when -v or --version passed
+	ShowHelpOnUnexpected bool     // display help when an unexpected flag is passed
+	TrailingArguments    []string // everything after a -- is placed here
 }
 
 // NewParser creates a new ArgumentParser ready to parse inputs
 func NewParser(name string) *Parser {
+	// this can not be done inline because of struct embedding
 	p := &Parser{}
 	p.Name = name
+	p.Version = defaultVersion
 	return p
 }
 
@@ -23,8 +32,31 @@ func (p *Parser) ParseArgs(args []string) error {
 	return p.parse(p, args, 0)
 }
 
+// ShowVersion shows the version of this parser
+func (p *Parser) ShowVersion() {
+	fmt.Println("Version:", p.Version)
+	os.Exit(0)
+}
+
+// ShowHelp shows help without an error message
+func (p *Parser) ShowHelp() {
+	p.ShowHelpWithMessage("")
+}
+
+// ShowHelpWithMessage shows the help for this parser with an optional string error
+// message as a header.
+func (p *Parser) ShowHelpWithMessage(s string) {
+	if len(s) > 0 {
+		fmt.Println(s)
+	}
+	// TODO - help via template parsing
+	fmt.Println("TODO HELP OUTPUT GOES HERE")
+	os.Exit(2)
+}
+
 // Parse calculates all flags and subcommands
 func (p *Parser) Parse() error {
+
 	err := p.ParseArgs(os.Args[1:])
 	if err != nil {
 		return err

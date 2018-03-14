@@ -7,6 +7,48 @@ import (
 	"github.com/integrii/flaggy"
 )
 
+// TestSubcommandHelp tests displaying of help on unspecified commands
+func TestSubcommandHelp(t *testing.T) {
+	t.Skip("Skipped.  If this test runs, it exists the whole program.")
+	p := flaggy.NewParser("TestSubcommandHelp")
+	p.ShowHelpOnUnexpected = true
+	args := []string{"unexpectedArg"}
+	p.ParseArgs(args)
+}
+
+func TestHelpWithHFlagA(t *testing.T) {
+	t.Skip("Skipped.  If this test runs, it exists the whole program.")
+	p := flaggy.NewParser("TestHelpWithHFlag")
+	p.ShowHelpWithHFlag = true
+	args := []string{"-h"}
+	p.ParseArgs(args)
+}
+
+func TestHelpWithHFlagB(t *testing.T) {
+	t.Skip("Skipped.  If this test runs, it exists the whole program.")
+	p := flaggy.NewParser("TestHelpWithHFlag")
+	p.ShowHelpWithHFlag = true
+	args := []string{"--help"}
+	p.ParseArgs(args)
+}
+
+func TestVersionWithVFlagA(t *testing.T) {
+	t.Skip("Skipped.  If this test runs, it exists the whole program.")
+	p := flaggy.NewParser("TestSubcommandVersion")
+	p.ShowVersionWithVFlag = true
+	args := []string{"-v"}
+	p.ParseArgs(args)
+}
+
+func TestVersionWithVFlagB(t *testing.T) {
+	t.Skip("Skipped.  If this test runs, it exists the whole program.")
+	p := flaggy.NewParser("TestSubcommandVersion")
+	p.ShowVersionWithVFlag = true
+	p.Version = "TestVersionWithVFlagB 0.0.0a"
+	args := []string{"--version"}
+	p.ParseArgs(args)
+}
+
 // TestSubcommandParse tests paring of a single subcommand
 func TestSubcommandParse(t *testing.T) {
 	var positionA string
@@ -73,11 +115,15 @@ func TestBadPositional(t *testing.T) {
 	// create a subcommand
 	// add a positional arg into the subcommand
 	var positionA string
-	p.AddPositionalValue(&positionA, "positionalA", 1, "This is a test positional value")
+	var err error
+	err = p.AddPositionalValue(&positionA, "positionalA", 1, "This is a test positional value")
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	//  test what happens if you add a bad subcommand
 	os.Args = []string{"test", "badPositional"}
-	err := p.Parse()
+	err = p.Parse()
 	if err != nil {
 		t.Fatal("Threw an error when bad positional was passed, but shouldn't have")
 	}
@@ -91,9 +137,13 @@ func TestNakedBoolFlag(t *testing.T) {
 
 	// add a bool var
 	var boolVar bool
-	flaggy.AddBoolFlag(&boolVar, "t", "boolVar", "A boolean flag for testing")
+	var err error
+	err = flaggy.AddBoolFlag(&boolVar, "t", "boolVar", "A boolean flag for testing")
+	if err != nil {
+		t.Fatal(err)
+	}
 
-	err := flaggy.Parse()
+	err = flaggy.Parse()
 	if err != nil {
 		t.Fatal(err)
 	}

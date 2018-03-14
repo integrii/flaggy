@@ -1,12 +1,10 @@
 # flaggy
-Flag parsing with subcommands and any-position arguments.  No frills!
+Flag parsing with subcommands and any-position arguments.  No required code layout, and no third party dependencies.
 
 
 # TODO
 
-- flags with single quotes `'`
+- flags with single quotes `'`?
 - help output with templating
-- help displayed when invalid args passed
-- reserve `-h` for an always-there help argument
 - slick readme with logo
 - more meaningful debugging?

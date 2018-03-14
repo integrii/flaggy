@@ -16,18 +16,25 @@ func TestParsePositionalsA(t *testing.T) {
 	var testK string
 	var positionalA string
 	var positionalB string
+	var err error
 
 	// make a new parser
 	parser := flaggy.NewParser("testParser")
 
 	// add a bool flag to the parser
-	parser.AddBoolFlag(&boolT, "t", "", "test flag for bool arg")
+	err = parser.AddBoolFlag(&boolT, "t", "", "test flag for bool arg")
+	if err != nil {
+		t.Fatal(err)
+	}
 	// add an int flag to the parser
-	parser.AddIntFlag(&intT, "i", "", "test flag for int arg")
+	err = parser.AddIntFlag(&intT, "i", "", "test flag for int arg")
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	// create a subcommand
 	subCommand := flaggy.NewSubcommand("subcommand")
-	err := parser.AddSubcommand(subCommand, 1)
+	err = parser.AddSubcommand(subCommand, 1)
 	if err != nil {
 		t.Fatal(err)
 	}

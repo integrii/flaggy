@@ -69,6 +69,33 @@ func (sc *Subcommand) parseAllFlagsFromArgs(p *Parser, args []string) ([]string,
 			continue
 		}
 
+		// parse the flag into its name for consideration without dashes
+		flagName := parseFlagToName(a)
+
+		// if the flag being passed is version or v and the option to display
+		// version with version flags, then display version
+		if p.ShowVersionWithVFlag {
+			if flagName == "v" || flagName == "version" {
+				p.ShowVersion()
+			}
+		}
+
+		// if the show help on h flag option is set, then show help when h or help
+		// is passed as an option
+		if p.ShowHelpWithHFlag {
+			if flagName == "h" || flagName == "help" {
+				p.ShowHelp()
+			}
+		}
+
+		// if ShowHelpOnUnexpected is set, ensure the flag is valid and show
+		// help if not.
+		if p.ShowHelpOnUnexpected {
+			if !sc.FlagExists(flagName) && !p.FlagExists(flagName) {
+				p.ShowHelpWithMessage("Invalid flag specified: " + a)
+			}
+		}
+
 		// determine what kind of flag this is
 		argType := determineArgType(a)
 
@@ -96,28 +123,21 @@ func (sc *Subcommand) parseAllFlagsFromArgs(p *Parser, args []string) ([]string,
 				switch {
 				case nextArgExists && nextArg == "true":
 					err = setValueForParsers(a, "true", p, sc)
-					if err != nil {
-						return []string{}, err
-					}
 				case nextArgExists && nextArg == "false":
 					err = setValueForParsers(a, "false", p, sc)
-					if err != nil {
-						return []string{}, err
-					}
 				default:
 					// if the next value was not true or false, we assume this bool
 					// flag stands alone and should be assumed to mean true.  In this
 					// case, we do not skip the next flag in the argument list.
 					skipNext = false
 					err = setValueForParsers(a, "true", p, sc)
-					if err != nil {
-						return []string{}, err
-					}
 				}
-				// by default, we just assign the next argument to the value and continue
+
+				// if an error occurs, just return nit and quit parsing
 				if err != nil {
 					return []string{}, err
 				}
+				// by default, we just assign the next argument to the value and continue
 				continue
 			}
 
@@ -205,6 +225,40 @@ func (sc *Subcommand) parse(p *Parser, args []string, depth int) error {
 	return nil
 }
 
+// FlagExists lets you know if the flag name exists as either a short or long
+// name in the (sub)command
+func (sc *Subcommand) FlagExists(name string) bool {
+
+	for _, f := range sc.StringFlags {
+		if f.ShortName != "" && f.ShortName == name {
+			return true
+		}
+		if f.LongName != "" && f.LongName == name {
+			return true
+		}
+	}
+
+	for _, f := range sc.IntFlags {
+		if f.ShortName != "" && f.ShortName == name {
+			return true
+		}
+		if f.LongName != "" && f.LongName == name {
+			return true
+		}
+	}
+
+	for _, f := range sc.BoolFlags {
+		if f.ShortName != "" && f.ShortName == name {
+			return true
+		}
+		if f.LongName != "" && f.LongName == name {
+			return true
+		}
+	}
+
+	return false
+}
+
 // AddSubcommand adds a possible subcommand to the Parser.
 func (sc *Subcommand) AddSubcommand(newSC *Subcommand, relativePosition int) error {
 
@@ -231,33 +285,69 @@ func (sc *Subcommand) AddSubcommand(newSC *Subcommand, relativePosition int) err
 }
 
 // AddStringFlag adds a new string flag
-func (sc *Subcommand) AddStringFlag(assignmentVar *string, shortName string, longName string, description string) {
+func (sc *Subcommand) AddStringFlag(assignmentVar *string, shortName string, longName string, description string) error {
+	// if the flag is used, throw an error
+	for _, existingFlag := range sc.StringFlags {
+		if longName != "" && existingFlag.LongName == longName {
+			return errors.New("String flag " + longName + " added to subcommand " + sc.Name + " but it is already assigned.")
+		}
+		if shortName != "" && existingFlag.ShortName == shortName {
+			return errors.New("String flag " + shortName + " added to subcommand " + sc.Name + " but it is already assigned.")
+		}
+	}
+
 	newStringFlag := StringFlag{}
 	newStringFlag.AssignmentVar = assignmentVar
 	newStringFlag.ShortName = shortName
 	newStringFlag.LongName = longName
 	newStringFlag.Description = description
 	sc.StringFlags = append(sc.StringFlags, &newStringFlag)
+
+	return nil
 }
 
 // AddBoolFlag adds a new bool flag
-func (sc *Subcommand) AddBoolFlag(assignmentVar *bool, shortName string, longName string, description string) {
+func (sc *Subcommand) AddBoolFlag(assignmentVar *bool, shortName string, longName string, description string) error {
+	// if the flag is used, throw an error
+	for _, existingFlag := range sc.BoolFlags {
+		if longName != "" && existingFlag.LongName == longName {
+			return errors.New("Bool flag " + longName + " added to subcommand " + sc.Name + " but it is already assigned.")
+		}
+		if shortName != "" && existingFlag.ShortName == shortName {
+			return errors.New("Bool flag " + shortName + " added to subcommand " + sc.Name + " but it is already assigned.")
+		}
+	}
+
 	newBoolFlag := BoolFlag{}
 	newBoolFlag.AssignmentVar = assignmentVar
 	newBoolFlag.ShortName = shortName
 	newBoolFlag.LongName = longName
 	newBoolFlag.Description = description
 	sc.BoolFlags = append(sc.BoolFlags, &newBoolFlag)
+
+	return nil
 }
 
 // AddIntFlag adds a new int flag
-func (sc *Subcommand) AddIntFlag(assignmentVar *int, shortName string, longName string, description string) {
+func (sc *Subcommand) AddIntFlag(assignmentVar *int, shortName string, longName string, description string) error {
+	// if the flag is used, throw an error
+	for _, existingFlag := range sc.IntFlags {
+		if longName != "" && existingFlag.LongName == longName {
+			return errors.New("Int flag " + longName + " added to subcommand " + sc.Name + " but it is already assigned.")
+		}
+		if shortName != "" && existingFlag.ShortName == shortName {
+			return errors.New("Int flag " + shortName + " added to subcommand " + sc.Name + " but it is already assigned.")
+		}
+	}
+
 	newIntFlag := IntFlag{}
 	newIntFlag.AssignmentVar = assignmentVar
 	newIntFlag.ShortName = shortName
 	newIntFlag.LongName = longName
 	newIntFlag.Description = description
 	sc.IntFlags = append(sc.IntFlags, &newIntFlag)
+
+	return nil
 }
 
 // AddPositionalValue adds a positional value to the subcommand.  the
