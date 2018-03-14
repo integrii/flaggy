@@ -6,23 +6,25 @@ Flag parsing with subcommands and any-position arguments.  No required code layo
 - Very easy to use
 - Any flag can be at at any position
 - Positional subcommands
+- Positional parameters
 - Suggested subcommands on typo or bad command
 - Nested subcommands
 - Both global and subcommand specific flags
-- Positional parameters
+- Both global and subcommand specific positional parameters
 - Customizable help template, or optional prepended/appended messages
-- Flags may have both a short and long name
+- Flags and subcommands may have both a short and long name
 - Flags can use a single dash or double dash (`--flag`, `-flag`, `-f`, `--f`)
 - Flags can have `=` assignment operators, or use a space (`--flag=value`, `--flag value`)
 - Flags support single quote globs with spaces (`--flag 'this is all one value'`)
 - Optional but default version output with `-v` or `--version`
 - Optional but default help output with `-h` or `--help`
-- Optionally show help when any invalid parameter is passed
+- Optional but default show help when any invalid parameter is passed
 
 
 # TODO
 
 - help output with templating
+- short names on subcommands
 - display subcommands on typo
   - only when the flag is of type positional
   - only when no positional value is set
