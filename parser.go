@@ -9,11 +9,13 @@ import (
 // from our input args, and the parser than handles them all.
 type Parser struct {
 	Subcommand
-	Version              string   // the optional version of the paser.
-	ShowHelpWithHFlag    bool     // display help when -h or --help passed
-	ShowVersionWithVFlag bool     // display the version when -v or --version passed
-	ShowHelpOnUnexpected bool     // display help when an unexpected flag is passed
-	TrailingArguments    []string // everything after a -- is placed here
+	Version               string   // the optional version of the paser.
+	AdditionalHelpPrepend string   // additional prepended message when help is displayed
+	AdditionalHelpAppend  string   // additional appended message when help is displayed
+	ShowHelpWithHFlag     bool     // display help when -h or --help passed
+	ShowVersionWithVFlag  bool     // display the version when -v or --version passed
+	ShowHelpOnUnexpected  bool     // display help when an unexpected flag is passed
+	TrailingArguments     []string // everything after a -- is placed here
 }
 
 // NewParser creates a new ArgumentParser ready to parse inputs
@@ -46,11 +48,23 @@ func (p *Parser) ShowHelp() {
 // ShowHelpWithMessage shows the help for this parser with an optional string error
 // message as a header.
 func (p *Parser) ShowHelpWithMessage(s string) {
+	// display passed message if specified
 	if len(s) > 0 {
 		fmt.Println(s)
 	}
+
+	// display help prepend if exists
+	if len(p.AdditionalHelpPrepend) > 0 {
+		fmt.Println(p.AdditionalHelpPrepend)
+	}
+
 	// TODO - help via template parsing
 	fmt.Println("TODO HELP OUTPUT GOES HERE")
+
+	// display help append if exists
+	if len(p.AdditionalHelpAppend) > 0 {
+		fmt.Println(p.AdditionalHelpAppend)
+	}
 	os.Exit(2)
 }
 

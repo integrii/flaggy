@@ -51,6 +51,8 @@ func TestVersionWithVFlagB(t *testing.T) {
 
 // TestSubcommandParse tests paring of a single subcommand
 func TestSubcommandParse(t *testing.T) {
+	t.Parallel()
+
 	var positionA string
 
 	// create the argument parser
@@ -88,6 +90,7 @@ func TestSubcommandParse(t *testing.T) {
 }
 
 func TestBadSubcommand(t *testing.T) {
+	t.Parallel()
 
 	// create the argument parser
 	p := flaggy.NewParser("TestBadSubcommand")
@@ -108,6 +111,7 @@ func TestBadSubcommand(t *testing.T) {
 }
 
 func TestBadPositional(t *testing.T) {
+	t.Parallel()
 
 	// create the argument parser
 	p := flaggy.NewParser("TestBadPositional")

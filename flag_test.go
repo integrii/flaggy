@@ -1,6 +1,8 @@
 package flaggy
 
 import (
+	"fmt"
+	"os"
 	"testing"
 )
 
@@ -9,7 +11,16 @@ func debugOff() {
 	DebugMode = false
 }
 
+func TestGlobs(t *testing.T) {
+	t.Skip("This is only used to test os arg globbing")
+	for _, a := range os.Args {
+		fmt.Println(a)
+	}
+}
+
 func TestParseArgWithValue(t *testing.T) {
+	t.Parallel()
+
 	testCases := make(map[string][]string)
 	testCases["-f=test"] = []string{"f", "test"}
 	testCases["--f=test"] = []string{"f", "test"}
@@ -32,6 +43,8 @@ func TestParseArgWithValue(t *testing.T) {
 }
 
 func TestDetermineArgType(t *testing.T) {
+	t.Parallel()
+
 	testCases := make(map[string]string)
 	testCases["-f"] = argIsFlagWithSpace
 	testCases["--f"] = argIsFlagWithSpace
