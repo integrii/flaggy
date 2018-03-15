@@ -2,6 +2,7 @@ package flaggy
 
 import (
 	"errors"
+	"fmt"
 	"strconv"
 )
 
@@ -12,6 +13,7 @@ import (
 // of parsing occurs within that matched subcommand.
 type Subcommand struct {
 	Name            string
+	ShortName       string
 	Description     string
 	Position        int // the position of this subcommand, not including flags
 	Subcommands     []*Subcommand
@@ -88,14 +90,6 @@ func (sc *Subcommand) parseAllFlagsFromArgs(p *Parser, args []string) ([]string,
 			}
 		}
 
-		// if ShowHelpOnUnexpected is set, ensure the flag is valid and show
-		// help if not.
-		if p.ShowHelpOnUnexpected {
-			if !sc.FlagExists(flagName) && !p.FlagExists(flagName) {
-				p.ShowHelpWithMessage("Invalid flag specified: " + a)
-			}
-		}
-
 		// determine what kind of flag this is
 		argType := determineArgType(a)
 
@@ -122,18 +116,18 @@ func (sc *Subcommand) parseAllFlagsFromArgs(p *Parser, args []string) ([]string,
 			if flagIsBool(sc, p, a) {
 				switch {
 				case nextArgExists && nextArg == "true":
-					err = setValueForParsers(a, "true", p, sc)
+					_, err = setValueForParsers(a, "true", p, sc)
 				case nextArgExists && nextArg == "false":
-					err = setValueForParsers(a, "false", p, sc)
+					_, err = setValueForParsers(a, "false", p, sc)
 				default:
 					// if the next value was not true or false, we assume this bool
 					// flag stands alone and should be assumed to mean true.  In this
 					// case, we do not skip the next flag in the argument list.
 					skipNext = false
-					err = setValueForParsers(a, "true", p, sc)
+					_, err = setValueForParsers(a, "true", p, sc)
 				}
 
-				// if an error occurs, just return nit and quit parsing
+				// if an error occurs, just return it and quit parsing
 				if err != nil {
 					return []string{}, err
 				}
@@ -141,11 +135,11 @@ func (sc *Subcommand) parseAllFlagsFromArgs(p *Parser, args []string) ([]string,
 				continue
 			}
 
-			// if the flag is not a bool, we just set the value normally
+			// if the next arg was not found, then show a help message
 			if !nextArgExists {
-				return []string{}, errors.New("Expected a following arg for key " + a + " but it did not exist.")
+				p.ShowHelpWithMessage("Expected a following arg for flag " + a + ", but it did not exist.")
 			}
-			err = setValueForParsers(a, nextArg, p, sc)
+			_, err = setValueForParsers(a, nextArg, p, sc)
 			if err != nil {
 				return []string{}, err
 			}
@@ -154,11 +148,14 @@ func (sc *Subcommand) parseAllFlagsFromArgs(p *Parser, args []string) ([]string,
 			debugPrint("Arg", i, "is flag with value:", a)
 			// parse flag into key and value and apply to subcommand flags
 			key, val := parseArgWithValue(a)
-			err = setValueForParsers(key, val, p, sc)
+			_, err = setValueForParsers(key, val, p, sc)
 			if err != nil {
 				return []string{}, err
 			}
+			// if this flag type was found and not set, and the parser is set to show
+			// help when an unknown flag is found, then show help and exit.
 		}
+
 	}
 
 	return positionalOnlyArguments, nil
@@ -197,28 +194,51 @@ func (sc *Subcommand) parse(p *Parser, args []string, depth int) error {
 		// determine positional value flags by positional value and depth of parser
 
 		// determine subcommands and parse them by positional value and name
-		// TODO - will parsing positionals before subcommands lead to positionals
-		//        being parsed that shouldnt be?
 		for _, cmd := range sc.Subcommands {
-			debugPrint("Subcommand being compared", relativeDepth, "==", cmd.Position, "and", v, "==", cmd.Name)
-			if relativeDepth == cmd.Position && (v == cmd.Name) {
+			debugPrint("Subcommand being compared", relativeDepth, "==", cmd.Position, "and", v, "==", cmd.Name, v, "==", cmd.ShortName)
+			if relativeDepth == cmd.Position && (v == cmd.Name || v == cmd.ShortName) {
 				debugPrint("Parsing positional subcommand", cmd.Name, "at relativeDepth", relativeDepth)
-				// evaluate if there is a following arg to avoid panics
-				if len(args) < pos {
-					return errors.New("Expected a positional command to follow subcommand " + cmd.Name + ", but did not find one")
-				}
 				return cmd.parse(p, args, depth+1) // continue recursive positional parsing
 			}
 		}
 
 		// determine positional args  and parse them by positional value and name
+		var foundPositional bool
 		for _, val := range sc.PositionalFlags {
 			if relativeDepth == val.Position {
 				debugPrint("Found a positional value at relativePos:", relativeDepth, "value:", v)
 				// defrerence the struct pointer, then set the pointer property within it
 				*val.AssignmentVar = v
 				debugPrint("set positional to value", *val.AssignmentVar)
+				foundPositional = true
+				break
 			}
+		}
+
+		// if there aren't any positional flags but there are sub subcommands that
+		// were not used, display a useful message with subcommand options.
+		if !foundPositional {
+			var foundSubcommandAtDepth bool
+			for _, cmd := range sc.Subcommands {
+				if cmd.Position == relativeDepth {
+					foundSubcommandAtDepth = true
+				}
+			}
+
+			// if there is a subcommand here but it was not specified, display them all
+			// in a help format
+			if foundSubcommandAtDepth {
+				fmt.Println("Subcommand or positional value not found.  Available subcommands:")
+				for _, cmd := range sc.Subcommands {
+					fmt.Printf(" " + cmd.Name)
+				}
+				fmt.Printf("\n") // follow up with a newline
+				continue
+			}
+
+			// if there were not any flags or subcommands at this position at all, then
+			// throw an error (display help if necessary)
+			p.ShowHelpWithMessage("Unexpected argument: " + v)
 		}
 	}
 
@@ -268,7 +288,16 @@ func (sc *Subcommand) AddSubcommand(newSC *Subcommand, relativePosition int) err
 	// ensure no subcommands at this depth with this name
 	for _, other := range sc.Subcommands {
 		if newSC.Position == other.Position {
-			return errors.New("Unable to add subcommand because one already exists at position " + strconv.Itoa(newSC.Position) + ": " + other.Name)
+			if newSC.Name != "" {
+				if newSC.Name == other.Name {
+					return errors.New("Unable to add subcommand because one already exists at position" + strconv.Itoa(newSC.Position) + " with name " + other.Name)
+				}
+			}
+			if newSC.ShortName != "" {
+				if newSC.ShortName == other.ShortName {
+					return errors.New("Unable to add subcommand because one already exists at position" + strconv.Itoa(newSC.Position) + " with name " + other.ShortName)
+				}
+			}
 		}
 	}
 

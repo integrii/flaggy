@@ -24,7 +24,8 @@ Flag parsing with subcommands and any-position arguments.  No required code layo
 # TODO
 
 - help output with templating
-- short names on subcommands
+- default flag values at time of flag creation?
+- display help when subcommand missing required positionals
 - display subcommands on typo
   - only when the flag is of type positional
   - only when no positional value is set

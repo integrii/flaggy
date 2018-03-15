@@ -7,4 +7,5 @@ type PositionalValue struct {
 	Description   string
 	AssignmentVar *string // the var that will get this variable
 	Position      int     // the position, not including switches, of this variable
+	Required      bool    // this subcommand must always be specified
 }

@@ -40,9 +40,18 @@ func TestParsePositionalsA(t *testing.T) {
 	}
 
 	// add flags to subcommand
-	subCommand.AddStringFlag(&testN, "n", "testN", "test flag for value with space arg")
-	subCommand.AddStringFlag(&testJ, "j", "testJ", "test flag for value with equals arg")
-	subCommand.AddStringFlag(&testK, "k", "testK", "test full length flag with attached arg")
+	err = subCommand.AddStringFlag(&testN, "n", "testN", "test flag for value with space arg")
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = subCommand.AddStringFlag(&testJ, "j", "testJ", "test flag for value with equals arg")
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = subCommand.AddStringFlag(&testK, "k", "testK", "test full length flag with attached arg")
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	// add positionals to subcommand
 	err = subCommand.AddPositionalValue(&positionalA, "PositionalA", 1, "PositionalA test value")

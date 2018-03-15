@@ -7,6 +7,29 @@ import (
 	"github.com/integrii/flaggy"
 )
 
+// TestTypoSubcommand tests what happens when an invalid subcommand is passed
+func TestTypoSubcommand(t *testing.T) {
+	// t.Skip("Skipped.  If this test runs, it exists the whole program.")
+	p := flaggy.NewParser("TestTypoSubcommand")
+	p.ShowHelpOnUnexpected = true
+	args := []string{"unexpectedArg"}
+	newSCA := flaggy.NewSubcommand("TestTypoSubcommandA")
+	newSCB := flaggy.NewSubcommand("TestTypoSubcommandB")
+	err := p.AddSubcommand(newSCA, 1)
+	if err != nil {
+		t.Log(err)
+	}
+	err = p.AddSubcommand(newSCB, 1)
+	if err != nil {
+		t.Log(err)
+	}
+
+	err = p.ParseArgs(args)
+	if err != nil {
+		t.Log(err)
+	}
+}
+
 // TestSubcommandHelp tests displaying of help on unspecified commands
 func TestSubcommandHelp(t *testing.T) {
 	t.Skip("Skipped.  If this test runs, it exists the whole program.")

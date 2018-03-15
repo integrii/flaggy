@@ -24,11 +24,16 @@ func NewParser(name string) *Parser {
 	p := &Parser{}
 	p.Name = name
 	p.Version = defaultVersion
+	p.ShowHelpOnUnexpected = true
+	p.ShowHelpWithHFlag = true
+	p.ShowVersionWithVFlag = true
 	return p
 }
 
 // ParseArgs parses as if the passed args were the os.Args, but without the
-// binary at the 0 position in the array.
+// binary at the 0 position in the array.  An error is returned if there
+// is a low level issue converting flags to their proper type.  No error
+// is returned for invalid arguments or missing require subcommands.
 func (p *Parser) ParseArgs(args []string) error {
 	debugPrint("Kicking off parsing with depth of 0 and args:", args)
 	return p.parse(p, args, 0)
