@@ -211,6 +211,7 @@ func (sc *Subcommand) parse(p *Parser, args []string, depth int) error {
 				*val.AssignmentVar = v
 				debugPrint("set positional to value", *val.AssignmentVar)
 				foundPositional = true
+				val.Found = true
 				break
 			}
 		}
@@ -239,6 +240,19 @@ func (sc *Subcommand) parse(p *Parser, args []string, depth int) error {
 			// if there were not any flags or subcommands at this position at all, then
 			// throw an error (display help if necessary)
 			p.ShowHelpWithMessage("Unexpected argument: " + v)
+		}
+	}
+
+	// find any positionals that were not used on subcommands that were found
+	for _, pv := range p.PositionalFlags {
+		if pv.Required && !pv.Found {
+			p.ShowHelpWithMessage("Required global positional " + pv.Name + " not found at position " + strconv.Itoa(pv.Position))
+		}
+	}
+
+	for _, pv := range sc.PositionalFlags {
+		if pv.Required && !pv.Found {
+			p.ShowHelpWithMessage("Required positional of subcommand " + sc.Name + " named " + pv.Name + " not found at position " + strconv.Itoa(pv.Position))
 		}
 	}
 
@@ -381,7 +395,7 @@ func (sc *Subcommand) AddIntFlag(assignmentVar *int, shortName string, longName 
 
 // AddPositionalValue adds a positional value to the subcommand.  the
 // relativePosition starts at 1 and is relative to the subcommand it belongs to
-func (sc *Subcommand) AddPositionalValue(assignmentVar *string, name string, relativePosition int, description string) error {
+func (sc *Subcommand) AddPositionalValue(assignmentVar *string, name string, relativePosition int, required bool, description string) error {
 
 	// ensure no other positionals are at this depth
 	for _, other := range sc.PositionalFlags {
@@ -401,6 +415,7 @@ func (sc *Subcommand) AddPositionalValue(assignmentVar *string, name string, rel
 		Name:          name,
 		Position:      relativePosition,
 		AssignmentVar: assignmentVar,
+		Required:      required,
 		Description:   description,
 	}
 	sc.PositionalFlags = append(sc.PositionalFlags, &newPositionalValue)

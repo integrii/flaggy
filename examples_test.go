@@ -41,7 +41,7 @@ func ExampleSubcommand_AddPositionalValue() {
 		log.Fatal(err)
 	}
 	// add a positional to the second subcommand with a relative position of 1
-	err = subcommandB.AddPositionalValue(&subcommandBPositional, "subcommandTestPositonalValue", 1, "A test positional input variable")
+	err = subcommandB.AddPositionalValue(&subcommandBPositional, "subcommandTestPositonalValue", 1, false, "A test positional input variable")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -71,7 +71,7 @@ func ExampleAddPositionalValue() {
 
 	// add a bool flag at the global level
 	var stringVar string
-	flaggy.AddPositionalValue(&stringVar, "positionalVar", 1, "A test positional flag")
+	flaggy.AddPositionalValue(&stringVar, "positionalVar", 1, false, "A test positional flag")
 
 	// Parse the input arguments from the OS (os.Args)
 	flaggy.Parse()
@@ -192,7 +192,7 @@ func Example() {
 	newSC.AddStringFlag(&subcommandVariable, "v", "variable", "A test variable.")
 
 	var subcommandPositional string
-	newSC.AddPositionalValue(&subcommandPositional, "testPositionalVar", 1, "A test positional variable to a subcommand.")
+	newSC.AddPositionalValue(&subcommandPositional, "testPositionalVar", 1, false, "A test positional variable to a subcommand.")
 
 	// Attach the subcommand to the parser. This will error if another
 	// positional value or subcommand is already present at the depth supplied.

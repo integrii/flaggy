@@ -54,11 +54,11 @@ func TestParsePositionalsA(t *testing.T) {
 	}
 
 	// add positionals to subcommand
-	err = subCommand.AddPositionalValue(&positionalA, "PositionalA", 1, "PositionalA test value")
+	err = subCommand.AddPositionalValue(&positionalA, "PositionalA", 1, false, "PositionalA test value")
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = subCommand.AddPositionalValue(&positionalB, "PositionalB", 2, "PositionalB test value")
+	err = subCommand.AddPositionalValue(&positionalB, "PositionalB", 2, false, "PositionalB test value")
 	if err != nil {
 		t.Fatal(err)
 	}

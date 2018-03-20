@@ -26,7 +26,7 @@ import (
 )
 
 // defaultVersion is applied to parsers when they are created
-const defaultVersion = "0.0.1"
+const defaultVersion = "0.0.0"
 
 // DebugMode indicates that debug output should be enabled
 var DebugMode bool
@@ -82,8 +82,8 @@ func AddSubcommand(newSC *Subcommand, relativePosition int) error {
 
 // AddPositionalValue adds a positional value to the main parser at the global
 // context
-func AddPositionalValue(assignmentVar *string, name string, relativePosition int, description string) error {
-	return mainParser.AddPositionalValue(assignmentVar, name, relativePosition, description)
+func AddPositionalValue(assignmentVar *string, name string, relativePosition int, required bool, description string) error {
+	return mainParser.AddPositionalValue(assignmentVar, name, relativePosition, required, description)
 }
 
 // debugPrint prints if debugging is enabled

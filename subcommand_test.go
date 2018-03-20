@@ -7,6 +7,38 @@ import (
 	"github.com/integrii/flaggy"
 )
 
+// TestDoublePositional tests errors when two positionals are
+// specified at the same time
+func TestDoublePositional(t *testing.T) {
+	flaggy.DebugMode = true
+	defer debugOff()
+	var posTest string
+	err := flaggy.AddPositionalValue(&posTest, "posTest", 1, true, "First test positional")
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = flaggy.AddPositionalValue(&posTest, "posTest2", 1, true, "Second test positional")
+	if err == nil {
+		t.Fatal("No error found when overlapping positionals specified")
+	}
+}
+
+// TestRequiredPositional tests required positionals
+func TestRequiredPositional(t *testing.T) {
+	t.Skip("Proram exits if test completes")
+	flaggy.DebugMode = true
+	defer debugOff()
+	var posTest string
+	err := flaggy.AddPositionalValue(&posTest, "posTest", 1, true, "First test positional")
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = flaggy.Parse()
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
 // TestTypoSubcommand tests what happens when an invalid subcommand is passed
 func TestTypoSubcommand(t *testing.T) {
 	// t.Skip("Skipped.  If this test runs, it exists the whole program.")
@@ -91,7 +123,7 @@ func TestSubcommandParse(t *testing.T) {
 	}
 
 	// add a positional arg onto the subcommand at relative position 1
-	err = newSC.AddPositionalValue(&positionA, "positionalA", 1, "This is a test positional value")
+	err = newSC.AddPositionalValue(&positionA, "positionalA", 1, false, "This is a test positional value")
 	if err != nil {
 		t.Fatal("Error adding positional value", err)
 	}
@@ -143,7 +175,7 @@ func TestBadPositional(t *testing.T) {
 	// add a positional arg into the subcommand
 	var positionA string
 	var err error
-	err = p.AddPositionalValue(&positionA, "positionalA", 1, "This is a test positional value")
+	err = p.AddPositionalValue(&positionA, "positionalA", 1, false, "This is a test positional value")
 	if err != nil {
 		t.Fatal(err)
 	}
