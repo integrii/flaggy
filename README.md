@@ -23,6 +23,7 @@ Flag parsing with subcommands and any-position arguments.  No required code layo
 
 # TODO
 
-- help output with templating
+- parser help output with templating
+- subcommand help output with templating
 - slick readme with logo
 - more UX testing

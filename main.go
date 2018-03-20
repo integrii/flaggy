@@ -37,6 +37,9 @@ var mainParser *Parser
 // has been run.
 var TrailingArguments []string
 
+const defaultHelpTemplate = `
+`
+
 func init() {
 	// allow usage like flaggy.StringVar by enabling a default Parser
 	ResetParser()

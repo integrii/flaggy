@@ -27,6 +27,7 @@ func NewParser(name string) *Parser {
 	p.ShowHelpOnUnexpected = true
 	p.ShowHelpWithHFlag = true
 	p.ShowVersionWithVFlag = true
+	p.SetHelpTemplate(defaultHelpTemplate)
 	return p
 }
 
@@ -43,34 +44,6 @@ func (p *Parser) ParseArgs(args []string) error {
 func (p *Parser) ShowVersion() {
 	fmt.Println("Version:", p.Version)
 	os.Exit(0)
-}
-
-// ShowHelp shows help without an error message
-func (p *Parser) ShowHelp() {
-	p.ShowHelpWithMessage("")
-}
-
-// ShowHelpWithMessage shows the help for this parser with an optional string error
-// message as a header.
-func (p *Parser) ShowHelpWithMessage(s string) {
-	// display passed message if specified
-	if len(s) > 0 {
-		fmt.Println(s)
-	}
-
-	// display help prepend if exists
-	if len(p.AdditionalHelpPrepend) > 0 {
-		fmt.Println(p.AdditionalHelpPrepend)
-	}
-
-	// TODO - help via template parsing
-	fmt.Println("TODO HELP OUTPUT GOES HERE")
-
-	// display help append if exists
-	if len(p.AdditionalHelpAppend) > 0 {
-		fmt.Println(p.AdditionalHelpAppend)
-	}
-	os.Exit(2)
 }
 
 // Parse calculates all flags and subcommands

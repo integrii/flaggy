@@ -3,6 +3,9 @@ package flaggy
 import (
 	"errors"
 	"fmt"
+	"html/template"
+	"log"
+	"os"
 	"strconv"
 )
 
@@ -12,24 +15,42 @@ import (
 // position.  Once a matching subcommand is found, the next set
 // of parsing occurs within that matched subcommand.
 type Subcommand struct {
-	Name            string
-	ShortName       string
-	Description     string
-	Position        int // the position of this subcommand, not including flags
-	Subcommands     []*Subcommand
-	StringFlags     []*StringFlag
-	IntFlags        []*IntFlag
-	BoolFlags       []*BoolFlag
-	PositionalFlags []*PositionalValue
-	Used            bool // indicates this subcommand was found and parsed
+	Name                  string
+	ShortName             string
+	Description           string
+	Position              int // the position of this subcommand, not including flags
+	Subcommands           []*Subcommand
+	StringFlags           []*StringFlag
+	IntFlags              []*IntFlag
+	BoolFlags             []*BoolFlag
+	PositionalFlags       []*PositionalValue
+	AdditionalHelpPrepend string             // additional prepended message when help is displayed
+	AdditionalHelpAppend  string             // additional appended message when help is displayed
+	Used                  bool               // indicates this subcommand was found and parsed
+	helpTemplate          *template.Template // template for help output
+
 }
 
 // NewSubcommand creates a new subcommand that can have flags or PositionalFlags
 // added to it.  The position starts with 1, not 0
 func NewSubcommand(name string) *Subcommand {
-	return &Subcommand{
+	newSC := &Subcommand{
 		Name: name,
 	}
+	newSC.SetHelpTemplate(defaultHelpTemplate)
+	return newSC
+}
+
+// SetHelpTemplate sets the go template this parser will use when rendering
+// help.
+func (sc *Subcommand) SetHelpTemplate(tmpl string) error {
+	var err error
+	sc.helpTemplate = template.New("help")
+	sc.helpTemplate, err = sc.helpTemplate.Parse(tmpl)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // parseAllFlagsFromArgs parses the non-positional flags such as -f or -v=value
@@ -86,7 +107,7 @@ func (sc *Subcommand) parseAllFlagsFromArgs(p *Parser, args []string) ([]string,
 		// is passed as an option
 		if p.ShowHelpWithHFlag {
 			if flagName == "h" || flagName == "help" {
-				p.ShowHelp()
+				sc.ShowHelp()
 			}
 		}
 
@@ -137,7 +158,7 @@ func (sc *Subcommand) parseAllFlagsFromArgs(p *Parser, args []string) ([]string,
 
 			// if the next arg was not found, then show a help message
 			if !nextArgExists {
-				p.ShowHelpWithMessage("Expected a following arg for flag " + a + ", but it did not exist.")
+				sc.ShowHelpWithMessage("Expected a following arg for flag " + a + ", but it did not exist.")
 			}
 			_, err = setValueForParsers(a, nextArg, p, sc)
 			if err != nil {
@@ -239,7 +260,7 @@ func (sc *Subcommand) parse(p *Parser, args []string, depth int) error {
 
 			// if there were not any flags or subcommands at this position at all, then
 			// throw an error (display help if necessary)
-			p.ShowHelpWithMessage("Unexpected argument: " + v)
+			sc.ShowHelpWithMessage("Unexpected argument: " + v)
 		}
 	}
 
@@ -252,7 +273,7 @@ func (sc *Subcommand) parse(p *Parser, args []string, depth int) error {
 
 	for _, pv := range sc.PositionalFlags {
 		if pv.Required && !pv.Found {
-			p.ShowHelpWithMessage("Required positional of subcommand " + sc.Name + " named " + pv.Name + " not found at position " + strconv.Itoa(pv.Position))
+			sc.ShowHelpWithMessage("Required positional of subcommand " + sc.Name + " named " + pv.Name + " not found at position " + strconv.Itoa(pv.Position))
 		}
 	}
 
@@ -473,4 +494,25 @@ func (sc *Subcommand) SetValueForKey(key string, value string) (bool, error) {
 
 	debugPrint("Was unable to find a key named", key, "to set to value", value)
 	return false, nil
+}
+
+// ShowHelp shows help without an error message
+func (sc *Subcommand) ShowHelp() {
+	sc.ShowHelpWithMessage("")
+}
+
+// ShowHelpWithMessage shows the help for this parser with an optional string error
+// message as a header.  The supplied subcommand will be the context of help
+// displayed to the user.
+func (sc *Subcommand) ShowHelpWithMessage(message string) {
+
+	// create a new help values template and extract values into it
+	helpValues := help{}
+	helpValues.ExtractValuesFromSubcommand(sc, message)
+	err := sc.helpTemplate.Execute(os.Stdout, helpValues)
+	if err != nil {
+		log.Println("Error rendering help template:", err)
+	}
+
+	os.Exit(2)
 }
