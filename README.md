@@ -24,6 +24,5 @@ Flag parsing with subcommands and any-position arguments.  No required code layo
 # TODO
 
 - help output with templating
-- display help when subcommand missing required positionals
 - slick readme with logo
 - more UX testing
