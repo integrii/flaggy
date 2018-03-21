@@ -2,14 +2,14 @@ package flaggy
 
 // Help represents the values needed to render a Help page
 type Help struct {
-	subcommands    []HelpSubcommand
-	positionals    []HelpPositional
-	stringFlags    []HelpFlag
-	intFlags       []HelpFlag
-	boolFlags      []HelpFlag
-	prependMessage string
-	appendMessage  string
-	message        string
+	Subcommands    []HelpSubcommand
+	Positionals    []HelpPositional
+	StringFlags    []HelpFlag
+	IntFlags       []HelpFlag
+	BoolFlags      []HelpFlag
+	PrependMessage string
+	AppendMessage  string
+	Message        string
 }
 
 // HelpSubcommand is used to template subcommand Help output
@@ -39,11 +39,11 @@ type HelpFlag struct {
 func (h *Help) ExtractValues(sc *Subcommand, message string) {
 	// extract Help values
 	// prependMessage string
-	h.prependMessage = sc.AdditionalHelpPrepend
+	h.PrependMessage = sc.AdditionalHelpPrepend
 	// appendMessage  string
-	h.appendMessage = sc.AdditionalHelpPrepend
+	h.AppendMessage = sc.AdditionalHelpPrepend
 	// message string
-	h.message = message
+	h.Message = message
 	// subcommands    []HelpSubcommand
 	for _, sc := range sc.Subcommands {
 		newHelpSubcommand := HelpSubcommand{
@@ -51,7 +51,7 @@ func (h *Help) ExtractValues(sc *Subcommand, message string) {
 			LongName:    sc.Name,
 			Description: sc.Description,
 		}
-		h.subcommands = append(h.subcommands, newHelpSubcommand)
+		h.Subcommands = append(h.Subcommands, newHelpSubcommand)
 	}
 	// positionals    []HelpPositional
 	for _, pos := range sc.PositionalFlags {
@@ -61,7 +61,7 @@ func (h *Help) ExtractValues(sc *Subcommand, message string) {
 			Description: pos.Description,
 			Required:    pos.Required,
 		}
-		h.positionals = append(h.positionals, newHelpPositional)
+		h.Positionals = append(h.Positionals, newHelpPositional)
 	}
 	// flags          []HelpFlag
 	for _, f := range sc.StringFlags {
@@ -70,7 +70,7 @@ func (h *Help) ExtractValues(sc *Subcommand, message string) {
 			LongName:    f.LongName,
 			Description: f.Description,
 		}
-		h.stringFlags = append(h.stringFlags, newHelpFlag)
+		h.StringFlags = append(h.StringFlags, newHelpFlag)
 	}
 	for _, f := range sc.IntFlags {
 		newHelpFlag := HelpFlag{
@@ -78,7 +78,7 @@ func (h *Help) ExtractValues(sc *Subcommand, message string) {
 			LongName:    f.LongName,
 			Description: f.Description,
 		}
-		h.intFlags = append(h.intFlags, newHelpFlag)
+		h.IntFlags = append(h.IntFlags, newHelpFlag)
 	}
 	for _, f := range sc.BoolFlags {
 		newHelpFlag := HelpFlag{
@@ -86,6 +86,6 @@ func (h *Help) ExtractValues(sc *Subcommand, message string) {
 			LongName:    f.LongName,
 			Description: f.Description,
 		}
-		h.boolFlags = append(h.boolFlags, newHelpFlag)
+		h.BoolFlags = append(h.BoolFlags, newHelpFlag)
 	}
 }
