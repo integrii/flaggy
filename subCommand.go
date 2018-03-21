@@ -24,10 +24,10 @@ type Subcommand struct {
 	IntFlags              []*IntFlag
 	BoolFlags             []*BoolFlag
 	PositionalFlags       []*PositionalValue
-	AdditionalHelpPrepend string             // additional prepended message when help is displayed
-	AdditionalHelpAppend  string             // additional appended message when help is displayed
+	AdditionalHelpPrepend string             // additional prepended message when Help is displayed
+	AdditionalHelpAppend  string             // additional appended message when Help is displayed
 	Used                  bool               // indicates this subcommand was found and parsed
-	helpTemplate          *template.Template // template for help output
+	HelpTemplate          *template.Template // template for Help output
 
 }
 
@@ -42,11 +42,11 @@ func NewSubcommand(name string) *Subcommand {
 }
 
 // SetHelpTemplate sets the go template this parser will use when rendering
-// help.
+// Help.
 func (sc *Subcommand) SetHelpTemplate(tmpl string) error {
 	var err error
-	sc.helpTemplate = template.New("help")
-	sc.helpTemplate, err = sc.helpTemplate.Parse(tmpl)
+	sc.HelpTemplate = template.New("Help")
+	sc.HelpTemplate, err = sc.HelpTemplate.Parse(tmpl)
 	if err != nil {
 		return err
 	}
@@ -103,10 +103,10 @@ func (sc *Subcommand) parseAllFlagsFromArgs(p *Parser, args []string) ([]string,
 			}
 		}
 
-		// if the show help on h flag option is set, then show help when h or help
+		// if the show Help on h flag option is set, then show Help when h or Help
 		// is passed as an option
 		if p.ShowHelpWithHFlag {
-			if flagName == "h" || flagName == "help" {
+			if flagName == "h" || flagName == "Help" {
 				sc.ShowHelp()
 			}
 		}
@@ -156,7 +156,7 @@ func (sc *Subcommand) parseAllFlagsFromArgs(p *Parser, args []string) ([]string,
 				continue
 			}
 
-			// if the next arg was not found, then show a help message
+			// if the next arg was not found, then show a Help message
 			if !nextArgExists {
 				sc.ShowHelpWithMessage("Expected a following arg for flag " + a + ", but it did not exist.")
 			}
@@ -174,7 +174,7 @@ func (sc *Subcommand) parseAllFlagsFromArgs(p *Parser, args []string) ([]string,
 				return []string{}, err
 			}
 			// if this flag type was found and not set, and the parser is set to show
-			// help when an unknown flag is found, then show help and exit.
+			// Help when an unknown flag is found, then show Help and exit.
 		}
 
 	}
@@ -248,7 +248,7 @@ func (sc *Subcommand) parse(p *Parser, args []string, depth int) error {
 			}
 
 			// if there is a subcommand here but it was not specified, display them all
-			// in a help format
+			// in a Help format
 			if foundSubcommandAtDepth {
 				fmt.Println("Subcommand or positional value not found.  Available subcommands:")
 				for _, cmd := range sc.Subcommands {
@@ -259,7 +259,7 @@ func (sc *Subcommand) parse(p *Parser, args []string, depth int) error {
 			}
 
 			// if there were not any flags or subcommands at this position at all, then
-			// throw an error (display help if necessary)
+			// throw an error (display Help if necessary)
 			sc.ShowHelpWithMessage("Unexpected argument: " + v)
 		}
 	}
@@ -496,22 +496,22 @@ func (sc *Subcommand) SetValueForKey(key string, value string) (bool, error) {
 	return false, nil
 }
 
-// ShowHelp shows help without an error message
+// ShowHelp shows Help without an error message
 func (sc *Subcommand) ShowHelp() {
 	sc.ShowHelpWithMessage("")
 }
 
-// ShowHelpWithMessage shows the help for this parser with an optional string error
-// message as a header.  The supplied subcommand will be the context of help
+// ShowHelpWithMessage shows the Help for this parser with an optional string error
+// message as a header.  The supplied subcommand will be the context of Help
 // displayed to the user.
 func (sc *Subcommand) ShowHelpWithMessage(message string) {
 
-	// create a new help values template and extract values into it
-	helpValues := help{}
-	helpValues.ExtractValuesFromSubcommand(sc, message)
-	err := sc.helpTemplate.Execute(os.Stdout, helpValues)
+	// create a new Help values template and extract values into it
+	help := Help{}
+	help.ExtractValues(sc, message)
+	err := sc.HelpTemplate.Execute(os.Stdout, help)
 	if err != nil {
-		log.Println("Error rendering help template:", err)
+		log.Println("Error rendering Help template:", err)
 	}
 
 	os.Exit(2)
