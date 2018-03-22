@@ -1,0 +1,6 @@
+{
+  "language": "go",
+  "os": "linux",
+  "group": "stable",
+  "dist": "trusty"
+}
