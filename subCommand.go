@@ -248,14 +248,15 @@ func (sc *Subcommand) parse(p *Parser, args []string, depth int) error {
 			}
 
 			// if there is a subcommand here but it was not specified, display them all
-			// in a Help format
+			// as a suggestion to the user before exiting.
 			if foundSubcommandAtDepth {
-				fmt.Println("Subcommand or positional value not found.  Available subcommands:")
+				fmt.Fprintln(os.Stderr, "Subcommand or positional value not found.  Available subcommands:")
+				var output string
 				for _, cmd := range sc.Subcommands {
-					fmt.Printf(" " + cmd.Name)
+					output = output + " " + cmd.Name
 				}
-				fmt.Printf("\n") // follow up with a newline
-				continue
+				fmt.Fprintln(os.Stderr, output) // follow up with a newline
+				os.Exit(2)
 			}
 
 			// if there were not any flags or subcommands at this position at all, then

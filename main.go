@@ -23,6 +23,7 @@ package flaggy
 import (
 	"fmt"
 	"os"
+	"strings"
 )
 
 // defaultVersion is applied to parsers when they are created
@@ -37,9 +38,6 @@ var mainParser *Parser
 // has been run.
 var TrailingArguments []string
 
-const defaultHelpTemplate = `
-`
-
 func init() {
 	// allow usage like flaggy.StringVar by enabling a default Parser
 	ResetParser()
@@ -49,7 +47,8 @@ func init() {
 // Normally used in tests.
 func ResetParser() {
 	if len(os.Args) > 0 {
-		mainParser = NewParser(os.Args[0])
+		chunks := strings.Split(os.Args[0], "/")
+		mainParser = NewParser(chunks[len(chunks)-1])
 	} else {
 		mainParser = NewParser("default")
 	}
@@ -58,6 +57,12 @@ func ResetParser() {
 // Parse parses flags as requested in the default package parser
 func Parse() error {
 	return mainParser.Parse()
+}
+
+// ParseArgs parses the passed args as if they were the arguments to the
+// running binary.  Targets the default main parser for the package.
+func ParseArgs(args []string) error {
+	return mainParser.ParseArgs(args)
 }
 
 // AddBoolFlag adds a bool flag for parsing, at the global level of the

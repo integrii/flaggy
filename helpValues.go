@@ -7,9 +7,11 @@ type Help struct {
 	StringFlags    []HelpFlag
 	IntFlags       []HelpFlag
 	BoolFlags      []HelpFlag
+	CommandName    string
 	PrependMessage string
 	AppendMessage  string
 	Message        string
+	Description    string
 }
 
 // HelpSubcommand is used to template subcommand Help output
@@ -17,6 +19,7 @@ type HelpSubcommand struct {
 	ShortName   string
 	LongName    string
 	Description string
+	Position    int
 }
 
 // HelpPositional is used to template positional Help output
@@ -32,7 +35,6 @@ type HelpFlag struct {
 	ShortName   string
 	LongName    string
 	Description string
-	FlagType    string
 }
 
 // ExtractValues extracts Help template values from a subcommand
@@ -41,15 +43,20 @@ func (h *Help) ExtractValues(sc *Subcommand, message string) {
 	// prependMessage string
 	h.PrependMessage = sc.AdditionalHelpPrepend
 	// appendMessage  string
-	h.AppendMessage = sc.AdditionalHelpPrepend
+	h.AppendMessage = sc.AdditionalHelpAppend
 	// message string
 	h.Message = message
+	// command name
+	h.CommandName = sc.Name
+	// description
+	h.Description = sc.Description
 	// subcommands    []HelpSubcommand
 	for _, sc := range sc.Subcommands {
 		newHelpSubcommand := HelpSubcommand{
 			ShortName:   sc.ShortName,
 			LongName:    sc.Name,
 			Description: sc.Description,
+			Position:    sc.Position,
 		}
 		h.Subcommands = append(h.Subcommands, newHelpSubcommand)
 	}
@@ -63,6 +70,7 @@ func (h *Help) ExtractValues(sc *Subcommand, message string) {
 		}
 		h.Positionals = append(h.Positionals, newHelpPositional)
 	}
+
 	// flags          []HelpFlag
 	for _, f := range sc.StringFlags {
 		newHelpFlag := HelpFlag{
