@@ -99,7 +99,7 @@ flaggy.Parse()
 print(stringFlag)
 ```
 
-# Example with Nested Subcommand and Various Flags and Trailing Arguments
+# Example with Nested Subcommands, Various Flags and Trailing Arguments
 
 `./yourApp subcommandExample --flag=5 nestedSubcommand -t test -y -- trailingArg`
 
