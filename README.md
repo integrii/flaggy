@@ -1,29 +1,128 @@
 # flaggy
-Flag parsing with subcommands and any-position arguments.  No required code layout like [Cobra](https://github.com/spf13/Cobra), and no third party dependencies.
+Sensible flag parsing with subcommands and flags that can be at any position.  No required project or package layout like [Cobra](https://github.com/spf13/Cobra), and no third party package dependencies.
 
-# Interesting Features
+# Key Features
 
-- Very easy to use
+- Very easy to use ([see examples from docs](http://godoc.org/github.com/integrii/flaggy))
 - Any flag can be at at any position
+- Pretty and readable help output by default
 - Positional subcommands
 - Positional parameters
-- Suggested subcommands on typo or bad command
+- Suggested subcommands when a subcommand is typo'd
 - Nested subcommands
 - Both global and subcommand specific flags
 - Both global and subcommand specific positional parameters
-- Customizable help template, or optional prepended/appended messages
+- Customizable help templates for both the global command and subcommands
+- Customizable appended/prepended message for both the global command and subcommands
+- Simple function that displays help followed by a custom message string
 - Flags and subcommands may have both a short and long name
 - Flags can use a single dash or double dash (`--flag`, `-flag`, `-f`, `--f`)
 - Flags can have `=` assignment operators, or use a space (`--flag=value`, `--flag value`)
 - Flags support single quote globs with spaces (`--flag 'this is all one value'`)
 - Optional but default version output with `-v` or `--version`
 - Optional but default help output with `-h` or `--help`
-- Optional but default show help when any invalid parameter is passed
+- Optional but default show help when any invalid or unknown parameter is passed
 
 
-# TODO
+# Example Help Output
 
-- parser help output with templating
-- subcommand help output with templating
-- slick readme with logo
-- more UX testing
+```
+testCommand - Description goes here.  Get more information at http://my.website
+This is an optional prepend for help output
+
+  Positional Variables:
+    testPositionalA (Position 2) (Required) Test positional A does some things with a positional value.
+
+  Subommands:
+    subcommandA (a) (Position 1) Subcommand A is a command that does stuff
+    subcommandB (b) (Position 1) Subcommand B is a command that does other stuff
+    subcommandC (c) (Position 1) Subcommand C is a command that does SERIOUS stuff
+
+ Flags:
+    --stringFlag (-s) This is a test string flag that does some stringy string stuff.
+    --intFlg (-i) This is a test int flag that does some interesting int stuff.
+    --boolFlag (-b) This is a test bool flag that does some booly bool stuff.
+
+This is an optional append for help
+This is an optional help add-on message
+```
+
+
+# Super Simple Example
+
+`./yourApp -f test`
+
+```go
+// Declare variables and their defaults
+var stringFlag = "defaultValue"
+
+// Add a flag
+flaggy.AddStringFlag(&stringFlag, "f", "flag", "A test string flag")
+
+// Parse the flag
+flaggy.Parse()
+
+// Use the flag
+print(stringFlag)
+```
+
+
+# Example with Subcommand
+
+`./yourApp subcommandExample -f test`
+
+```go
+// Declare variables and their defaults
+var stringFlag = "defaultValue"
+
+// Create the subcommand
+subcommand := flaggy.NewSubcommand("subcommandExample")
+
+// Add a flag to the subcommand
+subcommand.AddStringFlag(&stringFlag, "f", "flag", "A test string flag")
+
+// Add the subcommand to the parser at position 1
+flaggy.AddSubcommand(subcommand, 1)
+
+// Parse the subcommand and all flags
+flaggy.Parse()
+
+// Use the flag
+print(stringFlag)
+```
+
+# Example with Nested Subcommand and Various Flags
+
+`./yourApp subcommandExample --flag=5 nestedSubcommand -t test -y`
+
+```go
+// Declare variables and their defaults
+var stringFlagF = "defaultValueF"
+var intFlagT = 3
+var boolFlagB bool
+
+// Create the subcommand
+subcommandExample := flaggy.NewSubcommand("subcommandExample")
+nestedSubcommand := flaggy.NewSubcommand("nestedSubcommand")
+
+// Add a flag to the subcommand
+subcommandExample.AddStringFlag(&stringFlagF, "t", "testFlag", "A test string flag")
+
+nestedSubcommand.AddIntFlag(&intFlagT, "f", "flag", "A test int flag")
+
+// add a global bool flag for fun
+flaggy.AddBoolFlag(&boolFlagB, "y", "yes", "A sample boolean flag")
+
+// Add the nested subcommand to the parent subcommand at position 1
+subcommandExample.AddSubcommand(nestedSubcommand, 1)
+// Add the base subcommand to the parser at position 1
+flaggy.AddSubcommand(subcommandExample, 1)
+
+// Parse the subcommand and all flags
+flaggy.Parse()
+
+// Use the flags
+print(stringFlagF)
+print(intFlagT)
+print(boolFlagB)
+```
