@@ -10,7 +10,7 @@ Open an issue if you hate something, or better yet, fix it and make a pull reque
 
 # Key Features
 
-- Very easy to use ([see examples from docs](http://godoc.org/github.com/integrii/flaggy))
+- Very easy to use ([see examples below](https://github.com/integrii/flaggy#super-simple-example))
 - Any flag can be at at any position
 - Pretty and readable help output by default
 - Positional subcommands
