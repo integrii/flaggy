@@ -1,5 +1,5 @@
-// Package flaggy is a input flag parsing tool that supports both subcommands
-// and any-position flags without unnecessary complexeties.
+// Package flaggy is a input flag parsing tool that supports subcommands
+// positional values, and any-position flags without unnecessary complexeties.
 /*
 
 Supported Flag Types
@@ -10,11 +10,16 @@ Strings and Ints
  --key var
  -key var
 
-Booleans (sets to true if no var specified)
+Booleans (sets to true if flag is specified without value)
  --key
- --key var
- -k var
+ --key true
+ --key=false
+ -k false
+ -k=true
  -k
+ 
+ All arguments after a double dash (--) are added as strings to the 
+ TrailingArguments slice.
 
 
 */
