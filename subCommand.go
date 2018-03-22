@@ -99,7 +99,7 @@ func (sc *Subcommand) parseAllFlagsFromArgs(p *Parser, args []string) ([]string,
 		// version with version flags, then display version
 		if p.ShowVersionWithVFlag {
 			if flagName == "v" || flagName == "version" {
-				p.ShowVersion()
+				p.ShowVersionAndExit()
 			}
 		}
 
@@ -514,6 +514,4 @@ func (sc *Subcommand) ShowHelpWithMessage(message string) {
 	if err != nil {
 		log.Println("Error rendering Help template:", err)
 	}
-
-	os.Exit(2)
 }

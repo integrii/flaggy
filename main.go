@@ -98,6 +98,17 @@ func AddSubcommand(newSC *Subcommand, relativePosition int) error {
 	return mainParser.AddSubcommand(newSC, relativePosition)
 }
 
+// ShowHelp shows parser help
+func ShowHelp(message string) {
+	mainParser.ShowHelpWithMessage(message)
+}
+
+// ShowHelpAndExit shows parser help and exits with status code 2
+func ShowHelpAndExit(message string) {
+	ShowHelp(message)
+	os.Exit(2)
+}
+
 // AddPositionalValue adds a positional value to the main parser at the global
 // context
 func AddPositionalValue(assignmentVar *string, name string, relativePosition int, required bool, description string) error {

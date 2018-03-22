@@ -38,8 +38,8 @@ func (p *Parser) ParseArgs(args []string) error {
 	return p.parse(p, args, 0)
 }
 
-// ShowVersion shows the version of this parser
-func (p *Parser) ShowVersion() {
+// ShowVersionAndExit shows the version of this parser
+func (p *Parser) ShowVersionAndExit() {
 	fmt.Println("Version:", p.Version)
 	os.Exit(0)
 }
