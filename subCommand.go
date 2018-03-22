@@ -61,7 +61,7 @@ func (sc *Subcommand) parseAllFlagsFromArgs(p *Parser, args []string) ([]string,
 	var positionalOnlyArguments []string
 
 	// indicates we should skip the next argument, like when parsing a flag
-	// that seperates key and value by space
+	// that separates key and value by space
 	var skipNext bool
 
 	// endArgfound indicates that a -- was found and everything
@@ -454,7 +454,7 @@ func (sc *Subcommand) SetValueForKey(key string, value string) (bool, error) {
 
 	// check for and assign string flags
 	for _, f := range sc.StringFlags {
-		// debugPrint("Evaulating string flag", f.ShortName, "==", key, "||", f.LongName, "==", key)
+		// debugPrint("Evaluating string flag", f.ShortName, "==", key, "||", f.LongName, "==", key)
 		if f.ShortName == key || f.LongName == key {
 			debugPrint("Setting string value for", key, "to", value)
 			*f.AssignmentVar = value

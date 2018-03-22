@@ -26,7 +26,7 @@ func ExampleSubcommand_AddPositionalValue() {
 
 	// create a subcommand
 	subcommandA := flaggy.NewSubcommand("subcommandA")
-	// add the subcommand at relative positon 1 within the default root parser
+	// add the subcommand at relative position 1 within the default root parser
 	err = flaggy.AddSubcommand(subcommandA, 1)
 	if err != nil {
 		log.Fatal(err)
@@ -57,7 +57,7 @@ func ExampleSubcommand_AddPositionalValue() {
 	// Output: Positional flag set to subcommandBPositionalValue
 }
 
-// ExampleAddPositionalValue shows how to add positional vairables at the
+// ExampleAddPositionalValue shows how to add positional variables at the
 // global level.
 func ExampleAddPositionalValue() {
 
