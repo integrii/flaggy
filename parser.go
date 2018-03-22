@@ -25,7 +25,7 @@ func NewParser(name string) *Parser {
 	p.ShowHelpOnUnexpected = true
 	p.ShowHelpWithHFlag = true
 	p.ShowVersionWithVFlag = true
-	p.SetHelpTemplate(defaultHelpTemplate)
+	p.SetHelpTemplate(DefaultHelpTemplate)
 	return p
 }
 

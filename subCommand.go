@@ -37,7 +37,7 @@ func NewSubcommand(name string) *Subcommand {
 	newSC := &Subcommand{
 		Name: name,
 	}
-	newSC.SetHelpTemplate(defaultHelpTemplate)
+	newSC.SetHelpTemplate(DefaultHelpTemplate)
 	return newSC
 }
 

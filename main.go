@@ -32,6 +32,10 @@ const defaultVersion = "0.0.0"
 // DebugMode indicates that debug output should be enabled
 var DebugMode bool
 
+// DefaultHelpTemplate is the help template that will be used
+// for newly created subcommands and commands
+var DefaultHelpTemplate string
+
 var mainParser *Parser
 
 // TrailingArguments holds trailing arguments in the main parser after parsing
@@ -39,6 +43,12 @@ var mainParser *Parser
 var TrailingArguments []string
 
 func init() {
+
+	// Users may set DefaultHelpTemplate to save repeated template
+	// assignment on every subcommand
+	DefaultHelpTemplate = defaultHelpTemplate
+
+	// set the default help template
 	// allow usage like flaggy.StringVar by enabling a default Parser
 	ResetParser()
 }
