@@ -2,5 +2,6 @@
   "language": "go",
   "os": "linux",
   "group": "stable",
-  "dist": "trusty"
+  "dist": "trusty",
+  "script": "go get -v && go test -v"
 }
