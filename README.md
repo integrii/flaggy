@@ -1,4 +1,7 @@
 # flaggy
+
+[![flaggy go report](https://goreportcard.com/badge/github.com/integrii/flaggy)](https://goreportcard.com/report/github.com/integrii/flaggy)![external dependencies](https://david-dm.org/integrii/flaggy.svg)
+
 Sensible flag parsing with support for subcommands, positional values, and flags that can be at any position.  No required project or package layout like [Cobra](https://github.com/spf13/Cobra), and no third party package dependencies.  
 
 Check out the [godoc](http://godoc.org/github.com/integrii/flaggy), [godoc examples](https://godoc.org/github.com/integrii/flaggy#pkg-examples), and [examples in this readme](https://github.com/integrii/flaggy#example-help-output) to get started quickly.

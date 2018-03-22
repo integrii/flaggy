@@ -41,7 +41,7 @@ func TestRequiredPositional(t *testing.T) {
 
 // TestTypoSubcommand tests what happens when an invalid subcommand is passed
 func TestTypoSubcommand(t *testing.T) {
-	// t.Skip("Skipped.  If this test runs, it exists the whole program.")
+	t.Skip("Skipped.  If this test runs, it exists the whole program.")
 	p := flaggy.NewParser("TestTypoSubcommand")
 	p.ShowHelpOnUnexpected = true
 	args := []string{"unexpectedArg"}
