@@ -106,7 +106,7 @@ func (sc *Subcommand) parseAllFlagsFromArgs(p *Parser, args []string) ([]string,
 		// if the show Help on h flag option is set, then show Help when h or Help
 		// is passed as an option
 		if p.ShowHelpWithHFlag {
-			if flagName == "h" || flagName == "Help" {
+			if flagName == "h" || flagName == "help" {
 				sc.ShowHelp()
 			}
 		}
