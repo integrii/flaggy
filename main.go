@@ -66,13 +66,17 @@ func ResetParser() {
 
 // Parse parses flags as requested in the default package parser
 func Parse() error {
-	return mainParser.Parse()
+	err := mainParser.Parse()
+	TrailingArguments = mainParser.TrailingArguments
+	return err
 }
 
 // ParseArgs parses the passed args as if they were the arguments to the
 // running binary.  Targets the default main parser for the package.
 func ParseArgs(args []string) error {
-	return mainParser.ParseArgs(args)
+	err := mainParser.ParseArgs(args)
+	TrailingArguments = mainParser.TrailingArguments
+	return err
 }
 
 // AddBoolFlag adds a bool flag for parsing, at the global level of the

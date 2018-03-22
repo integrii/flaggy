@@ -23,6 +23,7 @@ Open an issue if you hate something, or better yet, fix it and make a pull reque
 - Customizable appended/prepended message for both the global command and subcommands
 - Simple function that displays help followed by a custom message string
 - Flags and subcommands may have both a short and long name
+- Unlimited trailing arguments after a `--`
 - Flags can use a single dash or double dash (`--flag`, `-flag`, `-f`, `--f`)
 - Flags can have `=` assignment operators, or use a space (`--flag=value`, `--flag value`)
 - Flags support single quote globs with spaces (`--flag 'this is all one value'`)
@@ -98,9 +99,9 @@ flaggy.Parse()
 print(stringFlag)
 ```
 
-# Example with Nested Subcommand and Various Flags
+# Example with Nested Subcommand and Various Flags and Trailing Arguments
 
-`./yourApp subcommandExample --flag=5 nestedSubcommand -t test -y`
+`./yourApp subcommandExample --flag=5 nestedSubcommand -t test -y -- trailingArg`
 
 ```go
 // Declare variables and their defaults
@@ -128,8 +129,9 @@ flaggy.AddSubcommand(subcommandExample, 1)
 // Parse the subcommand and all flags
 flaggy.Parse()
 
-// Use the flags
+// Use the flags and trailing arguments
 print(stringFlagF)
 print(intFlagT)
 print(boolFlagB)
+print(flaggy.TrailingArguments)
 ```
