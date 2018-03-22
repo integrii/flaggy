@@ -17,9 +17,9 @@ Booleans (sets to true if flag is specified without value)
  -k false
  -k=true
  -k
- 
- All arguments after a double dash (--) are added as strings to the 
- TrailingArguments slice.
+
+All arguments after a double dash (--) are added as strings to the
+TrailingArguments slice.
 
 
 */
