@@ -34,7 +34,7 @@ func NewParser(name string) *Parser {
 // is a low level issue converting flags to their proper type.  No error
 // is returned for invalid arguments or missing require subcommands.
 func (p *Parser) ParseArgs(args []string) error {
-	debugPrint("Kicking off parsing with depth of 0 and args:", args)
+	debugPrint("Kicking off parsing with args:", args)
 	return p.parse(p, args, 0)
 }
 

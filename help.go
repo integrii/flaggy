@@ -1,7 +1,8 @@
 package flaggy
 
 // defaultHelpTemplate is the help template used by default
-const defaultHelpTemplate = `{{.CommandName}}{{if .Description}} - {{.Description}}{{end}}{{if .PrependMessage}}{{.PrependMessage}}{{end}}{{if .Positionals}}
+const defaultHelpTemplate = `{{.CommandName}}{{if .Description}} - {{.Description}}{{end}}{{if .PrependMessage}}
+{{.PrependMessage}}{{end}}{{if .Positionals}}
 
   Positional Variables:
 {{range .Positionals}}
@@ -11,10 +12,11 @@ const defaultHelpTemplate = `{{.CommandName}}{{if .Description}} - {{.Descriptio
 {{range .Subcommands}}
     {{.LongName}}{{if .ShortName}} ({{.ShortName}}){{end}}{{if .Position}} (Position {{.Position}}){{end}}{{if .Description}} {{.Description}}{{end}}{{end}}{{end}}{{if (gt (len .StringFlags) 0) | (gt (len .IntFlags) 0) | (gt (len .BoolFlags) 0)}}
 
-  Flags:{{if (gt (len .StringFlags) 0)}}{{range .StringFlags}}
-    --{{.LongName}}{{if .ShortName}} (-{{.ShortName}}){{end}}{{if .Description}} {{.Description}}{{end}}{{end}}{{end}}{{if (gt (len .IntFlags) 0)}}{{range .IntFlags}}
-    --{{.LongName}}{{if .ShortName}} (-{{.ShortName}}){{end}}{{if .Description}} {{.Description}}{{end}}{{end}}{{end}}{{if (gt (len .BoolFlags) 0)}}{{range .BoolFlags}}
-    --{{.LongName}}{{if .ShortName}} (-{{.ShortName}}){{end}}{{if .Description}} {{.Description}}{{end}}{{end}}{{end}}{{end}}
+  Flags:{{range .StringFlags}}
+    {{if .LongName}}--{{.LongName}} {{end}}{{if .ShortName}}(-{{.ShortName}}){{end}}{{if .Description}} {{.Description}}{{end}}{{end}}{{range .IntFlags}}
+    {{if .LongName}}--{{.LongName}} {{end}}{{if .ShortName}}(-{{.ShortName}}){{end}}{{if .Description}} {{.Description}}{{end}}{{end}}}{{range .BoolFlags}}
+    {{if .LongName}}--{{.LongName}} {{end}}{{if .ShortName}}(-{{.ShortName}}){{end}}{{if .Description}} {{.Description}}{{end}}{{end}}{{end}}
 {{if .AppendMessage}}
-{{.AppendMessage}}{{end}}{{if .Message}}{{.Message}}
+{{.AppendMessage}}{{end}}{{if .Message}}
+{{.Message}}
 {{end}}`
