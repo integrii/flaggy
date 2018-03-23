@@ -4,7 +4,7 @@
 
 
 
-Sensible flag parsing with support for subcommands, positional values, and flags that can be at any position.  No required project or package layout like [Cobra](https://github.com/spf13/Cobra), and **no third party package dependencies**.  
+Sensible command-line flag parsing with support for subcommands and positional values. Flags can be at any position.  No required project or package layout like [Cobra](https://github.com/spf13/Cobra), and **no third party package dependencies**.  
 
 Check out the [godoc](http://godoc.org/github.com/integrii/flaggy), [examples directory](https://github.com/integrii/flaggy/tree/master/examples), and [examples in this readme](https://github.com/integrii/flaggy#super-simple-example) to get started quickly.
 
