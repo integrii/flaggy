@@ -12,10 +12,10 @@ const defaultHelpTemplate = `{{.CommandName}}{{if .Description}} - {{.Descriptio
 {{range .Subcommands}}
     {{.LongName}}{{if .ShortName}} ({{.ShortName}}){{end}}{{if .Position}} (Position {{.Position}}){{end}}{{if .Description}} {{.Description}}{{end}}{{end}}{{end}}{{if (gt (len .StringFlags) 0) | (gt (len .IntFlags) 0) | (gt (len .BoolFlags) 0)}}
 
-  Flags:{{range .StringFlags}}
-    {{if .LongName}}--{{.LongName}} {{end}}{{if .ShortName}}(-{{.ShortName}}){{end}}{{if .Description}} {{.Description}}{{end}}{{end}}{{range .IntFlags}}
-    {{if .LongName}}--{{.LongName}} {{end}}{{if .ShortName}}(-{{.ShortName}}){{end}}{{if .Description}} {{.Description}}{{end}}{{end}}}{{range .BoolFlags}}
-    {{if .LongName}}--{{.LongName}} {{end}}{{if .ShortName}}(-{{.ShortName}}){{end}}{{if .Description}} {{.Description}}{{end}}{{end}}{{end}}
+  Flags:{{if .StringFlags}}{{range .StringFlags}}
+    {{if .LongName}}--{{.LongName}} {{end}}{{if .ShortName}}(-{{.ShortName}}){{end}}{{if .Description}} {{.Description}}{{end}}{{end}}{{end}}{{if .IntFlags}}{{range .IntFlags}}
+    {{if .LongName}}--{{.LongName}} {{end}}{{if .ShortName}}(-{{.ShortName}}){{end}}{{if .Description}} {{.Description}}{{end}}{{end}}{{end}}{{if .BoolFlags}}{{range .BoolFlags}}
+    {{if .LongName}}--{{.LongName}} {{end}}{{if .ShortName}}(-{{.ShortName}}){{end}}{{if .Description}} {{.Description}}{{end}}{{end}}{{end}}{{end}}
 {{if .AppendMessage}}
 {{.AppendMessage}}{{end}}{{if .Message}}
 {{.Message}}

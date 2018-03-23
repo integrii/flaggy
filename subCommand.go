@@ -272,7 +272,7 @@ func (sc *Subcommand) parse(p *Parser, args []string, depth int) error {
 	// find any positionals that were not used on subcommands that were found
 	for _, pv := range p.PositionalFlags {
 		if pv.Required && !pv.Found {
-			p.ShowHelpWithMessage("Required global positional " + pv.Name + " not found at position " + strconv.Itoa(pv.Position))
+			p.ShowHelpWithMessage("Required global positional variable " + pv.Name + " not found at position " + strconv.Itoa(pv.Position))
 			os.Exit(2)
 		}
 	}
