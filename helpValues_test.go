@@ -8,8 +8,8 @@ import (
 
 // TestHelpOutput tests the dislay of help with -h
 func TestHelpOutput(t *testing.T) {
-	flaggy.DebugMode = true
-	defer debugOff()
+	// flaggy.DebugMode = true
+	// defer debugOff()
 	p := flaggy.NewParser("testCommand")
 	p.Description = "Description goes here.  Get more information at http://flaggy.flag."
 	scA := flaggy.NewSubcommand("subcommandA")

@@ -10,7 +10,7 @@ import (
 // TestDoublePositional tests errors when two positionals are
 // specified at the same time
 func TestDoublePositional(t *testing.T) {
-	flaggy.DebugMode = true
+	// flaggy.DebugMode = true
 	defer debugOff()
 	var posTest string
 	err := flaggy.AddPositionalValue(&posTest, "posTest", 1, true, "First test positional")
@@ -26,7 +26,7 @@ func TestDoublePositional(t *testing.T) {
 // TestRequiredPositional tests required positionals
 func TestRequiredPositional(t *testing.T) {
 	t.Skip("Proram exits if test completes")
-	flaggy.DebugMode = true
+	// flaggy.DebugMode = true
 	defer debugOff()
 	var posTest string
 	err := flaggy.AddPositionalValue(&posTest, "posTest", 1, true, "First test positional")
@@ -106,7 +106,6 @@ func TestVersionWithVFlagB(t *testing.T) {
 
 // TestSubcommandParse tests paring of a single subcommand
 func TestSubcommandParse(t *testing.T) {
-	t.Parallel()
 
 	var positionA string
 
@@ -145,7 +144,6 @@ func TestSubcommandParse(t *testing.T) {
 }
 
 func TestBadSubcommand(t *testing.T) {
-	t.Parallel()
 
 	// create the argument parser
 	p := flaggy.NewParser("TestBadSubcommand")
@@ -166,7 +164,6 @@ func TestBadSubcommand(t *testing.T) {
 }
 
 func TestBadPositional(t *testing.T) {
-	t.Parallel()
 
 	// create the argument parser
 	p := flaggy.NewParser("TestBadPositional")

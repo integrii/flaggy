@@ -201,6 +201,7 @@ func (sc *Subcommand) parse(p *Parser, args []string, depth int) error {
 	// loop over positional values and look for their matching positional
 	// parameter, or their positional command.  If neither are found, then
 	// we throw an error
+	var parsedArgCount int
 	for pos, v := range positionalOnlyArguments {
 
 		// the first relative positional argument will be human natural at position 1
@@ -212,6 +213,7 @@ func (sc *Subcommand) parse(p *Parser, args []string, depth int) error {
 			debugPrint("skipped value", v)
 			continue
 		}
+		parsedArgCount++
 		// determine positional value flags by positional value and depth of parser
 
 		// determine subcommands and parse them by positional value and name
@@ -219,7 +221,7 @@ func (sc *Subcommand) parse(p *Parser, args []string, depth int) error {
 			debugPrint("Subcommand being compared", relativeDepth, "==", cmd.Position, "and", v, "==", cmd.Name, "==", cmd.ShortName)
 			if relativeDepth == cmd.Position && (v == cmd.Name || v == cmd.ShortName) {
 				debugPrint("Decending into positional subcommand", cmd.Name, "at relativeDepth", relativeDepth, "and absolute depth", depth+1)
-				return cmd.parse(p, args, depth+1+pos) // continue recursive positional parsing
+				return cmd.parse(p, args, depth+parsedArgCount) // continue recursive positional parsing
 			}
 		}
 

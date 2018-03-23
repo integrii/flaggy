@@ -19,7 +19,6 @@ func TestGlobs(t *testing.T) {
 }
 
 func TestParseArgWithValue(t *testing.T) {
-	t.Parallel()
 
 	testCases := make(map[string][]string)
 	testCases["-f=test"] = []string{"f", "test"}
@@ -43,7 +42,6 @@ func TestParseArgWithValue(t *testing.T) {
 }
 
 func TestDetermineArgType(t *testing.T) {
-	t.Parallel()
 
 	testCases := make(map[string]string)
 	testCases["-f"] = argIsFlagWithSpace

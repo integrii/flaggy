@@ -7,7 +7,6 @@ import (
 )
 
 func TestParsePositionalsA(t *testing.T) {
-	flaggy.DebugMode = true
 	inputLine := []string{"-t", "-i=3", "subcommand", "-n", "testN", "-j=testJ", "positionalA", "positionalB", "--testK=testK", "--", "trailingA", "trailingB"}
 
 	var boolT bool

@@ -34,7 +34,6 @@ func main() {
 
 	// add a bool flag to the root command
 	p.AddBoolFlag(&boolFlagB, "b", "boolTest", "This is a test boolean flag")
-	flaggy.DebugMode = true
 
 	p.Parse()
 
