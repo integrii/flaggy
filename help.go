@@ -1,6 +1,8 @@
 package flaggy
 
 // defaultHelpTemplate is the help template used by default
+// {{if (or (or (gt (len .StringFlags) 0) (gt (len .IntFlags) 0)) (gt (len .BoolFlags) 0))}}
+// {{if (or (gt (len .StringFlags) 0) (gt (len .BoolFlags) 0))}}
 const defaultHelpTemplate = `{{.CommandName}}{{if .Description}} - {{.Description}}{{end}}{{if .PrependMessage}}
 {{.PrependMessage}}{{end}}{{if .Positionals}}
 
@@ -10,7 +12,7 @@ const defaultHelpTemplate = `{{.CommandName}}{{if .Description}} - {{.Descriptio
 
   Subcommands:
 {{range .Subcommands}}
-    {{.LongName}}{{if .ShortName}} ({{.ShortName}}){{end}}{{if .Position}} (Position {{.Position}}){{end}}{{if .Description}} {{.Description}}{{end}}{{end}}{{end}}{{if (gt (len .StringFlags) 0) | (gt (len .IntFlags) 0) | (gt (len .BoolFlags) 0)}}
+    {{.LongName}}{{if .ShortName}} ({{.ShortName}}){{end}}{{if .Position}} (Position {{.Position}}){{end}}{{if .Description}} {{.Description}}{{end}}{{end}}{{end}}{{if (or (or (gt (len .StringFlags) 0) (gt (len .IntFlags) 0)) (gt (len .BoolFlags) 0))}}
 
   Flags:{{if .StringFlags}}{{range .StringFlags}}
     {{if .LongName}}--{{.LongName}} {{end}}{{if .ShortName}}(-{{.ShortName}}){{end}}{{if .Description}} {{.Description}}{{end}}{{end}}{{end}}{{if .IntFlags}}{{range .IntFlags}}

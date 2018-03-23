@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"html/template"
-	"log"
 	"os"
 	"strconv"
 )
@@ -54,11 +53,13 @@ func (sc *Subcommand) SetHelpTemplate(tmpl string) error {
 }
 
 // parseAllFlagsFromArgs parses the non-positional flags such as -f or -v=value
-// out of the supplied args and returns the positional items in order
-func (sc *Subcommand) parseAllFlagsFromArgs(p *Parser, args []string) ([]string, error) {
+// out of the supplied args and returns the positional items in order.
+func (sc *Subcommand) parseAllFlagsFromArgs(p *Parser, args []string) ([]string, bool, error) {
 
 	var err error
 	var positionalOnlyArguments []string
+	var helpRequested bool // indicates the user has supplied -h and we
+	// should render help if we are the last subcommand
 
 	// indicates we should skip the next argument, like when parsing a flag
 	// that separates key and value by space
@@ -107,7 +108,10 @@ func (sc *Subcommand) parseAllFlagsFromArgs(p *Parser, args []string) ([]string,
 		// is passed as an option
 		if p.ShowHelpWithHFlag {
 			if flagName == "h" || flagName == "help" {
-				sc.ShowHelp()
+				// Ensure this is the last subcommand passed so we give the correct
+				// help output
+				helpRequested = true
+				continue
 			}
 		}
 
@@ -150,7 +154,7 @@ func (sc *Subcommand) parseAllFlagsFromArgs(p *Parser, args []string) ([]string,
 
 				// if an error occurs, just return it and quit parsing
 				if err != nil {
-					return []string{}, err
+					return []string{}, false, err
 				}
 				// by default, we just assign the next argument to the value and continue
 				continue
@@ -163,7 +167,7 @@ func (sc *Subcommand) parseAllFlagsFromArgs(p *Parser, args []string) ([]string,
 			}
 			_, err = setValueForParsers(a, nextArg, p, sc)
 			if err != nil {
-				return []string{}, err
+				return []string{}, false, err
 			}
 		case argIsFlagWithValue:
 			a = parseFlagToName(a)
@@ -172,7 +176,7 @@ func (sc *Subcommand) parseAllFlagsFromArgs(p *Parser, args []string) ([]string,
 			key, val := parseArgWithValue(a)
 			_, err = setValueForParsers(key, val, p, sc)
 			if err != nil {
-				return []string{}, err
+				return []string{}, false, err
 			}
 			// if this flag type was found and not set, and the parser is set to show
 			// Help when an unknown flag is found, then show Help and exit.
@@ -180,7 +184,7 @@ func (sc *Subcommand) parseAllFlagsFromArgs(p *Parser, args []string) ([]string,
 
 	}
 
-	return positionalOnlyArguments, nil
+	return positionalOnlyArguments, helpRequested, nil
 }
 
 // Parse causes the argument parser to parse based on the supplied []string.
@@ -193,7 +197,7 @@ func (sc *Subcommand) parse(p *Parser, args []string, depth int) error {
 
 	// Parse the normal flags out of the argument list and retain the positionals.
 	// Apply the flags to the parent parser and the current subcommand context.
-	positionalOnlyArguments, err := sc.parseAllFlagsFromArgs(p, args)
+	positionalOnlyArguments, helpRequested, err := sc.parseAllFlagsFromArgs(p, args)
 	if err != nil {
 		return err
 	}
@@ -214,8 +218,6 @@ func (sc *Subcommand) parse(p *Parser, args []string, depth int) error {
 			continue
 		}
 		parsedArgCount++
-		// determine positional value flags by positional value and depth of parser
-
 		// determine subcommands and parse them by positional value and name
 		for _, cmd := range sc.Subcommands {
 			debugPrint("Subcommand being compared", relativeDepth, "==", cmd.Position, "and", v, "==", cmd.Name, "==", cmd.ShortName)
@@ -225,7 +227,7 @@ func (sc *Subcommand) parse(p *Parser, args []string, depth int) error {
 			}
 		}
 
-		// determine positional args  and parse them by positional value and name
+		// determine positional args and parse them by positional value and name
 		var foundPositional bool
 		for _, val := range sc.PositionalFlags {
 			if relativeDepth == val.Position {
@@ -269,14 +271,20 @@ func (sc *Subcommand) parse(p *Parser, args []string, depth int) error {
 		}
 	}
 
-	// find any positionals that were not used on subcommands that were found
+	// if help was requested and we should show help when h is passed,
+	if helpRequested && p.ShowHelpWithHFlag {
+		sc.ShowHelp()
+		os.Exit(0)
+	}
+
+	// find any positionals that were not used on subcommands that were
+	// found and throw help (unknown argument)
 	for _, pv := range p.PositionalFlags {
 		if pv.Required && !pv.Found {
 			p.ShowHelpWithMessage("Required global positional variable " + pv.Name + " not found at position " + strconv.Itoa(pv.Position))
 			os.Exit(2)
 		}
 	}
-
 	for _, pv := range sc.PositionalFlags {
 		if pv.Required && !pv.Found {
 			sc.ShowHelpWithMessage("Required positional of subcommand " + sc.Name + " named " + pv.Name + " not found at position " + strconv.Itoa(pv.Position))
@@ -505,6 +513,7 @@ func (sc *Subcommand) SetValueForKey(key string, value string) (bool, error) {
 
 // ShowHelp shows Help without an error message
 func (sc *Subcommand) ShowHelp() {
+	debugPrint("showing help for", sc.Name)
 	sc.ShowHelpWithMessage("")
 }
 
@@ -516,8 +525,8 @@ func (sc *Subcommand) ShowHelpWithMessage(message string) {
 	// create a new Help values template and extract values into it
 	help := Help{}
 	help.ExtractValues(sc, message)
-	err := sc.HelpTemplate.Execute(os.Stdout, help)
+	err := sc.HelpTemplate.Execute(os.Stderr, help)
 	if err != nil {
-		log.Println("Error rendering Help template:", err)
+		fmt.Fprintln(os.Stderr, "Error rendering Help template:", err)
 	}
 }

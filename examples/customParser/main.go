@@ -27,6 +27,7 @@ func main() {
 	// create a subcommand at position 2
 	// you don't have to finish the subcommand before adding it to the parser
 	subCmd := flaggy.NewSubcommand("subCmd")
+	subCmd.Description = "Description of subcommand"
 	p.AddSubcommand(subCmd, 2)
 
 	// add a flag to the subcomand
