@@ -167,7 +167,7 @@ func ExampleAddStringFlag() {
 // Example shows some basic usage of flaggy.
 func Example() {
 
-	// Do not include the following line in your real program, it is for this
+	// Do not include the following two lines in your real program, it is for this
 	// example only:
 	flaggy.ResetParser()
 	os.Args = []string{"programName", "-v", "VariableHere", "subcommandName", "subcommandPositional", "--", "trailingVar"}
