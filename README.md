@@ -1,4 +1,4 @@
-![flaggy](/flaggy.png)
+<center>![flaggy](/flaggy.png)</center>
 
 [![flaggy go report](https://goreportcard.com/badge/github.com/integrii/flaggy)](https://goreportcard.com/report/github.com/integrii/flaggy) [![Build Status](https://travis-ci.org/integrii/flaggy.svg?branch=master)](https://travis-ci.org/integrii/flaggy)
 
