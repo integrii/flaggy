@@ -14,11 +14,14 @@ func TestComplexNesting(t *testing.T) {
 	var testC string
 	var testD string
 	var testE string
+	var testF bool
 
 	scA := flaggy.NewSubcommand("scA")
 	scB := flaggy.NewSubcommand("scB")
 	scC := flaggy.NewSubcommand("scC")
 	scD := flaggy.NewSubcommand("scD")
+
+	flaggy.AddBoolFlag(&testF, "f", "testF", "")
 
 	scA.AddPositionalValue(&testA, "testA", 1, false, "")
 	scA.AddPositionalValue(&testB, "testB", 2, false, "")
@@ -33,7 +36,11 @@ func TestComplexNesting(t *testing.T) {
 
 	scD.AddPositionalValue(&testE, "testE", 1, true, "")
 
-	flaggy.ParseArgs([]string{"scA", "A", "B", "C", "scB", "D", "scC", "scD", "E"})
+	flaggy.ParseArgs([]string{"scA", "A", "-f", "B", "C", "scB", "D", "scC", "scD", "E"})
+
+	if !testF {
+		t.FailNow()
+	}
 
 	if !scA.Used {
 		t.FailNow()
