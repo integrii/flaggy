@@ -6,6 +6,65 @@ import (
 	"github.com/integrii/flaggy"
 )
 
+// TestComplexNesting tests various levels of nested subcommands and
+// positional values intermixed with eachother.
+func TestComplexNesting(t *testing.T) {
+	var testA string
+	var testB string
+	var testC string
+	var testD string
+	var testE string
+
+	scA := flaggy.NewSubcommand("scA")
+	scB := flaggy.NewSubcommand("scB")
+	scC := flaggy.NewSubcommand("scC")
+	scD := flaggy.NewSubcommand("scD")
+
+	scA.AddPositionalValue(&testA, "testA", 1, false, "")
+	scA.AddPositionalValue(&testB, "testB", 2, false, "")
+	scA.AddPositionalValue(&testC, "testC", 3, false, "")
+	scA.AddSubcommand(scB, 4)
+	flaggy.AddSubcommand(scA, 1)
+
+	scB.AddPositionalValue(&testD, "testD", 1, false, "")
+	scB.AddSubcommand(scC, 2)
+
+	scC.AddSubcommand(scD, 1)
+
+	scD.AddPositionalValue(&testE, "testE", 1, true, "")
+
+	flaggy.ParseArgs([]string{"scA", "A", "B", "C", "scB", "D", "scC", "scD", "E"})
+
+	if !scA.Used {
+		t.FailNow()
+	}
+	if !scB.Used {
+		t.FailNow()
+	}
+	if !scC.Used {
+		t.FailNow()
+	}
+	if !scD.Used {
+		t.FailNow()
+	}
+	if testA != "A" {
+		t.FailNow()
+	}
+	if testB != "B" {
+		t.FailNow()
+	}
+	if testC != "C" {
+		t.FailNow()
+	}
+	if testD != "D" {
+		t.FailNow()
+	}
+	if testE != "E" {
+		t.FailNow()
+	}
+
+}
+
 func TestParsePositionalsA(t *testing.T) {
 	inputLine := []string{"-t", "-i=3", "subcommand", "-n", "testN", "-j=testJ", "positionalA", "positionalB", "--testK=testK", "--", "trailingA", "trailingB"}
 
