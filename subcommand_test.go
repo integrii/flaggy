@@ -13,6 +13,7 @@ func TestDoublePositional(t *testing.T) {
 	// flaggy.DebugMode = true
 	defer debugOff()
 	var posTest string
+	flaggy.ResetParser()
 	err := flaggy.AddPositionalValue(&posTest, "posTest", 1, true, "First test positional")
 	if err != nil {
 		t.Fatal(err)
