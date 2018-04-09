@@ -112,6 +112,21 @@ func ShowHelp(message string) {
 	mainParser.ShowHelpWithMessage(message)
 }
 
+// SetDescription sets the description of the default package command parser
+func SetDescription(description string) {
+	mainParser.Description = description
+}
+
+// SetVersion sets the version of the default package command parser
+func SetVersion(version string) {
+	mainParser.Version = version
+}
+
+// SetName sets the name of the default package command parser
+func SetName(name string) {
+	mainParser.Name = name
+}
+
 // ShowHelpAndExit shows parser help and exits with status code 2
 func ShowHelpAndExit(message string) {
 	ShowHelp(message)
