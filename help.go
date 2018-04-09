@@ -22,6 +22,5 @@ const defaultHelpTemplate = `{{.CommandName}}{{if .Description}} - {{.Descriptio
     {{if .LongName}}--{{.LongName}} {{end}}{{if .ShortName}}(-{{.ShortName}}){{end}}{{if .Description}} {{.Description}}{{end}}{{end}}{{end}}
 {{end}}
 {{if .AppendMessage}}{{.AppendMessage}}
-{{end}}{{if .Message}}
-{{.Message}}
+{{end}}{{if .Message}}{{.Message}}
 {{end}}`
