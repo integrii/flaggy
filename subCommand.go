@@ -3,9 +3,9 @@ package flaggy
 import (
 	"errors"
 	"fmt"
-	"html/template"
 	"os"
 	"strconv"
+	"text/template"
 )
 
 // Subcommand represents a subcommand which contains a set of child
