@@ -7,6 +7,7 @@ type Help struct {
 	StringFlags    []HelpFlag
 	IntFlags       []HelpFlag
 	BoolFlags      []HelpFlag
+	UsageString    string
 	CommandName    string
 	PrependMessage string
 	AppendMessage  string
@@ -96,4 +97,45 @@ func (h *Help) ExtractValues(sc *Subcommand, message string) {
 		}
 		h.BoolFlags = append(h.BoolFlags, newHelpFlag)
 	}
+
+	// formulate the usage string
+	// first, we capture all the command and positional names by position
+	commandsByPosition := make(map[int]string)
+	for _, pos := range sc.PositionalFlags {
+		if len(commandsByPosition[pos.Position]) > 0 {
+			commandsByPosition[pos.Position] = commandsByPosition[pos.Position] + "|" + pos.Name
+		} else {
+			commandsByPosition[pos.Position] = pos.Name
+		}
+	}
+	for _, pos := range sc.Subcommands {
+		if len(commandsByPosition[pos.Position]) > 0 {
+			commandsByPosition[pos.Position] = commandsByPosition[pos.Position] + "|" + pos.Name
+		} else {
+			commandsByPosition[pos.Position] = pos.Name
+		}
+	}
+
+	// find the highest position count in the map
+	var highestPosition int
+	for i := range commandsByPosition {
+		if i > highestPosition {
+			highestPosition = i
+		}
+	}
+
+	// find each positional value and make our final string
+	var usageString = sc.Name
+	for i := 1; i <= highestPosition; i++ {
+		if len(commandsByPosition[i]) > 0 {
+			usageString = usageString + " [" + commandsByPosition[i] + "]"
+		} else {
+			// dont keep listing after the first position without any properties
+			// it will be impossible to reach anything beyond here anyway
+			break
+		}
+	}
+
+	h.UsageString = usageString
+
 }

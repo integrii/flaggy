@@ -34,6 +34,7 @@ func TestHelpOutput(t *testing.T) {
 	p.AddStringFlag(&stringFlag, "s", "stringFlag", "This is a test string flag that does some stringy string stuff.")
 	p.AddIntFlag(&intFlag, "i", "intFlg", "This is a test int flag that does some interesting int stuff.")
 	p.AddBoolFlag(&boolFlag, "b", "boolFlag", "This is a test bool flag that does some booly bool stuff.")
+	p.AddBoolFlag(&boolFlag, "", "boolFlagB", "This is a second test bool flag that does some booly bool stuff.")
 	p.AdditionalHelpPrepend = "This is a prepend for help"
 	p.AdditionalHelpAppend = "This is an append for help"
 	p.ShowHelpWithMessage("This is a help addon message")
