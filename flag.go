@@ -13,6 +13,16 @@ type Flag struct {
 	Hidden      bool // indicates this flag should be hidden from help and suggestions
 }
 
+// HasName indicates that this flag's short or long name matches the
+// supplied name string
+func (f *Flag) HasName(name string) bool {
+	name = strings.TrimSpace(name)
+	if f.ShortName == name || f.LongName == name {
+		return true
+	}
+	return false
+}
+
 // StringFlag represents a flag that is converted into a string value.
 type StringFlag struct {
 	Flag
@@ -107,12 +117,12 @@ func parseFlagToName(arg string) string {
 // and subcommand's context
 func flagIsBool(sc *Subcommand, p *Parser, key string) bool {
 	for _, f := range sc.BoolFlags {
-		if f.ShortName == key || f.LongName == key {
+		if f.HasName(key) {
 			return true
 		}
 	}
 	for _, f := range p.BoolFlags {
-		if f.ShortName == key || f.LongName == key {
+		if f.HasName(key) {
 			return true
 		}
 	}

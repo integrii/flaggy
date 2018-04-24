@@ -303,28 +303,19 @@ func (sc *Subcommand) parse(p *Parser, args []string, depth int) error {
 func (sc *Subcommand) FlagExists(name string) bool {
 
 	for _, f := range sc.StringFlags {
-		if f.ShortName != "" && f.ShortName == name {
-			return true
-		}
-		if f.LongName != "" && f.LongName == name {
+		if f.HasName(name) {
 			return true
 		}
 	}
 
 	for _, f := range sc.IntFlags {
-		if f.ShortName != "" && f.ShortName == name {
-			return true
-		}
-		if f.LongName != "" && f.LongName == name {
+		if f.HasName(name) {
 			return true
 		}
 	}
 
 	for _, f := range sc.BoolFlags {
-		if f.ShortName != "" && f.ShortName == name {
-			return true
-		}
-		if f.LongName != "" && f.LongName == name {
+		if f.HasName(name) {
 			return true
 		}
 	}
