@@ -6,12 +6,16 @@ import (
 	"time"
 )
 
+// FlagType represents the type a flag is backed with
+type FlagType int
+
 // Flag holds the base methods for all flag types
 type Flag struct {
-	ShortName   string
-	LongName    string
-	Description string
-	Hidden      bool // indicates this flag should be hidden from help and suggestions
+	ShortName     string
+	LongName      string
+	Description   string
+	Hidden        bool         // indicates this flag should be hidden from help and suggestions
+	AssignmentVar *interface{} // TODO - implement as type switch where specific types required.  Issue #7
 }
 
 // HasName indicates that this flag's short or long name matches the
@@ -123,12 +127,7 @@ func parseFlagToName(arg string) string {
 // flagIsBool determines if the flag is a bool within the specified parser
 // and subcommand's context
 func flagIsBool(sc *Subcommand, p *Parser, key string) bool {
-	for _, f := range sc.BoolFlags {
-		if f.HasName(key) {
-			return true
-		}
-	}
-	for _, f := range p.BoolFlags {
+	for _, f := range sc.Flags {
 		if f.HasName(key) {
 			return true
 		}
