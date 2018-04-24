@@ -52,17 +52,23 @@ func (h *Help) ExtractValues(sc *Subcommand, message string) {
 	// description
 	h.Description = sc.Description
 	// subcommands    []HelpSubcommand
-	for _, sc := range sc.Subcommands {
+	for _, cmd := range sc.Subcommands {
+		if cmd.Hidden {
+			continue
+		}
 		newHelpSubcommand := HelpSubcommand{
-			ShortName:   sc.ShortName,
-			LongName:    sc.Name,
-			Description: sc.Description,
-			Position:    sc.Position,
+			ShortName:   cmd.ShortName,
+			LongName:    cmd.Name,
+			Description: cmd.Description,
+			Position:    cmd.Position,
 		}
 		h.Subcommands = append(h.Subcommands, newHelpSubcommand)
 	}
 	// positionals    []HelpPositional
 	for _, pos := range sc.PositionalFlags {
+		if pos.Hidden {
+			continue
+		}
 		newHelpPositional := HelpPositional{
 			Name:        pos.Name,
 			Position:    pos.Position,
@@ -74,6 +80,9 @@ func (h *Help) ExtractValues(sc *Subcommand, message string) {
 
 	// flags          []HelpFlag
 	for _, f := range sc.StringFlags {
+		if f.Hidden {
+			continue
+		}
 		newHelpFlag := HelpFlag{
 			ShortName:   f.ShortName,
 			LongName:    f.LongName,
@@ -82,6 +91,9 @@ func (h *Help) ExtractValues(sc *Subcommand, message string) {
 		h.StringFlags = append(h.StringFlags, newHelpFlag)
 	}
 	for _, f := range sc.IntFlags {
+		if f.Hidden {
+			continue
+		}
 		newHelpFlag := HelpFlag{
 			ShortName:   f.ShortName,
 			LongName:    f.LongName,
@@ -90,6 +102,9 @@ func (h *Help) ExtractValues(sc *Subcommand, message string) {
 		h.IntFlags = append(h.IntFlags, newHelpFlag)
 	}
 	for _, f := range sc.BoolFlags {
+		if f.Hidden {
+			continue
+		}
 		newHelpFlag := HelpFlag{
 			ShortName:   f.ShortName,
 			LongName:    f.LongName,
@@ -102,17 +117,23 @@ func (h *Help) ExtractValues(sc *Subcommand, message string) {
 	// first, we capture all the command and positional names by position
 	commandsByPosition := make(map[int]string)
 	for _, pos := range sc.PositionalFlags {
+		if pos.Hidden {
+			continue
+		}
 		if len(commandsByPosition[pos.Position]) > 0 {
 			commandsByPosition[pos.Position] = commandsByPosition[pos.Position] + "|" + pos.Name
 		} else {
 			commandsByPosition[pos.Position] = pos.Name
 		}
 	}
-	for _, pos := range sc.Subcommands {
-		if len(commandsByPosition[pos.Position]) > 0 {
-			commandsByPosition[pos.Position] = commandsByPosition[pos.Position] + "|" + pos.Name
+	for _, cmd := range sc.Subcommands {
+		if cmd.Hidden {
+			continue
+		}
+		if len(commandsByPosition[cmd.Position]) > 0 {
+			commandsByPosition[cmd.Position] = commandsByPosition[cmd.Position] + "|" + cmd.Name
 		} else {
-			commandsByPosition[pos.Position] = pos.Name
+			commandsByPosition[cmd.Position] = cmd.Name
 		}
 	}
 

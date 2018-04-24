@@ -27,7 +27,7 @@ type Subcommand struct {
 	AdditionalHelpAppend  string             // additional appended message when Help is displayed
 	Used                  bool               // indicates this subcommand was found and parsed
 	HelpTemplate          *template.Template // template for Help output
-
+	Hidden                bool               // indicates this subcommand should be hidden from help
 }
 
 // NewSubcommand creates a new subcommand that can have flags or PositionalFlags
@@ -258,6 +258,9 @@ func (sc *Subcommand) parse(p *Parser, args []string, depth int) error {
 				fmt.Fprintln(os.Stderr, "Subcommand or positional value not found at depth", strconv.Itoa(relativeDepth)+".  Available subcommands:")
 				var output string
 				for _, cmd := range sc.Subcommands {
+					if cmd.Hidden {
+						continue
+					}
 					output = output + " " + cmd.Name
 				}
 				fmt.Fprintln(os.Stderr, output) // follow up with a newline

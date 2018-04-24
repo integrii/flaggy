@@ -9,4 +9,5 @@ type PositionalValue struct {
 	Position      int     // the position, not including switches, of this variable
 	Required      bool    // this subcommand must always be specified
 	Found         bool    // was this positional found during parsing?
+	Hidden        bool    // indicates this positional value should be hidden from help
 }

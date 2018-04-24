@@ -10,6 +10,7 @@ type Flag struct {
 	ShortName   string
 	LongName    string
 	Description string
+	Hidden      bool // indicates this flag should be hidden from help and suggestions
 }
 
 // StringFlag represents a flag that is converted into a string value.
