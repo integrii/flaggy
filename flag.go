@@ -5,6 +5,9 @@ import (
 	"strings"
 )
 
+// FlagType represents the type a flag is backed with
+type FlagType int
+
 // Flag holds the base methods for all flag types
 type Flag struct {
 	ShortName     string

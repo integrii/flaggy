@@ -21,7 +21,6 @@ type Subcommand struct {
 	Position              int // the position of this subcommand, not including flags
 	Subcommands           []*Subcommand
 	Flags                 []*Flag
-	DurationFlags         []*DurationFlag
 	PositionalFlags       []*PositionalValue
 	AdditionalHelpPrepend string             // additional prepended message when Help is displayed
 	AdditionalHelpAppend  string             // additional appended message when Help is displayed
@@ -302,19 +301,7 @@ func (sc *Subcommand) parse(p *Parser, args []string, depth int) error {
 // name in the (sub)command
 func (sc *Subcommand) FlagExists(name string) bool {
 
-	for _, f := range sc.StringFlags {
-		if f.HasName(name) {
-			return true
-		}
-	}
-
-	for _, f := range sc.IntFlags {
-		if f.HasName(name) {
-			return true
-		}
-	}
-
-	for _, f := range sc.BoolFlags {
+	for _, f := range sc.Flags {
 		if f.HasName(name) {
 			return true
 		}
@@ -422,8 +409,8 @@ func (sc *Subcommand) SetValueForKey(key string, value string) (bool, error) {
 
 	// debugPrint("Looking to set key", key, "to value", value)
 
-	// check for and assign string flags
-	for _, f := range sc.StringFlags {
+	// check for and assign flags
+	for _, f := range sc.Flags {
 		// debugPrint("Evaluating string flag", f.ShortName, "==", key, "||", f.LongName, "==", key)
 		if f.ShortName == key || f.LongName == key {
 			// debugPrint("Setting string value for", key, "to", value)
