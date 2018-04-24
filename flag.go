@@ -3,15 +3,15 @@ package flaggy
 import (
 	"fmt"
 	"strings"
-	"time"
 )
 
 // Flag holds the base methods for all flag types
 type Flag struct {
-	ShortName   string
-	LongName    string
-	Description string
-	Hidden      bool // indicates this flag should be hidden from help and suggestions
+	ShortName     string
+	LongName      string
+	Description   string
+	AssignmentVar *interface{}
+	Hidden        bool // indicates this flag should be hidden from help and suggestions
 }
 
 // HasName indicates that this flag's short or long name matches the
@@ -22,30 +22,6 @@ func (f *Flag) HasName(name string) bool {
 		return true
 	}
 	return false
-}
-
-// StringFlag represents a flag that is converted into a string value.
-type StringFlag struct {
-	Flag
-	AssignmentVar *string
-}
-
-// IntFlag represents a flag that is converted into an int value.
-type IntFlag struct {
-	Flag
-	AssignmentVar *int
-}
-
-// BoolFlag represents a flag that is converted into a bool value.
-type BoolFlag struct {
-	Flag
-	AssignmentVar *bool
-}
-
-// DurationFlag represents a flag for a duration of time
-type DurationFlag struct {
-	Flag
-	AssignmentVar *time.Duration
 }
 
 const argIsPositional = "positional"       // subcommand or positional value
@@ -123,12 +99,7 @@ func parseFlagToName(arg string) string {
 // flagIsBool determines if the flag is a bool within the specified parser
 // and subcommand's context
 func flagIsBool(sc *Subcommand, p *Parser, key string) bool {
-	for _, f := range sc.BoolFlags {
-		if f.HasName(key) {
-			return true
-		}
-	}
-	for _, f := range p.BoolFlags {
+	for _, f := range sc.Flags {
 		if f.HasName(key) {
 			return true
 		}

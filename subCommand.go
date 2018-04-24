@@ -20,9 +20,7 @@ type Subcommand struct {
 	Description           string
 	Position              int // the position of this subcommand, not including flags
 	Subcommands           []*Subcommand
-	StringFlags           []*StringFlag
-	IntFlags              []*IntFlag
-	BoolFlags             []*BoolFlag
+	Flags                 []*Flag
 	DurationFlags         []*DurationFlag
 	PositionalFlags       []*PositionalValue
 	AdditionalHelpPrepend string             // additional prepended message when Help is displayed
@@ -359,92 +357,32 @@ func (sc *Subcommand) AddSubcommand(newSC *Subcommand, relativePosition int) err
 	return nil
 }
 
+// addFlag genericly adds flags to a subcommand
+func (sc *Subcommand) addFlag(assignmentVar *interface{}, shortName string, longName string, description string) error {
+	// if the flag is already used, throw an error
+	for _, existingFlag := range sc.Flags {
+		if longName != "" && existingFlag.LongName == longName {
+			return errors.New("Flag " + longName + " added to subcommand " + sc.Name + " but it is already assigned.")
+		}
+		if shortName != "" && existingFlag.ShortName == shortName {
+			return errors.New("Flag " + shortName + " added to subcommand " + sc.Name + " but it is already assigned.")
+		}
+	}
+
+	newFlag := Flag{}
+	newFlag.AssignmentVar = assignmentVar
+	newFlag.ShortName = shortName
+	newFlag.LongName = longName
+	newFlag.Description = description
+
+	sc.Flags = append(sc.Flags, &newFlag)
+	return nil
+}
+
 // AddDurationFlag flag adds a new duration flag to the parser
 func (sc *Subcommand) AddDurationFlag(assignmentVar *time.Duration, shortName string, longName string, description string) error {
-	// if the flag is already used, throw an error
-	for _, existingFlag := range sc.DurationFlags {
-		if longName != "" && existingFlag.LongName == longName {
-			return errors.New("Duration flag " + longName + " added to subcommand " + sc.Name + " but it is already assigned.")
-		}
-		if shortName != "" && existingFlag.ShortName == shortName {
-			return errors.New("Duration flag " + shortName + " added to subcommand " + sc.Name + " but it is already assigned.")
-		}
-	}
 
-	newDurationFlag := DurationFlag{}
-	newDurationFlag.AssignmentVar = assignmentVar
-	newDurationFlag.ShortName = shortName
-	newDurationFlag.LongName = longName
-	newDurationFlag.Description = description
-	sc.DurationFlags = append(sc.DurationFlags, &newDurationFlag)
-
-	return nil
-}
-
-// AddStringFlag adds a new string flag
-func (sc *Subcommand) AddStringFlag(assignmentVar *string, shortName string, longName string, description string) error {
-	// if the flag is already used, throw an error
-	for _, existingFlag := range sc.StringFlags {
-		if longName != "" && existingFlag.LongName == longName {
-			return errors.New("String flag " + longName + " added to subcommand " + sc.Name + " but it is already assigned.")
-		}
-		if shortName != "" && existingFlag.ShortName == shortName {
-			return errors.New("String flag " + shortName + " added to subcommand " + sc.Name + " but it is already assigned.")
-		}
-	}
-
-	newStringFlag := StringFlag{}
-	newStringFlag.AssignmentVar = assignmentVar
-	newStringFlag.ShortName = shortName
-	newStringFlag.LongName = longName
-	newStringFlag.Description = description
-	sc.StringFlags = append(sc.StringFlags, &newStringFlag)
-
-	return nil
-}
-
-// AddBoolFlag adds a new bool flag
-func (sc *Subcommand) AddBoolFlag(assignmentVar *bool, shortName string, longName string, description string) error {
-	// if the flag is used, throw an error
-	for _, existingFlag := range sc.BoolFlags {
-		if longName != "" && existingFlag.LongName == longName {
-			return errors.New("Bool flag " + longName + " added to subcommand " + sc.Name + " but it is already assigned.")
-		}
-		if shortName != "" && existingFlag.ShortName == shortName {
-			return errors.New("Bool flag " + shortName + " added to subcommand " + sc.Name + " but it is already assigned.")
-		}
-	}
-
-	newBoolFlag := BoolFlag{}
-	newBoolFlag.AssignmentVar = assignmentVar
-	newBoolFlag.ShortName = shortName
-	newBoolFlag.LongName = longName
-	newBoolFlag.Description = description
-	sc.BoolFlags = append(sc.BoolFlags, &newBoolFlag)
-
-	return nil
-}
-
-// AddIntFlag adds a new int flag
-func (sc *Subcommand) AddIntFlag(assignmentVar *int, shortName string, longName string, description string) error {
-	// if the flag is used, throw an error
-	for _, existingFlag := range sc.IntFlags {
-		if longName != "" && existingFlag.LongName == longName {
-			return errors.New("Int flag " + longName + " added to subcommand " + sc.Name + " but it is already assigned.")
-		}
-		if shortName != "" && existingFlag.ShortName == shortName {
-			return errors.New("Int flag " + shortName + " added to subcommand " + sc.Name + " but it is already assigned.")
-		}
-	}
-
-	newIntFlag := IntFlag{}
-	newIntFlag.AssignmentVar = assignmentVar
-	newIntFlag.ShortName = shortName
-	newIntFlag.LongName = longName
-	newIntFlag.Description = description
-	sc.IntFlags = append(sc.IntFlags, &newIntFlag)
-
-	return nil
+	return sc.addFlag(assignmentVar, shortName, longName, description)
 }
 
 // AddPositionalValue adds a positional value to the subcommand.  the
