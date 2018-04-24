@@ -6,6 +6,7 @@ import (
 	"os"
 	"strconv"
 	"text/template"
+	"time"
 )
 
 // Subcommand represents a subcommand which contains a set of child
@@ -22,6 +23,7 @@ type Subcommand struct {
 	StringFlags           []*StringFlag
 	IntFlags              []*IntFlag
 	BoolFlags             []*BoolFlag
+	DurationFlags         []*DurationFlag
 	PositionalFlags       []*PositionalValue
 	AdditionalHelpPrepend string             // additional prepended message when Help is displayed
 	AdditionalHelpAppend  string             // additional appended message when Help is displayed
@@ -357,9 +359,31 @@ func (sc *Subcommand) AddSubcommand(newSC *Subcommand, relativePosition int) err
 	return nil
 }
 
+// AddDurationFlag flag adds a new duration flag to the parser
+func (sc *Subcommand) AddDurationFlag(assignmentVar *time.Duration, shortName string, longName string, description string) error {
+	// if the flag is already used, throw an error
+	for _, existingFlag := range sc.DurationFlags {
+		if longName != "" && existingFlag.LongName == longName {
+			return errors.New("Duration flag " + longName + " added to subcommand " + sc.Name + " but it is already assigned.")
+		}
+		if shortName != "" && existingFlag.ShortName == shortName {
+			return errors.New("Duration flag " + shortName + " added to subcommand " + sc.Name + " but it is already assigned.")
+		}
+	}
+
+	newDurationFlag := DurationFlag{}
+	newDurationFlag.AssignmentVar = assignmentVar
+	newDurationFlag.ShortName = shortName
+	newDurationFlag.LongName = longName
+	newDurationFlag.Description = description
+	sc.DurationFlags = append(sc.DurationFlags, &newDurationFlag)
+
+	return nil
+}
+
 // AddStringFlag adds a new string flag
 func (sc *Subcommand) AddStringFlag(assignmentVar *string, shortName string, longName string, description string) error {
-	// if the flag is used, throw an error
+	// if the flag is already used, throw an error
 	for _, existingFlag := range sc.StringFlags {
 		if longName != "" && existingFlag.LongName == longName {
 			return errors.New("String flag " + longName + " added to subcommand " + sc.Name + " but it is already assigned.")
@@ -474,7 +498,7 @@ func (sc *Subcommand) SetValueForKey(key string, value string) (bool, error) {
 	// check for and assign int flags
 	for _, f := range sc.IntFlags {
 		// debugPrint("Evaluating int flag", f.ShortName, "==", key, "||", f.LongName, "==", key)
-		if f.ShortName == key || f.LongName == key {
+		if f.HasName(key) {
 			// debugPrint("Setting int value for", key, "to", value)
 			newValue, err := strconv.Atoi(value)
 			if err != nil {
@@ -486,10 +510,25 @@ func (sc *Subcommand) SetValueForKey(key string, value string) (bool, error) {
 		}
 	}
 
-	// check for and assign bool flags
+	// check for and assign duration flags
+	for _, f := range sc.DurationFlags {
+		// debugPrint("Evaluating duration flag", f.ShortName, "==", key, "||", f.LongName, "==", key)
+		if f.HasName(key) {
+			// debugPrint("Setting duration value for", key, "to", value)
+			newValue, err := time.ParseDuration(value)
+			if err != nil {
+				return false, errors.New("Unable to convert flag to duration: " + err.Error())
+			}
+			*f.AssignmentVar = newValue
+			// debugPrint("Set duration flag with key", key, "to value", value)
+			return true, nil
+		}
+	}
+
+	// check for and assign duration flags
 	for _, f := range sc.BoolFlags {
 		// debugPrint("Evaluating bool flag", f.ShortName, "==", key, "||", f.LongName, "==", key)
-		if f.ShortName == key || f.LongName == key {
+		if f.HasName(key) {
 			// debugPrint("Setting bool value for", key, "to", value)
 			newValue, err := strconv.ParseBool(value)
 			if err != nil {

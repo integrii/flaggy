@@ -29,6 +29,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 )
 
 // defaultVersion is applied to parsers when they are created
@@ -100,6 +101,12 @@ func AddIntFlag(assignmentVar *int, shortName string, longName string, descripti
 // default parser
 func AddStringFlag(assignmentVar *string, shortName string, longName string, description string) error {
 	return mainParser.AddStringFlag(assignmentVar, shortName, longName, description)
+}
+
+// AddDurationFlag adds a duration flag for parsing, at the global level of the
+// default parser
+func AddDurationFlag(assignmentVar *time.Duration, shortName string, longName string, description string) error {
+	return mainParser.AddDurationFlag(assignmentVar, shortName, longName, description)
 }
 
 // AddSubcommand adds a subcommand for parsing

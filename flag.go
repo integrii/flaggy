@@ -3,6 +3,7 @@ package flaggy
 import (
 	"fmt"
 	"strings"
+	"time"
 )
 
 // Flag holds the base methods for all flag types
@@ -39,6 +40,12 @@ type IntFlag struct {
 type BoolFlag struct {
 	Flag
 	AssignmentVar *bool
+}
+
+// DurationFlag represents a flag for a duration of time
+type DurationFlag struct {
+	Flag
+	AssignmentVar *time.Duration
 }
 
 const argIsPositional = "positional"       // subcommand or positional value

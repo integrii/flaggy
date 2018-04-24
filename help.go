@@ -18,6 +18,7 @@ const defaultHelpTemplate = `{{.CommandName}}{{if .Description}} - {{.Descriptio
   Flags: {{if .StringFlags}}{{range .StringFlags}}
     {{if .ShortName}}-{{.ShortName}} {{else}}   {{end}}{{if .LongName}}--{{.LongName}} {{end}}{{if .Description}} {{.Description}}{{end}}{{end}}{{end}}{{if .IntFlags}}{{range .IntFlags}}
     {{if .ShortName}}-{{.ShortName}} {{else}}   {{end}}{{if .LongName}}--{{.LongName}} {{end}}{{if .Description}} {{.Description}}{{end}}{{end}}{{end}}{{if .BoolFlags}}{{range .BoolFlags}}
+    {{if .ShortName}}-{{.ShortName}} {{else}}   {{end}}{{if .LongName}}--{{.LongName}} {{end}}{{if .Description}} {{.Description}}{{end}}{{end}}{{end}}{{if .DurationFlags}}{{range .DurationFlags}}
     {{if .ShortName}}-{{.ShortName}} {{else}}   {{end}}{{if .LongName}}--{{.LongName}} {{end}}{{if .Description}} {{.Description}}{{end}}{{end}}{{end}}
 {{end}}
 {{if .AppendMessage}}{{.AppendMessage}}

@@ -7,6 +7,7 @@ type Help struct {
 	StringFlags    []HelpFlag
 	IntFlags       []HelpFlag
 	BoolFlags      []HelpFlag
+	DurationFlags  []HelpFlag
 	UsageString    string
 	CommandName    string
 	PrependMessage string
@@ -78,7 +79,6 @@ func (h *Help) ExtractValues(sc *Subcommand, message string) {
 		h.Positionals = append(h.Positionals, newHelpPositional)
 	}
 
-	// flags          []HelpFlag
 	for _, f := range sc.StringFlags {
 		if f.Hidden {
 			continue
@@ -111,6 +111,17 @@ func (h *Help) ExtractValues(sc *Subcommand, message string) {
 			Description: f.Description,
 		}
 		h.BoolFlags = append(h.BoolFlags, newHelpFlag)
+	}
+	for _, f := range sc.DurationFlags {
+		if f.Hidden {
+			continue
+		}
+		newHelpFlag := HelpFlag{
+			ShortName:   f.ShortName,
+			LongName:    f.LongName,
+			Description: f.Description,
+		}
+		h.DurationFlags = append(h.DurationFlags, newHelpFlag)
 	}
 
 	// formulate the usage string
