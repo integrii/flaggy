@@ -282,6 +282,14 @@ func (f *Flag) identifyAndAssignValue(value string) error {
 		existing := f.AssignmentVar.(*[]net.HardwareAddr)
 		new := append(*existing, v)
 		f.AssignmentVar = &new
+	case *net.IPMask:
+		v := net.IPMask(net.ParseIP(value).To4())
+		f.AssignmentVar = &v
+	case *[]net.IPMask:
+		v := net.IPMask(net.ParseIP(value).To4())
+		existing := f.AssignmentVar.(*[]net.IPMask)
+		new := append(*existing, v)
+		f.AssignmentVar = &new
 	default:
 		return errors.New("Unknown flag assignmentVar supplied in flag " + f.LongName + " " + f.ShortName)
 	}
