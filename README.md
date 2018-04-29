@@ -1,5 +1,5 @@
 <p align="center">
-  
+
 <img src="/logo.png" />
 <br />
 <a href="https://goreportcard.com/report/github.com/integrii/flaggy"><img src="https://goreportcard.com/badge/github.com/integrii/flaggy"></a>
@@ -17,6 +17,7 @@ Open an issue if you hate something, or better yet, fix it and make a pull reque
 # Key Features
 
 - Very easy to use ([see examples below](https://github.com/integrii/flaggy#super-simple-example))
+- 35 different flag types supported
 - Any flag can be at at any position
 - Pretty and readable help output by default
 - Positional subcommands
@@ -33,6 +34,7 @@ Open an issue if you hate something, or better yet, fix it and make a pull reque
 - Flags can use a single dash or double dash (`--flag`, `-flag`, `-f`, `--f`)
 - Flags can have `=` assignment operators, or use a space (`--flag=value`, `--flag value`)
 - Flags support single quote globs with spaces (`--flag 'this is all one value'`)
+- Flags of slice types can be passed multiple times (`-f one -f two -f three`)
 - Optional but default version output with `-v` or `--version`
 - Optional but default help output with `-h` or `--help`
 - Optional but default show help when any invalid or unknown parameter is passed
