@@ -42,7 +42,9 @@ func (f *Flag) identifyAndAssignValue(value string) error {
 	// in flagy.  No returning vars by value.
 	switch f.AssignmentVar.(type) {
 	case *string:
+		fmt.Println("pre", f.AssignmentVar)
 		f.AssignmentVar = &value
+		fmt.Println("after", f.AssignmentVar)
 	case *[]string:
 		v := f.AssignmentVar.(*[]string)
 		a := append(*v, value)
@@ -373,7 +375,11 @@ func parseFlagToName(arg string) string {
 func flagIsBool(sc *Subcommand, p *Parser, key string) bool {
 	for _, f := range sc.Flags {
 		if f.HasName(key) {
-			return true
+			_, isBool := f.AssignmentVar.(*bool)
+			_, isBoolSlice := f.AssignmentVar.(*[]bool)
+			if isBool || isBoolSlice {
+				return true
+			}
 		}
 	}
 

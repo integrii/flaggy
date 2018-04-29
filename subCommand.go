@@ -119,7 +119,7 @@ func (sc *Subcommand) parseAllFlagsFromArgs(p *Parser, args []string) ([]string,
 		argType := determineArgType(a)
 
 		// strip flags from arg
-		debugPrint("Parsing flag named", a, "of type", argType)
+		// debugPrint("Parsing flag named", a, "of type", argType)
 
 		// depending on the flag type, parse the key and value out, then apply it
 		switch argType {
@@ -132,9 +132,9 @@ func (sc *Subcommand) parseAllFlagsFromArgs(p *Parser, args []string) ([]string,
 			// we can determine if its a subcommand or positional value later
 			positionalOnlyArguments = append(positionalOnlyArguments, a)
 		case argIsFlagWithSpace:
-			skipNext = true
 			a = parseFlagToName(a)
 			// debugPrint("Arg", i, "is flag with space:", a)
+			skipNext = true
 			// parse next arg as value to this flag and apply to subcommand flags
 			// if the flag is a bool flag, then we check for a following positional
 			// and skip it if necessary
@@ -170,8 +170,8 @@ func (sc *Subcommand) parseAllFlagsFromArgs(p *Parser, args []string) ([]string,
 				return []string{}, false, err
 			}
 		case argIsFlagWithValue:
-			a = parseFlagToName(a)
 			// debugPrint("Arg", i, "is flag with value:", a)
+			a = parseFlagToName(a)
 			// parse flag into key and value and apply to subcommand flags
 			key, val := parseArgWithValue(a)
 			_, err = setValueForParsers(key, val, p, sc)
@@ -211,7 +211,7 @@ func (sc *Subcommand) parse(p *Parser, args []string, depth int) error {
 		// the first relative positional argument will be human natural at position 1
 		// but offset for the depth of relative commands being parsed for currently.
 		relativeDepth := pos - depth + 1
-		debugPrint("Parsing positional only position", relativeDepth, "with value", v)
+		// debugPrint("Parsing positional only position", relativeDepth, "with value", v)
 
 		if relativeDepth < 1 {
 			debugPrint("skipped value", v)
@@ -220,7 +220,7 @@ func (sc *Subcommand) parse(p *Parser, args []string, depth int) error {
 		parsedArgCount++
 		// determine subcommands and parse them by positional value and name
 		for _, cmd := range sc.Subcommands {
-			debugPrint("Subcommand being compared", relativeDepth, "==", cmd.Position, "and", v, "==", cmd.Name, "==", cmd.ShortName)
+			// debugPrint("Subcommand being compared", relativeDepth, "==", cmd.Position, "and", v, "==", cmd.Name, "==", cmd.ShortName)
 			if relativeDepth == cmd.Position && (v == cmd.Name || v == cmd.ShortName) {
 				debugPrint("Decending into positional subcommand", cmd.Name, "at relativeDepth", relativeDepth, "and absolute depth", depth+1)
 				return cmd.parse(p, args, depth+parsedArgCount) // continue recursive positional parsing
@@ -234,7 +234,7 @@ func (sc *Subcommand) parse(p *Parser, args []string, depth int) error {
 				debugPrint("Found a positional value at relativePos:", relativeDepth, "value:", v)
 				// defrerence the struct pointer, then set the pointer property within it
 				*val.AssignmentVar = v
-				debugPrint("set positional to value", *val.AssignmentVar)
+				// debugPrint("set positional to value", *val.AssignmentVar)
 				foundPositional = true
 				val.Found = true
 				break
