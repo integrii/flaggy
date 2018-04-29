@@ -37,24 +37,70 @@ Open an issue if you hate something, or better yet, fix it and make a pull reque
 # Example Help Output
 
 ```
-testCommand - Description goes here.  Get more information at http://my.website
-This is an optional prepend for help output
+testCommand - Description goes here.  Get more information at our website.
+This is a prepend for help
+
+  Usage:
+    testCommand [subcommandA|subcommandB|subcommandC] [testPositionalA] [testPositionalB]
 
   Positional Variables:
-    testPositionalA (Position 2) (Required) Test positional A does some things with a positional value.
+    testPositionalA (Position 2) (Required) - Test positional A does some things with a positional value.
+    testPositionalB (Position 3) - Test positional B does some less than serious things with a positional value.
 
-  Subommands:
-    subcommandA (a) (Position 1) Subcommand A is a command that does stuff
-    subcommandB (b) (Position 1) Subcommand B is a command that does other stuff
-    subcommandC (c) (Position 1) Subcommand C is a command that does SERIOUS stuff
+  Subcommands:
+    subcommandA (a) - Subcommand A is a command that does stuff
+    subcommandB (b) - Subcommand B is a command that does other stuff
+    subcommandC (c) - Subcommand C is a command that does SERIOUS stuff
 
- Flags:
-    --stringFlag (-s) This is a test string flag that does some stringy string stuff.
-    --intFlg (-i) This is a test int flag that does some interesting int stuff.
-    --boolFlag (-b) This is a test bool flag that does some booly bool stuff.
+  Flags:
+    -s --stringFlag  This is a test string flag that does some stringy string stuff.
+    -i --intFlg  This is a test int flag that does some interesting int stuff.
+    -b --boolFlag  This is a test bool flag that does some booly bool stuff.
+    -d --durationFlag  This is a test duration flag that does some untimely stuff.
 
-This is an optional append for help
+This is an optional append message for help
 This is an optional help add-on message
+```
+
+# Supported Flag Types:
+
+```
+string
+[]string
+bool
+[]bool
+time.Duration
+[]time.Duration
+float32
+[]float32
+float64
+[]float64
+uint
+uint64
+[]uint64
+uint32
+[]uint32
+uint16
+[]uint16
+uint8
+[]uint8
+[]byte
+int
+[]int
+int64
+[]int64
+int32
+[]int32
+int16
+[]int16
+int8
+[]int8
+net.IP
+[]net.IP
+net.HardwareAddr
+[]net.HardwareAddr
+net.IPMask
+[]net.IPMask
 ```
 
 

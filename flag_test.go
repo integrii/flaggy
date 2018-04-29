@@ -66,3 +66,41 @@ func TestDetermineArgType(t *testing.T) {
 		}
 	}
 }
+
+// *string
+// *[]string
+// *bool
+// *[]bool
+// *[]byte
+// *time.Duration
+// *[]time.Duration
+// *float32
+// *[]float32
+// *float64
+// *[]float64
+// *int
+// *[]int
+// *uint
+// *[]uint
+// *uint64
+// *[]uint64
+// *uint32
+// *[]uint32
+// *uint16
+// *[]uint16
+// *uint8
+// *[]uint8
+// *int64
+// *[]int64
+// *int32
+// *[]int32
+// *int16
+// *[]int16
+// *int8
+// *[]int8
+// *net.IP
+// *[]net.IP
+// *net.HardwareAddr
+// *[]net.HardwareAddr
+// *net.IPMask
+// *[]net.IPMask

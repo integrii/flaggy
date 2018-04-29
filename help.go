@@ -14,7 +14,7 @@ const defaultHelpTemplate = `{{.CommandName}}{{if .Description}} - {{.Descriptio
 
   Subcommands: {{range .Subcommands}}
     {{.LongName}}{{if .ShortName}} ({{.ShortName}}){{end}} -{{if .Position}}{{if gt .Position 1}} (Position {{.Position}}){{end}}{{end}}{{if .Description}} {{.Description}}{{end}}{{end}}
-{{end}}{{if (or (or (gt (len .StringFlags) 0) (gt (len .IntFlags) 0)) (gt (len .BoolFlags) 0))}}
+{{end}}{{if (gt (len .Flags) 0)}}
   Flags: {{if .Flags}}{{range .Flags}}
     {{if .ShortName}}-{{.ShortName}} {{else}}   {{end}}{{if .LongName}}--{{.LongName}} {{end}}{{if .Description}} {{.Description}}{{end}}{{end}}{{end}}
 {{end}}

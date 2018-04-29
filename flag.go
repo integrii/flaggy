@@ -65,15 +65,6 @@ func (f *Flag) identifyAndAssignValue(value string) error {
 		v := append(*existing, b)
 		// pointer the new value and assign it
 		f.AssignmentVar = &v
-	case *[]byte:
-		// parse a hex string to a slice of bytes
-		src := []byte(value)
-		dst := make([]byte, hex.DecodedLen(len(src)))
-		_, err := hex.Decode(dst, src)
-		if err != nil {
-			return err
-		}
-		f.AssignmentVar = &dst
 	case *time.Duration:
 		v, err := time.ParseDuration(value)
 		if err != nil {
@@ -200,7 +191,15 @@ func (f *Flag) identifyAndAssignValue(value string) error {
 		}
 		val := uint8(v)
 		f.AssignmentVar = &val
-	// []*uint8 is the same as *[]byte above
+	case *[]uint8:
+		// parse a hex string to a slice of bytes
+		src := []byte(value)
+		dst := make([]byte, hex.DecodedLen(len(src)))
+		_, err := hex.Decode(dst, src)
+		if err != nil {
+			return err
+		}
+		f.AssignmentVar = &dst
 	case *int64:
 		v, err := strconv.ParseInt(value, 10, 64)
 		if err != nil {
