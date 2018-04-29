@@ -73,6 +73,7 @@ func TestDetermineArgType(t *testing.T) {
 
 // TestInputParsing tests all flag types.
 func TestInputParsing(t *testing.T) {
+	defer debugOff()
 	DebugMode = true
 
 	ResetParser()
@@ -393,7 +394,6 @@ func TestInputParsing(t *testing.T) {
 	var maskSliceFlagExpected = []net.IPMask{net.IPMask([]byte{255, 255, 255, 255}), net.IPMask([]byte{255, 255, 255, 0})}
 
 	// Parse arguments
-	fmt.Println(inputArgs)
 	err = ParseArgs(inputArgs)
 	if err != nil {
 		t.Fatal(err)
@@ -401,7 +401,6 @@ func TestInputParsing(t *testing.T) {
 
 	// validate parsed values
 	if stringFlag != stringFlagExpected {
-		t.Log(stringFlag)
 		t.Fatal("string flag incorrect", stringFlag, stringFlagExpected)
 	}
 

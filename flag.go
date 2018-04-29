@@ -44,8 +44,6 @@ func (f *Flag) identifyAndAssignValue(value string) error {
 	switch f.AssignmentVar.(type) {
 	case *string:
 		f.AssignmentVar = &value
-		fmt.Println("after", f.AssignmentVar)
-		fmt.Println("twice")
 	case *[]string:
 		v := f.AssignmentVar.(*[]string)
 		a := append(*v, value)

@@ -4,18 +4,19 @@ package flaggy
 // specified parsers (which normally include a Parser and Subcommand).
 // The return values represent the key being set, and any errors
 // returned when setting the key, such as failures to conver the string
-// into the appropriate flag value.
+// into the appropriate flag value.  We stop assigning values as soon
+// as we find a parser that accepts it.
 func setValueForParsers(key string, value string, parsers ...ArgumentParser) (bool, error) {
 
 	var valueWasSet bool
 
 	for _, p := range parsers {
-		valueWasSetKey, err := p.SetValueForKey(key, value)
+		valueWasSet, err := p.SetValueForKey(key, value)
 		if err != nil {
 			return valueWasSet, err
 		}
-		if valueWasSetKey {
-			valueWasSet = true
+		if valueWasSet {
+			break
 		}
 	}
 
