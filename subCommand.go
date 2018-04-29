@@ -3,6 +3,7 @@ package flaggy
 import (
 	"errors"
 	"fmt"
+	"net"
 	"os"
 	"strconv"
 	"text/template"
@@ -367,13 +368,14 @@ func (sc *Subcommand) addFlag(assignmentVar interface{}, shortName string, longN
 	return nil
 }
 
-// AddDurationFlag flag adds a new duration flag to the parser
-func (sc *Subcommand) AddDurationFlag(assignmentVar *time.Duration, shortName string, longName string, description string) error {
+// AddStringFlag adds a new string flag
+func (sc *Subcommand) AddStringFlag(assignmentVar *string, shortName string, longName string, description string) error {
 	return sc.addFlag(assignmentVar, shortName, longName, description)
 }
 
-// AddStringFlag adds a new string flag
-func (sc *Subcommand) AddStringFlag(assignmentVar *string, shortName string, longName string, description string) error {
+// AddStringSliceFlag adds a new slice of strings flag
+// Specify the flag multiple times to fill the slice
+func (sc *Subcommand) AddStringSliceFlag(assignmentVar *[]string, shortName string, longName string, description string) error {
 	return sc.addFlag(assignmentVar, shortName, longName, description)
 }
 
@@ -382,8 +384,179 @@ func (sc *Subcommand) AddBoolFlag(assignmentVar *bool, shortName string, longNam
 	return sc.addFlag(assignmentVar, shortName, longName, description)
 }
 
+// AddBoolSliceFlag adds a new slice of bools flag
+// Specify the flag multiple times to fill the slice
+func (sc *Subcommand) AddBoolSliceFlag(assignmentVar *[]bool, shortName string, longName string, description string) error {
+	return sc.addFlag(assignmentVar, shortName, longName, description)
+}
+
+// AddByteSliceFlag adds a new slice of bytes flag
+// Specify the flag multiple times to fill the slice.  Takes hex as input.
+func (sc *Subcommand) AddByteSliceFlag(assignmentVar *[]byte, shortName string, longName string, description string) error {
+	return sc.addFlag(assignmentVar, shortName, longName, description)
+}
+
+// AddDurationFlag adds a new time.Duration flag.
+// Input format is described in time.ParseDuration().
+// Example values: 1h, 1h50m, 32s
+func (sc *Subcommand) AddDurationFlag(assignmentVar *time.Duration, shortName string, longName string, description string) error {
+	return sc.addFlag(assignmentVar, shortName, longName, description)
+}
+
+// AddDurationSliceFlag adds a new time.Duration flag.
+// Input format is described in time.ParseDuration().
+// Example values: 1h, 1h50m, 32s
+// Specify the flag multiple times to fill the slice.
+func (sc *Subcommand) AddDurationSliceFlag(assignmentVar *[]time.Duration, shortName string, longName string, description string) error {
+	return sc.addFlag(assignmentVar, shortName, longName, description)
+}
+
+// AddFloat32Flag adds a new float32 flag.
+func (sc *Subcommand) AddFloat32Flag(assignmentVar *float32, shortName string, longName string, description string) error {
+	return sc.addFlag(assignmentVar, shortName, longName, description)
+}
+
+// AddFloat32SliceFlag adds a new float32 flag.
+// Specify the flag multiple times to fill the slice.
+func (sc *Subcommand) AddFloat32SliceFlag(assignmentVar *[]float32, shortName string, longName string, description string) error {
+	return sc.addFlag(assignmentVar, shortName, longName, description)
+}
+
+// AddFloat64Flag adds a new float64 flag.
+func (sc *Subcommand) AddFloat64Flag(assignmentVar *float64, shortName string, longName string, description string) error {
+	return sc.addFlag(assignmentVar, shortName, longName, description)
+}
+
+// AddFloat64SliceFlag adds a new float64 flag.
+// Specify the flag multiple times to fill the slice.
+func (sc *Subcommand) AddFloat64SliceFlag(assignmentVar *[]float64, shortName string, longName string, description string) error {
+	return sc.addFlag(assignmentVar, shortName, longName, description)
+}
+
 // AddIntFlag adds a new int flag
 func (sc *Subcommand) AddIntFlag(assignmentVar *int, shortName string, longName string, description string) error {
+	return sc.addFlag(assignmentVar, shortName, longName, description)
+}
+
+// AddIntSliceFlag adds a new int slice flag.
+// Specify the flag multiple times to fill the slice.
+func (sc *Subcommand) AddIntSliceFlag(assignmentVar *[]int, shortName string, longName string, description string) error {
+	return sc.addFlag(assignmentVar, shortName, longName, description)
+}
+
+// AddUIntFlag adds a new uint flag
+func (sc *Subcommand) AddUIntFlag(assignmentVar *uint, shortName string, longName string, description string) error {
+	return sc.addFlag(assignmentVar, shortName, longName, description)
+}
+
+// AddUIntSliceFlag adds a new uint slice flag.
+// Specify the flag multiple times to fill the slice.
+func (sc *Subcommand) AddUIntSliceFlag(assignmentVar *[]uint, shortName string, longName string, description string) error {
+	return sc.addFlag(assignmentVar, shortName, longName, description)
+}
+
+// AddUInt64Flag adds a new uint64 flag
+func (sc *Subcommand) AddUInt64Flag(assignmentVar *uint64, shortName string, longName string, description string) error {
+	return sc.addFlag(assignmentVar, shortName, longName, description)
+}
+
+// AddUInt64SliceFlag adds a new uint64 slice flag.
+// Specify the flag multiple times to fill the slice.
+func (sc *Subcommand) AddUInt64SliceFlag(assignmentVar *[]uint64, shortName string, longName string, description string) error {
+	return sc.addFlag(assignmentVar, shortName, longName, description)
+}
+
+// AddUInt32Flag adds a new uint32 flag
+func (sc *Subcommand) AddUInt32Flag(assignmentVar *uint32, shortName string, longName string, description string) error {
+	return sc.addFlag(assignmentVar, shortName, longName, description)
+}
+
+// AddUInt32SliceFlag adds a new uint32 slice flag.
+// Specify the flag multiple times to fill the slice.
+func (sc *Subcommand) AddUInt32SliceFlag(assignmentVar *[]uint32, shortName string, longName string, description string) error {
+	return sc.addFlag(assignmentVar, shortName, longName, description)
+}
+
+// AddUInt16Flag adds a new uint16 flag
+func (sc *Subcommand) AddUInt16Flag(assignmentVar *uint16, shortName string, longName string, description string) error {
+	return sc.addFlag(assignmentVar, shortName, longName, description)
+}
+
+// AddUInt16SliceFlag adds a new uint16 slice flag.
+// Specify the flag multiple times to fill the slice.
+func (sc *Subcommand) AddUInt16SliceFlag(assignmentVar *[]uint16, shortName string, longName string, description string) error {
+	return sc.addFlag(assignmentVar, shortName, longName, description)
+}
+
+// AddUInt8Flag adds a new uint8 flag
+func (sc *Subcommand) AddUInt8Flag(assignmentVar *uint8, shortName string, longName string, description string) error {
+	return sc.addFlag(assignmentVar, shortName, longName, description)
+}
+
+// AddUInt8SliceFlag adds a new uint8 slice flag.
+// Specify the flag multiple times to fill the slice.
+func (sc *Subcommand) AddUInt8SliceFlag(assignmentVar *[]uint8, shortName string, longName string, description string) error {
+	return sc.addFlag(assignmentVar, shortName, longName, description)
+}
+
+// AddInt64SliceFlag adds a new int64 slice flag.
+// Specify the flag multiple times to fill the slice.
+func (sc *Subcommand) AddInt64SliceFlag(assignmentVar *[]int64, shortName string, longName string, description string) error {
+	return sc.addFlag(assignmentVar, shortName, longName, description)
+}
+
+// AddInt32Flag adds a new int32 flag
+func (sc *Subcommand) AddInt32Flag(assignmentVar *int32, shortName string, longName string, description string) error {
+	return sc.addFlag(assignmentVar, shortName, longName, description)
+}
+
+// AddInt32SliceFlag adds a new int32 slice flag.
+// Specify the flag multiple times to fill the slice.
+func (sc *Subcommand) AddInt32SliceFlag(assignmentVar *[]int32, shortName string, longName string, description string) error {
+	return sc.addFlag(assignmentVar, shortName, longName, description)
+}
+
+// AddInt16Flag adds a new int16 flag
+func (sc *Subcommand) AddInt16Flag(assignmentVar *int16, shortName string, longName string, description string) error {
+	return sc.addFlag(assignmentVar, shortName, longName, description)
+}
+
+// AddInt16SliceFlag adds a new int16 slice flag.
+// Specify the flag multiple times to fill the slice.
+func (sc *Subcommand) AddInt16SliceFlag(assignmentVar *[]int16, shortName string, longName string, description string) error {
+	return sc.addFlag(assignmentVar, shortName, longName, description)
+}
+
+// AddInt8Flag adds a new int8 flag
+func (sc *Subcommand) AddInt8Flag(assignmentVar *int8, shortName string, longName string, description string) error {
+	return sc.addFlag(assignmentVar, shortName, longName, description)
+}
+
+// AddInt8SliceFlag adds a new int8 slice flag.
+// Specify the flag multiple times to fill the slice.
+func (sc *Subcommand) AddInt8SliceFlag(assignmentVar *[]int8, shortName string, longName string, description string) error {
+	return sc.addFlag(assignmentVar, shortName, longName, description)
+}
+
+// AddIPFlag adds a new net.IP flag.
+func (sc *Subcommand) AddIPFlag(assignmentVar *net.IP, shortName string, longName string, description string) error {
+	return sc.addFlag(assignmentVar, shortName, longName, description)
+}
+
+// AddIPSliceFlag adds a new int8 slice flag.
+// Specify the flag multiple times to fill the slice.
+func (sc *Subcommand) AddIPSliceFlag(assignmentVar *[]net.IP, shortName string, longName string, description string) error {
+	return sc.addFlag(assignmentVar, shortName, longName, description)
+}
+
+// AddHardwareAddrFlag adds a new net.HardwareAddr flag.
+func (sc *Subcommand) AddHardwareAddrFlag(assignmentVar *net.HardwareAddr, shortName string, longName string, description string) error {
+	return sc.addFlag(assignmentVar, shortName, longName, description)
+}
+
+// AddHardwareAddrSliceFlag adds a new net.HardwareAddr slice flag.
+// Specify the flag multiple times to fill the slice.
+func (sc *Subcommand) AddHardwareAddrSliceFlag(assignmentVar *[]net.HardwareAddr, shortName string, longName string, description string) error {
 	return sc.addFlag(assignmentVar, shortName, longName, description)
 }
 
