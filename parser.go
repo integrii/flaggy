@@ -37,10 +37,10 @@ func NewParser(name string) *Parser {
 // is returned for invalid arguments or missing require subcommands.
 func (p *Parser) ParseArgs(args []string) error {
 	if p.parsed {
-		return errors.New("Parser already parsed: " + " " + p.Name + " " + p.ShortName)
+		return errors.New("Parser.Parse() called twice on parser with name: " + " " + p.Name + " " + p.ShortName)
 	}
 	p.parsed = true
-	debugPrint("Kicking off parsing with args:", args)
+	// debugPrint("Kicking off parsing with args:", args)
 	return p.parse(p, args, 0)
 }
 

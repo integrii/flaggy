@@ -198,6 +198,7 @@ func (sc *Subcommand) parse(p *Parser, args []string, depth int) error {
 
 	// Parse the normal flags out of the argument list and retain the positionals.
 	// Apply the flags to the parent parser and the current subcommand context.
+	// ./command -f -z subcommand someVar -b becomes ./command subcommand somevar
 	positionalOnlyArguments, helpRequested, err := sc.parseAllFlagsFromArgs(p, args)
 	if err != nil {
 		return err
@@ -215,10 +216,11 @@ func (sc *Subcommand) parse(p *Parser, args []string, depth int) error {
 		// debugPrint("Parsing positional only position", relativeDepth, "with value", v)
 
 		if relativeDepth < 1 {
-			debugPrint("skipped value", v)
+			debugPrint(sc.Name, "skipped value:", v)
 			continue
 		}
 		parsedArgCount++
+
 		// determine subcommands and parse them by positional value and name
 		for _, cmd := range sc.Subcommands {
 			// debugPrint("Subcommand being compared", relativeDepth, "==", cmd.Position, "and", v, "==", cmd.Name, "==", cmd.ShortName)
@@ -359,11 +361,12 @@ func (sc *Subcommand) addFlag(assignmentVar interface{}, shortName string, longN
 		}
 	}
 
-	newFlag := Flag{}
-	newFlag.AssignmentVar = assignmentVar
-	newFlag.ShortName = shortName
-	newFlag.LongName = longName
-	newFlag.Description = description
+	newFlag := Flag{
+		AssignmentVar: assignmentVar,
+		ShortName:     shortName,
+		LongName:      longName,
+		Description:   description,
+	}
 	sc.Flags = append(sc.Flags, &newFlag)
 
 	return nil
