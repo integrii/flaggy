@@ -10,7 +10,7 @@ const defaultHelpTemplate = `{{.CommandName}}{{if .Description}} - {{.Descriptio
     {{.UsageString}}{{end}}{{if .Positionals}}
 
   Positional Variables: {{range .Positionals}}
-    {{.Name}} {{if .Required}} (Required){{end}} -{{if .Description}} {{.Description}}{{end}}{{end}}{{end}}{{if .Subcommands}}
+    {{.Name}} -{{if .Required}} (Required){{end}}{{if .Description}} {{.Description}}{{end}}{{end}}{{end}}{{if .Subcommands}}
 
   Subcommands: {{range .Subcommands}}
     {{.LongName}}{{if .ShortName}} ({{.ShortName}}){{end}} -{{if .Position}}{{if gt .Position 1}} (Position {{.Position}}){{end}}{{end}}{{if .Description}} {{.Description}}{{end}}{{end}}
