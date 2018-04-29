@@ -50,8 +50,8 @@ This is a prepend for help
     testCommand [subcommandA|subcommandB|subcommandC] [testPositionalA] [testPositionalB]
 
   Positional Variables:
-    testPositionalA  (Required) - Test positional A does some things with a positional value.
-    testPositionalB  - Test positional B does some less than serious things with a positional value.
+    testPositionalA - (Required) Test positional A does some things with a positional value.
+    testPositionalB - Test positional B does some less than serious things with a positional value.
 
   Subcommands:
     subcommandA (a) - Subcommand A is a command that does stuff
