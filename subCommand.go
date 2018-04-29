@@ -345,6 +345,7 @@ func (sc *Subcommand) AddSubcommand(newSC *Subcommand, relativePosition int) err
 	return nil
 }
 
+<<<<<<< HEAD
 // addFlag is a generic to add flags of any type
 func (sc *Subcommand) addFlag(assignmentVar interface{}, shortName string, longName string, description string) error {
 
@@ -557,6 +558,33 @@ func (sc *Subcommand) AddHardwareAddrFlag(assignmentVar *net.HardwareAddr, short
 // AddHardwareAddrSliceFlag adds a new net.HardwareAddr slice flag.
 // Specify the flag multiple times to fill the slice.
 func (sc *Subcommand) AddHardwareAddrSliceFlag(assignmentVar *[]net.HardwareAddr, shortName string, longName string, description string) error {
+=======
+// addFlag genericly adds flags to a subcommand
+func (sc *Subcommand) addFlag(assignmentVar *interface{}, shortName string, longName string, description string) error {
+	// if the flag is already used, throw an error
+	for _, existingFlag := range sc.Flags {
+		if longName != "" && existingFlag.LongName == longName {
+			return errors.New("Flag " + longName + " added to subcommand " + sc.Name + " but it is already assigned.")
+		}
+		if shortName != "" && existingFlag.ShortName == shortName {
+			return errors.New("Flag " + shortName + " added to subcommand " + sc.Name + " but it is already assigned.")
+		}
+	}
+
+	newFlag := Flag{}
+	newFlag.AssignmentVar = assignmentVar
+	newFlag.ShortName = shortName
+	newFlag.LongName = longName
+	newFlag.Description = description
+
+	sc.Flags = append(sc.Flags, &newFlag)
+	return nil
+}
+
+// AddDurationFlag flag adds a new duration flag to the parser
+func (sc *Subcommand) AddDurationFlag(assignmentVar *time.Duration, shortName string, longName string, description string) error {
+
+>>>>>>> 541280e04e9ff40f32fe78b58bc7f94a5bb0042b
 	return sc.addFlag(assignmentVar, shortName, longName, description)
 }
 
