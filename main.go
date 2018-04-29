@@ -217,6 +217,11 @@ func AddUInt8SliceFlag(assignmentVar *[]uint8, shortName string, longName string
 	return mainParser.addFlag(assignmentVar, shortName, longName, description)
 }
 
+// AddInt64Flag adds a new int64 flag
+func AddInt64Flag(assignmentVar *int64, shortName string, longName string, description string) error {
+	return mainParser.addFlag(assignmentVar, shortName, longName, description)
+}
+
 // AddInt64SliceFlag adds a new int64 slice flag.
 // Specify the flag multiple times to fill the slice.
 func AddInt64SliceFlag(assignmentVar *[]int64, shortName string, longName string, description string) error {
