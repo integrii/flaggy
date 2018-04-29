@@ -1,8 +1,12 @@
-![flaggy logo](/logo.png)
+<p align="center">
 
-[![flaggy go report](https://goreportcard.com/badge/github.com/integrii/flaggy)](https://goreportcard.com/report/github.com/integrii/flaggy) [![Build Status](https://travis-ci.org/integrii/flaggy.svg?branch=master)](https://travis-ci.org/integrii/flaggy) [![godoc](https://camo.githubusercontent.com/d48cccd1ce67ddf8ba7fc356ec1087f3f7aa6d12/68747470733a2f2f676f646f632e6f72672f6769746875622e636f6d2f6c696c65696f2f6c696c653f7374617475732e737667)](http://godoc.org/github.com/integrii/flaggy) [![License: Unlicense](https://img.shields.io/badge/license-Unlicense-blue.svg)](http://unlicense.org/)
-
-
+<img src="/logo.png" />
+<br />
+<a href="https://goreportcard.com/report/github.com/integrii/flaggy"><img src="https://goreportcard.com/badge/github.com/integrii/flaggy"></a>
+<a href="https://travis-ci.org/integrii/flaggy"><img src="https://travis-ci.org/integrii/flaggy.svg?branch=master"></a>
+<a href="http://godoc.org/github.com/integrii/flaggy"><img src="https://camo.githubusercontent.com/d48cccd1ce67ddf8ba7fc356ec1087f3f7aa6d12/68747470733a2f2f676f646f632e6f72672f6769746875622e636f6d2f6c696c65696f2f6c696c653f7374617475732e737667"></a>
+<img src="https://img.shields.io/badge/license-Unlicense-blue.svg">
+</p>
 
 Sensible command-line flag parsing with support for subcommands and positional values. Flags can be at any position.  No required project or package layout like [Cobra](https://github.com/spf13/Cobra), and **no third party package dependencies**.  
 
@@ -13,6 +17,7 @@ Open an issue if you hate something, or better yet, fix it and make a pull reque
 # Key Features
 
 - Very easy to use ([see examples below](https://github.com/integrii/flaggy#super-simple-example))
+- 35 different flag types supported
 - Any flag can be at at any position
 - Pretty and readable help output by default
 - Positional subcommands
@@ -29,6 +34,7 @@ Open an issue if you hate something, or better yet, fix it and make a pull reque
 - Flags can use a single dash or double dash (`--flag`, `-flag`, `-f`, `--f`)
 - Flags can have `=` assignment operators, or use a space (`--flag=value`, `--flag value`)
 - Flags support single quote globs with spaces (`--flag 'this is all one value'`)
+- Flags of slice types can be passed multiple times (`-f one -f two -f three`)
 - Optional but default version output with `-v` or `--version`
 - Optional but default help output with `-h` or `--help`
 - Optional but default show help when any invalid or unknown parameter is passed
@@ -37,24 +43,70 @@ Open an issue if you hate something, or better yet, fix it and make a pull reque
 # Example Help Output
 
 ```
-testCommand - Description goes here.  Get more information at http://my.website
-This is an optional prepend for help output
+testCommand - Description goes here.  Get more information at our website.
+This is a prepend for help
+
+  Usage:
+    testCommand [subcommandA|subcommandB|subcommandC] [testPositionalA] [testPositionalB]
 
   Positional Variables:
-    testPositionalA (Position 2) (Required) Test positional A does some things with a positional value.
+    testPositionalA (Position 2) (Required) - Test positional A does some things with a positional value.
+    testPositionalB (Position 3) - Test positional B does some less than serious things with a positional value.
 
-  Subommands:
-    subcommandA (a) (Position 1) Subcommand A is a command that does stuff
-    subcommandB (b) (Position 1) Subcommand B is a command that does other stuff
-    subcommandC (c) (Position 1) Subcommand C is a command that does SERIOUS stuff
+  Subcommands:
+    subcommandA (a) - Subcommand A is a command that does stuff
+    subcommandB (b) - Subcommand B is a command that does other stuff
+    subcommandC (c) - Subcommand C is a command that does SERIOUS stuff
 
- Flags:
-    --stringFlag (-s) This is a test string flag that does some stringy string stuff.
-    --intFlg (-i) This is a test int flag that does some interesting int stuff.
-    --boolFlag (-b) This is a test bool flag that does some booly bool stuff.
+  Flags:
+    -s --stringFlag  This is a test string flag that does some stringy string stuff.
+    -i --intFlg  This is a test int flag that does some interesting int stuff.
+    -b --boolFlag  This is a test bool flag that does some booly bool stuff.
+    -d --durationFlag  This is a test duration flag that does some untimely stuff.
 
-This is an optional append for help
+This is an optional append message for help
 This is an optional help add-on message
+```
+
+# Supported Flag Types:
+
+```
+string
+[]string
+bool
+[]bool
+time.Duration
+[]time.Duration
+float32
+[]float32
+float64
+[]float64
+uint
+uint64
+[]uint64
+uint32
+[]uint32
+uint16
+[]uint16
+uint8
+[]uint8
+[]byte
+int
+[]int
+int64
+[]int64
+int32
+[]int32
+int16
+[]int16
+int8
+[]int8
+net.IP
+[]net.IP
+net.HardwareAddr
+[]net.HardwareAddr
+net.IPMask
+[]net.IPMask
 ```
 
 

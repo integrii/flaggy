@@ -1,6 +1,7 @@
 package flaggy
 
 import (
+	"errors"
 	"fmt"
 	"os"
 )
@@ -14,6 +15,7 @@ type Parser struct {
 	ShowVersionWithVFlag bool     // display the version when -v or --version passed
 	ShowHelpOnUnexpected bool     // display help when an unexpected flag is passed
 	TrailingArguments    []string // everything after a -- is placed here
+	parsed               bool     // indicates this parser has parsed
 }
 
 // NewParser creates a new ArgumentParser ready to parse inputs
@@ -34,7 +36,11 @@ func NewParser(name string) *Parser {
 // is a low level issue converting flags to their proper type.  No error
 // is returned for invalid arguments or missing require subcommands.
 func (p *Parser) ParseArgs(args []string) error {
-	debugPrint("Kicking off parsing with args:", args)
+	if p.parsed {
+		return errors.New("Parser.Parse() called twice on parser with name: " + " " + p.Name + " " + p.ShortName)
+	}
+	p.parsed = true
+	// debugPrint("Kicking off parsing with args:", args)
 	return p.parse(p, args, 0)
 }
 

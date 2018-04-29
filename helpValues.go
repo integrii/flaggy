@@ -4,10 +4,7 @@ package flaggy
 type Help struct {
 	Subcommands    []HelpSubcommand
 	Positionals    []HelpPositional
-	StringFlags    []HelpFlag
-	IntFlags       []HelpFlag
-	BoolFlags      []HelpFlag
-	DurationFlags  []HelpFlag
+	Flags          []HelpFlag
 	UsageString    string
 	CommandName    string
 	PrependMessage string
@@ -79,7 +76,7 @@ func (h *Help) ExtractValues(sc *Subcommand, message string) {
 		h.Positionals = append(h.Positionals, newHelpPositional)
 	}
 
-	for _, f := range sc.StringFlags {
+	for _, f := range sc.Flags {
 		if f.Hidden {
 			continue
 		}
@@ -88,42 +85,8 @@ func (h *Help) ExtractValues(sc *Subcommand, message string) {
 			LongName:    f.LongName,
 			Description: f.Description,
 		}
-		h.StringFlags = append(h.StringFlags, newHelpFlag)
+		h.Flags = append(h.Flags, newHelpFlag)
 	}
-	for _, f := range sc.IntFlags {
-		if f.Hidden {
-			continue
-		}
-		newHelpFlag := HelpFlag{
-			ShortName:   f.ShortName,
-			LongName:    f.LongName,
-			Description: f.Description,
-		}
-		h.IntFlags = append(h.IntFlags, newHelpFlag)
-	}
-	for _, f := range sc.BoolFlags {
-		if f.Hidden {
-			continue
-		}
-		newHelpFlag := HelpFlag{
-			ShortName:   f.ShortName,
-			LongName:    f.LongName,
-			Description: f.Description,
-		}
-		h.BoolFlags = append(h.BoolFlags, newHelpFlag)
-	}
-	for _, f := range sc.DurationFlags {
-		if f.Hidden {
-			continue
-		}
-		newHelpFlag := HelpFlag{
-			ShortName:   f.ShortName,
-			LongName:    f.LongName,
-			Description: f.Description,
-		}
-		h.DurationFlags = append(h.DurationFlags, newHelpFlag)
-	}
-
 	// formulate the usage string
 	// first, we capture all the command and positional names by position
 	commandsByPosition := make(map[int]string)
