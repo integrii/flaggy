@@ -1,7 +1,6 @@
 package flaggy
 
 import (
-	"encoding/hex"
 	"errors"
 	"fmt"
 	"net"
@@ -43,17 +42,19 @@ func (f *Flag) identifyAndAssignValue(value string) error {
 	// in flagy.  No returning vars by value.
 	switch f.AssignmentVar.(type) {
 	case *string:
-		f.AssignmentVar = &value
+		v, _ := (f.AssignmentVar).(*string)
+		*v = value
 	case *[]string:
 		v := f.AssignmentVar.(*[]string)
-		a := append(*v, value)
-		f.AssignmentVar = &a
+		new := append(*v, value)
+		*v = new
 	case *bool:
 		v, err := strconv.ParseBool(value)
 		if err != nil {
 			return err
 		}
-		f.AssignmentVar = &v
+		a, _ := (f.AssignmentVar).(*bool)
+		*a = v
 	case *[]bool:
 		// parse the incoming bool
 		b, err := strconv.ParseBool(value)
@@ -65,13 +66,15 @@ func (f *Flag) identifyAndAssignValue(value string) error {
 		// deref the assignment var and append to it
 		v := append(*existing, b)
 		// pointer the new value and assign it
-		f.AssignmentVar = &v
+		a, _ := (f.AssignmentVar).(*[]bool)
+		*a = v
 	case *time.Duration:
 		v, err := time.ParseDuration(value)
 		if err != nil {
 			return err
 		}
-		f.AssignmentVar = &v
+		a, _ := (f.AssignmentVar).(*time.Duration)
+		*a = v
 	case *[]time.Duration:
 		t, err := time.ParseDuration(value)
 		if err != nil {
@@ -81,29 +84,32 @@ func (f *Flag) identifyAndAssignValue(value string) error {
 		// deref the assignment var and append to it
 		v := append(*existing, t)
 		// pointer the new value and assign it
-		f.AssignmentVar = &v
+		a, _ := (f.AssignmentVar).(*[]time.Duration)
+		*a = v
 	case *float32:
 		v, err := strconv.ParseFloat(value, 32)
 		if err != nil {
 			return err
 		}
 		float := float32(v)
-		f.AssignmentVar = &float
+		a, _ := (f.AssignmentVar).(*float32)
+		*a = float
 	case *[]float32:
 		v, err := strconv.ParseFloat(value, 32)
 		if err != nil {
 			return err
 		}
-		existing := f.AssignmentVar.(*[]float32)
 		float := float32(v)
+		existing := f.AssignmentVar.(*[]float32)
 		new := append(*existing, float)
-		f.AssignmentVar = &new
+		*existing = new
 	case *float64:
 		v, err := strconv.ParseFloat(value, 64)
 		if err != nil {
 			return err
 		}
-		f.AssignmentVar = &v
+		a, _ := (f.AssignmentVar).(*float64)
+		*a = v
 	case *[]float64:
 		v, err := strconv.ParseFloat(value, 64)
 		if err != nil {
@@ -111,13 +117,15 @@ func (f *Flag) identifyAndAssignValue(value string) error {
 		}
 		existing := f.AssignmentVar.(*[]float64)
 		new := append(*existing, v)
-		f.AssignmentVar = &new
+
+		*existing = new
 	case *int:
 		v, err := strconv.Atoi(value)
 		if err != nil {
 			return err
 		}
-		f.AssignmentVar = &v
+		e := f.AssignmentVar.(*int)
+		*e = v
 	case *[]int:
 		v, err := strconv.Atoi(value)
 		if err != nil {
@@ -125,14 +133,14 @@ func (f *Flag) identifyAndAssignValue(value string) error {
 		}
 		existing := f.AssignmentVar.(*[]int)
 		new := append(*existing, v)
-		f.AssignmentVar = &new
+		*existing = new
 	case *uint:
 		v, err := strconv.ParseUint(value, 10, 64)
 		if err != nil {
 			return err
 		}
-		val := uint(v)
-		f.AssignmentVar = &val
+		existing := f.AssignmentVar.(*uint)
+		*existing = uint(v)
 	case *[]uint:
 		v, err := strconv.ParseUint(value, 10, 64)
 		if err != nil {
@@ -140,13 +148,14 @@ func (f *Flag) identifyAndAssignValue(value string) error {
 		}
 		existing := f.AssignmentVar.(*[]uint)
 		new := append(*existing, uint(v))
-		f.AssignmentVar = &new
+		*existing = new
 	case *uint64:
 		v, err := strconv.ParseUint(value, 10, 64)
 		if err != nil {
 			return err
 		}
-		f.AssignmentVar = &v
+		existing := f.AssignmentVar.(*uint64)
+		*existing = v
 	case *[]uint64:
 		v, err := strconv.ParseUint(value, 10, 64)
 		if err != nil {
@@ -154,14 +163,14 @@ func (f *Flag) identifyAndAssignValue(value string) error {
 		}
 		existing := f.AssignmentVar.(*[]uint64)
 		new := append(*existing, v)
-		f.AssignmentVar = &new
+		*existing = new
 	case *uint32:
 		v, err := strconv.ParseUint(value, 10, 32)
 		if err != nil {
 			return err
 		}
-		val := uint32(v)
-		f.AssignmentVar = &val
+		existing := f.AssignmentVar.(*uint32)
+		*existing = uint32(v)
 	case *[]uint32:
 		v, err := strconv.ParseUint(value, 10, 32)
 		if err != nil {
@@ -169,14 +178,15 @@ func (f *Flag) identifyAndAssignValue(value string) error {
 		}
 		existing := f.AssignmentVar.(*[]uint32)
 		new := append(*existing, uint32(v))
-		f.AssignmentVar = &new
+		*existing = new
 	case *uint16:
 		v, err := strconv.ParseUint(value, 10, 16)
 		if err != nil {
 			return err
 		}
 		val := uint16(v)
-		f.AssignmentVar = &val
+		existing := f.AssignmentVar.(*uint16)
+		*existing = val
 	case *[]uint16:
 		v, err := strconv.ParseUint(value, 10, 16)
 		if err != nil {
@@ -184,29 +194,33 @@ func (f *Flag) identifyAndAssignValue(value string) error {
 		}
 		existing := f.AssignmentVar.(*[]uint16)
 		new := append(*existing, uint16(v))
-		f.AssignmentVar = &new
+		*existing = new
 	case *uint8:
 		v, err := strconv.ParseUint(value, 10, 8)
 		if err != nil {
 			return err
 		}
 		val := uint8(v)
-		f.AssignmentVar = &val
+		existing := f.AssignmentVar.(*uint8)
+		*existing = val
 	case *[]uint8:
-		// parse a hex string to a slice of bytes
-		src := []byte(value)
-		dst := make([]byte, hex.DecodedLen(len(src)))
-		_, err := hex.Decode(dst, src)
+		var newSlice []uint8
+
+		v, err := strconv.ParseUint(value, 10, 8)
 		if err != nil {
 			return err
 		}
-		f.AssignmentVar = &dst
+		newV := uint8(v)
+		existing := f.AssignmentVar.(*[]uint8)
+		newSlice = append(*existing, newV)
+		*existing = newSlice
 	case *int64:
 		v, err := strconv.ParseInt(value, 10, 64)
 		if err != nil {
 			return err
 		}
-		f.AssignmentVar = &v
+		existing := f.AssignmentVar.(*int64)
+		*existing = v
 	case *[]int64:
 		v, err := strconv.ParseInt(value, 10, 64)
 		if err != nil {
@@ -214,14 +228,15 @@ func (f *Flag) identifyAndAssignValue(value string) error {
 		}
 		existingSlice := f.AssignmentVar.(*[]int64)
 		newSlice := append(*existingSlice, v)
-		f.AssignmentVar = &newSlice
+		*existingSlice = newSlice
 	case *int32:
 		v, err := strconv.ParseInt(value, 10, 64)
 		if err != nil {
 			return err
 		}
 		converted := int32(v)
-		f.AssignmentVar = &converted
+		existing := f.AssignmentVar.(*int32)
+		*existing = converted
 	case *[]int32:
 		v, err := strconv.ParseInt(value, 10, 64)
 		if err != nil {
@@ -229,14 +244,15 @@ func (f *Flag) identifyAndAssignValue(value string) error {
 		}
 		existingSlice := f.AssignmentVar.(*[]int32)
 		newSlice := append(*existingSlice, int32(v))
-		f.AssignmentVar = &newSlice
+		*existingSlice = newSlice
 	case *int16:
 		v, err := strconv.ParseInt(value, 10, 64)
 		if err != nil {
 			return err
 		}
 		converted := int16(v)
-		f.AssignmentVar = &converted
+		existing := f.AssignmentVar.(*int16)
+		*existing = converted
 	case *[]int16:
 		v, err := strconv.ParseInt(value, 10, 64)
 		if err != nil {
@@ -244,14 +260,15 @@ func (f *Flag) identifyAndAssignValue(value string) error {
 		}
 		existingSlice := f.AssignmentVar.(*[]int16)
 		newSlice := append(*existingSlice, int16(v))
-		f.AssignmentVar = &newSlice
+		*existingSlice = newSlice
 	case *int8:
 		v, err := strconv.ParseInt(value, 10, 64)
 		if err != nil {
 			return err
 		}
 		converted := int8(v)
-		f.AssignmentVar = &converted
+		existing := f.AssignmentVar.(*int8)
+		*existing = converted
 	case *[]int8:
 		v, err := strconv.ParseInt(value, 10, 64)
 		if err != nil {
@@ -259,21 +276,23 @@ func (f *Flag) identifyAndAssignValue(value string) error {
 		}
 		existingSlice := f.AssignmentVar.(*[]int8)
 		newSlice := append(*existingSlice, int8(v))
-		f.AssignmentVar = &newSlice
+		*existingSlice = newSlice
 	case *net.IP:
 		v := net.ParseIP(value)
-		f.AssignmentVar = &v
+		existing := f.AssignmentVar.(*net.IP)
+		*existing = v
 	case *[]net.IP:
 		v := net.ParseIP(value)
 		existing := f.AssignmentVar.(*[]net.IP)
 		new := append(*existing, v)
-		f.AssignmentVar = &new
+		*existing = new
 	case *net.HardwareAddr:
 		v, err := net.ParseMAC(value)
 		if err != nil {
 			return err
 		}
-		f.AssignmentVar = &v
+		existing := f.AssignmentVar.(*net.HardwareAddr)
+		*existing = v
 	case *[]net.HardwareAddr:
 		v, err := net.ParseMAC(value)
 		if err != nil {
@@ -281,15 +300,16 @@ func (f *Flag) identifyAndAssignValue(value string) error {
 		}
 		existing := f.AssignmentVar.(*[]net.HardwareAddr)
 		new := append(*existing, v)
-		f.AssignmentVar = &new
+		*existing = new
 	case *net.IPMask:
 		v := net.IPMask(net.ParseIP(value).To4())
-		f.AssignmentVar = &v
+		existing := f.AssignmentVar.(*net.IPMask)
+		*existing = v
 	case *[]net.IPMask:
 		v := net.IPMask(net.ParseIP(value).To4())
 		existing := f.AssignmentVar.(*[]net.IPMask)
 		new := append(*existing, v)
-		f.AssignmentVar = &new
+		*existing = new
 	default:
 		return errors.New("Unknown flag assignmentVar supplied in flag " + f.LongName + " " + f.ShortName)
 	}

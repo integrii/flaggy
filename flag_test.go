@@ -1,9 +1,7 @@
 package flaggy
 
 import (
-	"bytes"
 	"fmt"
-	"io/ioutil"
 	"net"
 	"os"
 	"testing"
@@ -82,7 +80,7 @@ func TestInputParsing(t *testing.T) {
 
 	// Setup input arguments for every input type
 
-	var stringFlag string
+	var stringFlag string = "defaultVar"
 	err = AddStringFlag(&stringFlag, "s", "string", "string flag")
 	if err != nil {
 		t.Fatal(err)
@@ -119,8 +117,8 @@ func TestInputParsing(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	inputArgs = append(inputArgs, "-bysf", "1111")
-	var byteSliceFlagExpected = bytes.NewBufferString("1111").Bytes()
+	inputArgs = append(inputArgs, "-bysf", "17", "-bysf", "18")
+	var byteSliceFlagExpected = []uint8{17, 18}
 
 	var durationFlag time.Duration
 	err = AddDurationFlag(&durationFlag, "df", "duration", "duration flag")
@@ -263,8 +261,8 @@ func TestInputParsing(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	inputArgs = append(inputArgs, "-ui8s", "40", "-ui8s", "50")
-	var uint8SliceFlagExpected = []uint8{40, 50}
+	inputArgs = append(inputArgs, "-ui8s", "3", "-ui8s", "2")
+	var uint8SliceFlagExpected = []uint8{uint8(3), uint8(2)}
 
 	var int64Flag int64
 	err = AddInt64Flag(&int64Flag, "i64", "i64", "int64 flag")
@@ -327,8 +325,8 @@ func TestInputParsing(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	inputArgs = append(inputArgs, "-i8s", "40", "-i8s", "20")
-	var int8SliceFlagExpected = []int8{40, 20}
+	inputArgs = append(inputArgs, "-i8s", "4", "-i8s", "2")
+	var int8SliceFlagExpected = []int8{4, 2}
 
 	var ipFlag net.IP
 	err = AddIPFlag(&ipFlag, "ip", "ipFlag", "ip flag")
@@ -352,12 +350,10 @@ func TestInputParsing(t *testing.T) {
 		t.Fatal(err)
 	}
 	inputArgs = append(inputArgs, "-hw", "32:00:16:46:20:00")
-	buf := bytes.NewBufferString("32:00:16:46:20:00")
-	hwBytes, err := ioutil.ReadAll(buf)
+	hwFlagExpected, err := net.ParseMAC("32:00:16:46:20:00")
 	if err != nil {
 		t.Fatal(err)
 	}
-	var hwFlagExpected = net.HardwareAddr(hwBytes)
 
 	var hwFlagSlice []net.HardwareAddr
 	err = AddHardwareAddrSliceFlag(&hwFlagSlice, "hws", "hwFlagSlice", "hw slice flag")
@@ -365,17 +361,15 @@ func TestInputParsing(t *testing.T) {
 		t.Fatal(err)
 	}
 	inputArgs = append(inputArgs, "-hws", "32:00:16:46:20:00", "-hws", "32:00:16:46:20:01")
-	bufA := bytes.NewBufferString("32:00:16:46:20:00")
-	bufB := bytes.NewBufferString("32:00:16:46:20:01")
-	hwBytesA, err := ioutil.ReadAll(bufA)
+	macA, err := net.ParseMAC("32:00:16:46:20:00")
 	if err != nil {
 		t.Fatal(err)
 	}
-	hwBytesB, err := ioutil.ReadAll(bufB)
+	macB, err := net.ParseMAC("32:00:16:46:20:01")
 	if err != nil {
 		t.Fatal(err)
 	}
-	var hwFlagSliceExpected = []net.HardwareAddr{net.HardwareAddr(hwBytesA), net.HardwareAddr(hwBytesB)}
+	var hwFlagSliceExpected = []net.HardwareAddr{macA, macB}
 
 	var maskFlag net.IPMask
 	err = AddIPMaskFlag(&maskFlag, "m", "mFlag", "mask flag")
@@ -512,7 +506,7 @@ func TestInputParsing(t *testing.T) {
 
 	for i, f := range uint8SliceFlagExpected {
 		if uint8SliceFlag[i] != f {
-			t.Fatal("uint8Slice value incorrect", uint8SliceFlag[i], f)
+			t.Fatal("uint8Slice value", i, "incorrect", uint8SliceFlag[i], f)
 		}
 	}
 
