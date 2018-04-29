@@ -1,21 +1,22 @@
 package flaggy
 
 import (
+	"encoding/hex"
+	"errors"
 	"fmt"
+	"net"
+	"strconv"
 	"strings"
 	"time"
 )
-
-// FlagType represents the type a flag is backed with
-type FlagType int
 
 // Flag holds the base methods for all flag types
 type Flag struct {
 	ShortName     string
 	LongName      string
 	Description   string
-	Hidden        bool         // indicates this flag should be hidden from help and suggestions
-	AssignmentVar *interface{} // TODO - implement as type switch where specific types required.  Issue #7
+	Hidden        bool // indicates this flag should be hidden from help and suggestions
+	AssignmentVar interface{}
 }
 
 // HasName indicates that this flag's short or long name matches the
@@ -28,28 +29,264 @@ func (f *Flag) HasName(name string) bool {
 	return false
 }
 
-// StringFlag represents a flag that is converted into a string value.
-type StringFlag struct {
-	Flag
-	AssignmentVar *string
-}
+// identifyAndAssignValue identifies the type of the incoming value
+// and assigns it to the AssignmentVar pointer's target value.  If
+// the value is a type that needs parsing, that is performed as well.
+func (f *Flag) identifyAndAssignValue(value string) error {
 
-// IntFlag represents a flag that is converted into an int value.
-type IntFlag struct {
-	Flag
-	AssignmentVar *int
-}
+	// reflect.TypeOf(value)
+	var err error
 
-// BoolFlag represents a flag that is converted into a bool value.
-type BoolFlag struct {
-	Flag
-	AssignmentVar *bool
-}
+	// depending on the type of the assignment variable, we convert the
+	// incoming string and assign it.  We only use pointers to variables
+	// in flagy.  No returning vars by value.
+	switch f.AssignmentVar.(type) {
+	case *string:
+		f.AssignmentVar = &value
+	case *[]string:
+		v := f.AssignmentVar.(*[]string)
+		a := append(*v, value)
+		f.AssignmentVar = &a
+	case *bool:
+		v, err := strconv.ParseBool(value)
+		if err != nil {
+			return err
+		}
+		f.AssignmentVar = &v
+	case *[]bool:
+		// parse the incoming bool
+		b, err := strconv.ParseBool(value)
+		if err != nil {
+			return err
+		}
+		// cast the assignment var
+		existing := f.AssignmentVar.(*[]bool)
+		// deref the assignment var and append to it
+		v := append(*existing, b)
+		// pointer the new value and assign it
+		f.AssignmentVar = &v
+	case *[]byte:
+		// parse a hex string to a slice of bytes
+		src := []byte(value)
+		dst := make([]byte, hex.DecodedLen(len(src)))
+		_, err := hex.Decode(dst, src)
+		if err != nil {
+			return err
+		}
+		f.AssignmentVar = &dst
+	case *time.Duration:
+		v, err := time.ParseDuration(value)
+		if err != nil {
+			return err
+		}
+		f.AssignmentVar = &v
+	case *[]time.Duration:
+		t, err := time.ParseDuration(value)
+		if err != nil {
+			return err
+		}
+		existing := f.AssignmentVar.(*[]time.Duration)
+		// deref the assignment var and append to it
+		v := append(*existing, t)
+		// pointer the new value and assign it
+		f.AssignmentVar = &v
+	case *float32:
+		v, err := strconv.ParseFloat(value, 32)
+		if err != nil {
+			return err
+		}
+		float := float32(v)
+		f.AssignmentVar = &float
+	case *[]float32:
+		v, err := strconv.ParseFloat(value, 32)
+		if err != nil {
+			return err
+		}
+		existing := f.AssignmentVar.(*[]float32)
+		float := float32(v)
+		new := append(*existing, float)
+		f.AssignmentVar = &new
+	case *float64:
+		v, err := strconv.ParseFloat(value, 64)
+		if err != nil {
+			return err
+		}
+		f.AssignmentVar = &v
+	case *[]float64:
+		v, err := strconv.ParseFloat(value, 64)
+		if err != nil {
+			return err
+		}
+		existing := f.AssignmentVar.(*[]float64)
+		new := append(*existing, v)
+		f.AssignmentVar = &new
+	case *int:
+		v, err := strconv.Atoi(value)
+		if err != nil {
+			return err
+		}
+		f.AssignmentVar = &v
+	case *[]int:
+		v, err := strconv.Atoi(value)
+		if err != nil {
+			return err
+		}
+		existing := f.AssignmentVar.(*[]int)
+		new := append(*existing, v)
+		f.AssignmentVar = &new
+	case *uint:
+		v, err := strconv.ParseUint(value, 10, 64)
+		if err != nil {
+			return err
+		}
+		val := uint(v)
+		f.AssignmentVar = &val
+	case *[]uint:
+		v, err := strconv.ParseUint(value, 10, 64)
+		if err != nil {
+			return err
+		}
+		existing := f.AssignmentVar.(*[]uint)
+		new := append(*existing, uint(v))
+		f.AssignmentVar = &new
+	case *uint64:
+		v, err := strconv.ParseUint(value, 10, 64)
+		if err != nil {
+			return err
+		}
+		f.AssignmentVar = &v
+	case *[]uint64:
+		v, err := strconv.ParseUint(value, 10, 64)
+		if err != nil {
+			return err
+		}
+		existing := f.AssignmentVar.(*[]uint64)
+		new := append(*existing, v)
+		f.AssignmentVar = &new
+	case *uint32:
+		v, err := strconv.ParseUint(value, 10, 32)
+		if err != nil {
+			return err
+		}
+		val := uint32(v)
+		f.AssignmentVar = &val
+	case *[]uint32:
+		v, err := strconv.ParseUint(value, 10, 32)
+		if err != nil {
+			return err
+		}
+		existing := f.AssignmentVar.(*[]uint32)
+		new := append(*existing, uint32(v))
+		f.AssignmentVar = &new
+	case *uint16:
+		v, err := strconv.ParseUint(value, 10, 16)
+		if err != nil {
+			return err
+		}
+		val := uint16(v)
+		f.AssignmentVar = &val
+	case *[]uint16:
+		v, err := strconv.ParseUint(value, 10, 16)
+		if err != nil {
+			return err
+		}
+		existing := f.AssignmentVar.(*[]uint16)
+		new := append(*existing, uint16(v))
+		f.AssignmentVar = &new
+	case *uint8:
+		v, err := strconv.ParseUint(value, 10, 8)
+		if err != nil {
+			return err
+		}
+		val := uint8(v)
+		f.AssignmentVar = &val
+	// []*uint8 is the same as *[]byte above
+	case *int64:
+		v, err := strconv.ParseInt(value, 10, 64)
+		if err != nil {
+			return err
+		}
+		f.AssignmentVar = &v
+	case *[]int64:
+		v, err := strconv.ParseInt(value, 10, 64)
+		if err != nil {
+			return err
+		}
+		existingSlice := f.AssignmentVar.(*[]int64)
+		newSlice := append(*existingSlice, v)
+		f.AssignmentVar = &newSlice
+	case *int32:
+		v, err := strconv.ParseInt(value, 10, 64)
+		if err != nil {
+			return err
+		}
+		converted := int32(v)
+		f.AssignmentVar = &converted
+	case *[]int32:
+		v, err := strconv.ParseInt(value, 10, 64)
+		if err != nil {
+			return err
+		}
+		existingSlice := f.AssignmentVar.(*[]int32)
+		newSlice := append(*existingSlice, int32(v))
+		f.AssignmentVar = &newSlice
+	case *int16:
+		v, err := strconv.ParseInt(value, 10, 64)
+		if err != nil {
+			return err
+		}
+		converted := int16(v)
+		f.AssignmentVar = &converted
+	case *[]int16:
+		v, err := strconv.ParseInt(value, 10, 64)
+		if err != nil {
+			return err
+		}
+		existingSlice := f.AssignmentVar.(*[]int16)
+		newSlice := append(*existingSlice, int16(v))
+		f.AssignmentVar = &newSlice
+	case *int8:
+		v, err := strconv.ParseInt(value, 10, 64)
+		if err != nil {
+			return err
+		}
+		converted := int8(v)
+		f.AssignmentVar = &converted
+	case *[]int8:
+		v, err := strconv.ParseInt(value, 10, 64)
+		if err != nil {
+			return err
+		}
+		existingSlice := f.AssignmentVar.(*[]int8)
+		newSlice := append(*existingSlice, int8(v))
+		f.AssignmentVar = &newSlice
+	case *net.IP:
+		v := net.ParseIP(value)
+		f.AssignmentVar = &v
+	case *[]net.IP:
+		v := net.ParseIP(value)
+		existing := f.AssignmentVar.(*[]net.IP)
+		new := append(*existing, v)
+		f.AssignmentVar = &new
+	case *net.HardwareAddr:
+		v, err := net.ParseMAC(value)
+		if err != nil {
+			return err
+		}
+		f.AssignmentVar = &v
+	case *[]net.HardwareAddr:
+		v, err := net.ParseMAC(value)
+		if err != nil {
+			return err
+		}
+		existing := f.AssignmentVar.(*[]net.HardwareAddr)
+		new := append(*existing, v)
+		f.AssignmentVar = &new
+	default:
+		return errors.New("Unknown flag assignmentVar supplied in flag " + f.LongName + " " + f.ShortName)
+	}
 
-// DurationFlag represents a flag for a duration of time
-type DurationFlag struct {
-	Flag
-	AssignmentVar *time.Duration
+	return err
 }
 
 const argIsPositional = "positional"       // subcommand or positional value
