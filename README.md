@@ -8,7 +8,7 @@
 <img src="https://img.shields.io/badge/license-Unlicense-blue.svg">
 </p>
 
-Sensible command-line flag parsing with support for subcommands and positional values. Flags can be at any position.  No required project or package layout like [Cobra requires](https://github.com/spf13/cobra/issues/641), and **no third party package dependencies**! 
+Sensible command-line flag parsing with support for subcommands and positional values. Flags can be at any position.  No required project or package layout like [Cobra requires](https://github.com/spf13/cobra/issues/641), and **no third party package dependencies**!
 
 Check out the [godoc](http://godoc.org/github.com/integrii/flaggy), [examples directory](https://github.com/integrii/flaggy/tree/master/examples), and [examples in this readme](https://github.com/integrii/flaggy#super-simple-example) to get started quickly.
 
@@ -43,15 +43,15 @@ Open an issue if you hate something, or better yet, fix it and make a pull reque
 # Example Help Output
 
 ```
-testCommand - Description goes here.  Get more information at our website.
+testCommand - Description goes here.  Get more information at http://flaggy.
 This is a prepend for help
 
   Usage:
     testCommand [subcommandA|subcommandB|subcommandC] [testPositionalA] [testPositionalB]
 
   Positional Variables:
-    testPositionalA (Position 2) (Required) - Test positional A does some things with a positional value.
-    testPositionalB (Position 3) - Test positional B does some less than serious things with a positional value.
+    testPositionalA  (Required) - Test positional A does some things with a positional value.
+    testPositionalB  - Test positional B does some less than serious things with a positional value.
 
   Subcommands:
     subcommandA (a) - Subcommand A is a command that does stuff
@@ -64,8 +64,8 @@ This is a prepend for help
     -b --boolFlag  This is a test bool flag that does some booly bool stuff.
     -d --durationFlag  This is a test duration flag that does some untimely stuff.
 
-This is an optional append message for help
-This is an optional help add-on message
+This is an append for help
+This is a help addon message
 ```
 
 # Supported Flag Types:
