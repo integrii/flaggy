@@ -190,6 +190,7 @@ func (sc *Subcommand) parseAllFlagsFromArgs(p *Parser, args []string) ([]string,
 // Parse causes the argument parser to parse based on the supplied []string.
 // depth specifies the non-flag subcommand positional depth
 func (sc *Subcommand) parse(p *Parser, args []string, depth int) error {
+
 	debugPrint("- Parsing subcommand", sc.Name, "with depth of", depth, "and args", args)
 
 	// if a command is parsed, its used

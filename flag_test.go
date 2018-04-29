@@ -401,6 +401,7 @@ func TestInputParsing(t *testing.T) {
 
 	// validate parsed values
 	if stringFlag != stringFlagExpected {
+		t.Log(stringFlag)
 		t.Fatal("string flag incorrect", stringFlag, stringFlagExpected)
 	}
 

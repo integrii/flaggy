@@ -34,7 +34,8 @@ func (f *Flag) HasName(name string) bool {
 // the value is a type that needs parsing, that is performed as well.
 func (f *Flag) identifyAndAssignValue(value string) error {
 
-	// reflect.TypeOf(value)
+	fmt.Println("attempting to assign value", value, "to flag", f.LongName)
+
 	var err error
 
 	// depending on the type of the assignment variable, we convert the
@@ -42,9 +43,9 @@ func (f *Flag) identifyAndAssignValue(value string) error {
 	// in flagy.  No returning vars by value.
 	switch f.AssignmentVar.(type) {
 	case *string:
-		fmt.Println("pre", f.AssignmentVar)
 		f.AssignmentVar = &value
 		fmt.Println("after", f.AssignmentVar)
+		fmt.Println("twice")
 	case *[]string:
 		v := f.AssignmentVar.(*[]string)
 		a := append(*v, value)
