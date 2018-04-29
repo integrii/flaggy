@@ -27,6 +27,7 @@ package flaggy
 
 import (
 	"fmt"
+	"net"
 	"os"
 	"strings"
 	"time"
@@ -85,28 +86,207 @@ func ParseArgs(args []string) error {
 	return err
 }
 
-// AddBoolFlag adds a bool flag for parsing, at the global level of the
-// default parser
-func AddBoolFlag(assignmentVar *bool, shortName string, longName string, description string) error {
-	return mainParser.AddBoolFlag(assignmentVar, shortName, longName, description)
-}
-
-// AddIntFlag adds an int flag for parsing, at the global level of the
-// default parser
-func AddIntFlag(assignmentVar *int, shortName string, longName string, description string) error {
-	return mainParser.AddIntFlag(assignmentVar, shortName, longName, description)
-}
-
-// AddStringFlag adds a string flag for parsing, at the global level of the
-// default parser
+// AddStringFlag adds a new string flag
 func AddStringFlag(assignmentVar *string, shortName string, longName string, description string) error {
-	return mainParser.AddStringFlag(assignmentVar, shortName, longName, description)
+	return mainParser.addFlag(assignmentVar, shortName, longName, description)
 }
 
-// AddDurationFlag adds a duration flag for parsing, at the global level of the
-// default parser
+// AddStringSliceFlag adds a new slice of strings flag
+// Specify the flag multiple times to fill the slice
+func AddStringSliceFlag(assignmentVar *[]string, shortName string, longName string, description string) error {
+	return mainParser.addFlag(assignmentVar, shortName, longName, description)
+}
+
+// AddBoolFlag adds a new bool flag
+func AddBoolFlag(assignmentVar *bool, shortName string, longName string, description string) error {
+	return mainParser.addFlag(assignmentVar, shortName, longName, description)
+}
+
+// AddBoolSliceFlag adds a new slice of bools flag
+// Specify the flag multiple times to fill the slice
+func AddBoolSliceFlag(assignmentVar *[]bool, shortName string, longName string, description string) error {
+	return mainParser.addFlag(assignmentVar, shortName, longName, description)
+}
+
+// AddByteSliceFlag adds a new slice of bytes flag
+// Specify the flag multiple times to fill the slice.  Takes hex as input.
+func AddByteSliceFlag(assignmentVar *[]byte, shortName string, longName string, description string) error {
+	return mainParser.addFlag(assignmentVar, shortName, longName, description)
+}
+
+// AddDurationFlag adds a new time.Duration flag.
+// Input format is described in time.ParseDuration().
+// Example values: 1h, 1h50m, 32s
 func AddDurationFlag(assignmentVar *time.Duration, shortName string, longName string, description string) error {
-	return mainParser.AddDurationFlag(assignmentVar, shortName, longName, description)
+	return mainParser.addFlag(assignmentVar, shortName, longName, description)
+}
+
+// AddDurationSliceFlag adds a new time.Duration flag.
+// Input format is described in time.ParseDuration().
+// Example values: 1h, 1h50m, 32s
+// Specify the flag multiple times to fill the slice.
+func AddDurationSliceFlag(assignmentVar *[]time.Duration, shortName string, longName string, description string) error {
+	return mainParser.addFlag(assignmentVar, shortName, longName, description)
+}
+
+// AddFloat32Flag adds a new float32 flag.
+func AddFloat32Flag(assignmentVar *float32, shortName string, longName string, description string) error {
+	return mainParser.addFlag(assignmentVar, shortName, longName, description)
+}
+
+// AddFloat32SliceFlag adds a new float32 flag.
+// Specify the flag multiple times to fill the slice.
+func AddFloat32SliceFlag(assignmentVar *[]float32, shortName string, longName string, description string) error {
+	return mainParser.addFlag(assignmentVar, shortName, longName, description)
+}
+
+// AddFloat64Flag adds a new float64 flag.
+func AddFloat64Flag(assignmentVar *float64, shortName string, longName string, description string) error {
+	return mainParser.addFlag(assignmentVar, shortName, longName, description)
+}
+
+// AddFloat64SliceFlag adds a new float64 flag.
+// Specify the flag multiple times to fill the slice.
+func AddFloat64SliceFlag(assignmentVar *[]float64, shortName string, longName string, description string) error {
+	return mainParser.addFlag(assignmentVar, shortName, longName, description)
+}
+
+// AddIntFlag adds a new int flag
+func AddIntFlag(assignmentVar *int, shortName string, longName string, description string) error {
+	return mainParser.addFlag(assignmentVar, shortName, longName, description)
+}
+
+// AddIntSliceFlag adds a new int slice flag.
+// Specify the flag multiple times to fill the slice.
+func AddIntSliceFlag(assignmentVar *[]int, shortName string, longName string, description string) error {
+	return mainParser.addFlag(assignmentVar, shortName, longName, description)
+}
+
+// AddUIntFlag adds a new uint flag
+func AddUIntFlag(assignmentVar *uint, shortName string, longName string, description string) error {
+	return mainParser.addFlag(assignmentVar, shortName, longName, description)
+}
+
+// AddUIntSliceFlag adds a new uint slice flag.
+// Specify the flag multiple times to fill the slice.
+func AddUIntSliceFlag(assignmentVar *[]uint, shortName string, longName string, description string) error {
+	return mainParser.addFlag(assignmentVar, shortName, longName, description)
+}
+
+// AddUInt64Flag adds a new uint64 flag
+func AddUInt64Flag(assignmentVar *uint64, shortName string, longName string, description string) error {
+	return mainParser.addFlag(assignmentVar, shortName, longName, description)
+}
+
+// AddUInt64SliceFlag adds a new uint64 slice flag.
+// Specify the flag multiple times to fill the slice.
+func AddUInt64SliceFlag(assignmentVar *[]uint64, shortName string, longName string, description string) error {
+	return mainParser.addFlag(assignmentVar, shortName, longName, description)
+}
+
+// AddUInt32Flag adds a new uint32 flag
+func AddUInt32Flag(assignmentVar *uint32, shortName string, longName string, description string) error {
+	return mainParser.addFlag(assignmentVar, shortName, longName, description)
+}
+
+// AddUInt32SliceFlag adds a new uint32 slice flag.
+// Specify the flag multiple times to fill the slice.
+func AddUInt32SliceFlag(assignmentVar *[]uint32, shortName string, longName string, description string) error {
+	return mainParser.addFlag(assignmentVar, shortName, longName, description)
+}
+
+// AddUInt16Flag adds a new uint16 flag
+func AddUInt16Flag(assignmentVar *uint16, shortName string, longName string, description string) error {
+	return mainParser.addFlag(assignmentVar, shortName, longName, description)
+}
+
+// AddUInt16SliceFlag adds a new uint16 slice flag.
+// Specify the flag multiple times to fill the slice.
+func AddUInt16SliceFlag(assignmentVar *[]uint16, shortName string, longName string, description string) error {
+	return mainParser.addFlag(assignmentVar, shortName, longName, description)
+}
+
+// AddUInt8Flag adds a new uint8 flag
+func AddUInt8Flag(assignmentVar *uint8, shortName string, longName string, description string) error {
+	return mainParser.addFlag(assignmentVar, shortName, longName, description)
+}
+
+// AddUInt8SliceFlag adds a new uint8 slice flag.
+// Specify the flag multiple times to fill the slice.
+func AddUInt8SliceFlag(assignmentVar *[]uint8, shortName string, longName string, description string) error {
+	return mainParser.addFlag(assignmentVar, shortName, longName, description)
+}
+
+// AddInt64SliceFlag adds a new int64 slice flag.
+// Specify the flag multiple times to fill the slice.
+func AddInt64SliceFlag(assignmentVar *[]int64, shortName string, longName string, description string) error {
+	return mainParser.addFlag(assignmentVar, shortName, longName, description)
+}
+
+// AddInt32Flag adds a new int32 flag
+func AddInt32Flag(assignmentVar *int32, shortName string, longName string, description string) error {
+	return mainParser.addFlag(assignmentVar, shortName, longName, description)
+}
+
+// AddInt32SliceFlag adds a new int32 slice flag.
+// Specify the flag multiple times to fill the slice.
+func AddInt32SliceFlag(assignmentVar *[]int32, shortName string, longName string, description string) error {
+	return mainParser.addFlag(assignmentVar, shortName, longName, description)
+}
+
+// AddInt16Flag adds a new int16 flag
+func AddInt16Flag(assignmentVar *int16, shortName string, longName string, description string) error {
+	return mainParser.addFlag(assignmentVar, shortName, longName, description)
+}
+
+// AddInt16SliceFlag adds a new int16 slice flag.
+// Specify the flag multiple times to fill the slice.
+func AddInt16SliceFlag(assignmentVar *[]int16, shortName string, longName string, description string) error {
+	return mainParser.addFlag(assignmentVar, shortName, longName, description)
+}
+
+// AddInt8Flag adds a new int8 flag
+func AddInt8Flag(assignmentVar *int8, shortName string, longName string, description string) error {
+	return mainParser.addFlag(assignmentVar, shortName, longName, description)
+}
+
+// AddInt8SliceFlag adds a new int8 slice flag.
+// Specify the flag multiple times to fill the slice.
+func AddInt8SliceFlag(assignmentVar *[]int8, shortName string, longName string, description string) error {
+	return mainParser.addFlag(assignmentVar, shortName, longName, description)
+}
+
+// AddIPFlag adds a new net.IP flag.
+func AddIPFlag(assignmentVar *net.IP, shortName string, longName string, description string) error {
+	return mainParser.addFlag(assignmentVar, shortName, longName, description)
+}
+
+// AddIPSliceFlag adds a new int8 slice flag.
+// Specify the flag multiple times to fill the slice.
+func AddIPSliceFlag(assignmentVar *[]net.IP, shortName string, longName string, description string) error {
+	return mainParser.addFlag(assignmentVar, shortName, longName, description)
+}
+
+// AddHardwareAddrFlag adds a new net.HardwareAddr flag.
+func AddHardwareAddrFlag(assignmentVar *net.HardwareAddr, shortName string, longName string, description string) error {
+	return mainParser.addFlag(assignmentVar, shortName, longName, description)
+}
+
+// AddHardwareAddrSliceFlag adds a new net.HardwareAddr slice flag.
+// Specify the flag multiple times to fill the slice.
+func AddHardwareAddrSliceFlag(assignmentVar *[]net.HardwareAddr, shortName string, longName string, description string) error {
+	return mainParser.addFlag(assignmentVar, shortName, longName, description)
+}
+
+// AddIPMaskFlag adds a new net.IPMask flag. IPv4 Only.
+func AddIPMaskFlag(assignmentVar *net.IPMask, shortName string, longName string, description string) error {
+	return mainParser.addFlag(assignmentVar, shortName, longName, description)
+}
+
+// AddIPMaskSliceFlag adds a new net.HardwareAddr slice flag. IPv4 only.
+// Specify the flag multiple times to fill the slice.
+func AddIPMaskSliceFlag(assignmentVar *[]net.IPMask, shortName string, longName string, description string) error {
+	return mainParser.addFlag(assignmentVar, shortName, longName, description)
 }
 
 // AddSubcommand adds a subcommand for parsing
