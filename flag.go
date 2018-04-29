@@ -230,7 +230,7 @@ func (f *Flag) identifyAndAssignValue(value string) error {
 		newSlice := append(*existingSlice, v)
 		*existingSlice = newSlice
 	case *int32:
-		v, err := strconv.ParseInt(value, 10, 64)
+		v, err := strconv.ParseInt(value, 10, 32)
 		if err != nil {
 			return err
 		}
@@ -238,7 +238,7 @@ func (f *Flag) identifyAndAssignValue(value string) error {
 		existing := f.AssignmentVar.(*int32)
 		*existing = converted
 	case *[]int32:
-		v, err := strconv.ParseInt(value, 10, 64)
+		v, err := strconv.ParseInt(value, 10, 32)
 		if err != nil {
 			return err
 		}
@@ -246,7 +246,7 @@ func (f *Flag) identifyAndAssignValue(value string) error {
 		newSlice := append(*existingSlice, int32(v))
 		*existingSlice = newSlice
 	case *int16:
-		v, err := strconv.ParseInt(value, 10, 64)
+		v, err := strconv.ParseInt(value, 10, 16)
 		if err != nil {
 			return err
 		}
@@ -254,7 +254,7 @@ func (f *Flag) identifyAndAssignValue(value string) error {
 		existing := f.AssignmentVar.(*int16)
 		*existing = converted
 	case *[]int16:
-		v, err := strconv.ParseInt(value, 10, 64)
+		v, err := strconv.ParseInt(value, 10, 16)
 		if err != nil {
 			return err
 		}
@@ -262,7 +262,7 @@ func (f *Flag) identifyAndAssignValue(value string) error {
 		newSlice := append(*existingSlice, int16(v))
 		*existingSlice = newSlice
 	case *int8:
-		v, err := strconv.ParseInt(value, 10, 64)
+		v, err := strconv.ParseInt(value, 10, 8)
 		if err != nil {
 			return err
 		}
@@ -270,7 +270,7 @@ func (f *Flag) identifyAndAssignValue(value string) error {
 		existing := f.AssignmentVar.(*int8)
 		*existing = converted
 	case *[]int8:
-		v, err := strconv.ParseInt(value, 10, 64)
+		v, err := strconv.ParseInt(value, 10, 8)
 		if err != nil {
 			return err
 		}
