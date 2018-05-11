@@ -27,7 +27,7 @@ func ExampleSubcommand_AddPositionalValue() {
 	// create a subcommand
 	subcommandA := flaggy.NewSubcommand("subcommandA")
 	// add the subcommand at relative position 1 within the default root parser
-	err = flaggy.AddSubcommand(subcommandA, 1)
+	err = flaggy.AttachSubcommand(subcommandA, 1)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -36,7 +36,7 @@ func ExampleSubcommand_AddPositionalValue() {
 	subcommandB := flaggy.NewSubcommand("subcommandB")
 	// add the second subcommand to the first subcommand as a child at relative
 	// position 1
-	err = subcommandA.AddSubcommand(subcommandB, 1)
+	err = subcommandA.AttachSubcommand(subcommandB, 1)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -57,9 +57,9 @@ func ExampleSubcommand_AddPositionalValue() {
 	// Output: Positional flag set to subcommandBPositionalValue
 }
 
-// ExampleAddPositionalValue shows how to add positional variables at the
+// ExamplePositionalValue shows how to add positional variables at the
 // global level.
-func ExampleAddPositionalValue() {
+func ExamplePositionalValue() {
 
 	// Simulate some input from the CLI.  Don't do this in your program.
 	flaggy.ResetParser()
@@ -83,10 +83,10 @@ func ExampleAddPositionalValue() {
 	// Output: Flag set to positionalValue
 }
 
-// ExampleAddBoolFlag shows how to global bool flags in your program.
-func ExampleAddBoolFlag() {
+// ExampleBoolFlag shows how to global bool flags in your program.
+func ExampleBool() {
 
-	// Simulate some input from the CLI.  Don't do this in your program.
+	// Simulate some input from the CLI.  Don't do these two lines in your program.
 	flaggy.ResetParser()
 	os.Args = []string{"binaryName", "-f"}
 
@@ -98,7 +98,7 @@ func ExampleAddBoolFlag() {
 
 	// add a bool flag at the global level
 	var boolFlag bool
-	flaggy.AddBoolFlag(&boolFlag, "f", "flag", "A test bool flag")
+	flaggy.Bool(&boolFlag, "f", "flag", "A test bool flag")
 
 	// Parse the input arguments from the OS (os.Args)
 	flaggy.Parse()
@@ -110,8 +110,8 @@ func ExampleAddBoolFlag() {
 	// Output: Flag set
 }
 
-// ExampleAddIntFlag shows how to global int flags in your program.
-func ExampleAddIntFlag() {
+// ExampleIntFlag shows how to global int flags in your program.
+func ExampleInt() {
 
 	// Simulate some input from the CLI.  Don't do these two lines in your program.
 	flaggy.ResetParser()
@@ -125,7 +125,7 @@ func ExampleAddIntFlag() {
 
 	// add a int flag at the global level
 	var intFlag int
-	flaggy.AddIntFlag(&intFlag, "f", "flag", "A test int flag")
+	flaggy.Int(&intFlag, "f", "flag", "A test int flag")
 
 	// Parse the input arguments from the OS (os.Args)
 	flaggy.Parse()
@@ -137,8 +137,8 @@ func ExampleAddIntFlag() {
 	// Output: Flag set to: 5
 }
 
-// ExampleAddStringFlag shows how to global string flags in your program.
-func ExampleAddStringFlag() {
+// ExampleStringFlag shows how to global string flags in your program.
+func ExampleString() {
 
 	// Simulate some input from the CLI.  Don't do this in your program.
 	flaggy.ResetParser()
@@ -152,7 +152,7 @@ func ExampleAddStringFlag() {
 
 	// add a string flag at the global level
 	var stringFlag string
-	flaggy.AddStringFlag(&stringFlag, "f", "flag", "A test string flag")
+	flaggy.String(&stringFlag, "f", "flag", "A test string flag")
 
 	// Parse the input arguments from the OS (os.Args)
 	flaggy.Parse()
@@ -189,7 +189,7 @@ func Example() {
 
 	// Attach a string variable to the subcommand
 	var subcommandVariable string
-	newSC.AddStringFlag(&subcommandVariable, "v", "variable", "A test variable.")
+	newSC.String(&subcommandVariable, "v", "variable", "A test variable.")
 
 	var subcommandPositional string
 	newSC.AddPositionalValue(&subcommandPositional, "testPositionalVar", 1, false, "A test positional variable to a subcommand.")
@@ -197,7 +197,7 @@ func Example() {
 	// Attach the subcommand to the parser. This will error if another
 	// positional value or subcommand is already present at the depth supplied.
 	// Later you can check if this command was used with a simple bool.
-	err := flaggy.AddSubcommand(newSC, 1)
+	err := flaggy.AttachSubcommand(newSC, 1)
 	if err != nil {
 		log.Fatalln(err)
 	}

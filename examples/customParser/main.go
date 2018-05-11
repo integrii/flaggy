@@ -28,13 +28,13 @@ func main() {
 	// you don't have to finish the subcommand before adding it to the parser
 	subCmd := flaggy.NewSubcommand("subCmd")
 	subCmd.Description = "Description of subcommand"
-	p.AddSubcommand(subCmd, 2)
+	p.AttachSubcommand(subCmd, 2)
 
 	// add a flag to the subcomand
-	subCmd.AddIntFlag(&intFlagT, "i", "testInt", "This is a test int flag")
+	subCmd.Int(&intFlagT, "i", "testInt", "This is a test int flag")
 
 	// add a bool flag to the root command
-	p.AddBoolFlag(&boolFlagB, "b", "boolTest", "This is a test boolean flag")
+	p.Bool(&boolFlagB, "b", "boolTest", "This is a test boolean flag")
 
 	p.Parse()
 

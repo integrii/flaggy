@@ -9,6 +9,9 @@ import (
 // TestComplexNesting tests various levels of nested subcommands and
 // positional values intermixed with eachother.
 func TestComplexNesting(t *testing.T) {
+
+	flaggy.ResetParser()
+
 	var testA string
 	var testB string
 	var testC string
@@ -21,52 +24,61 @@ func TestComplexNesting(t *testing.T) {
 	scC := flaggy.NewSubcommand("scC")
 	scD := flaggy.NewSubcommand("scD")
 
-	flaggy.AddBoolFlag(&testF, "f", "testF", "")
+	flaggy.Bool(&testF, "f", "testF", "")
 
 	scA.AddPositionalValue(&testA, "testA", 1, false, "")
 	scA.AddPositionalValue(&testB, "testB", 2, false, "")
 	scA.AddPositionalValue(&testC, "testC", 3, false, "")
-	scA.AddSubcommand(scB, 4)
-	flaggy.AddSubcommand(scA, 1)
+	scA.AttachSubcommand(scB, 4)
+	flaggy.AttachSubcommand(scA, 1)
 
 	scB.AddPositionalValue(&testD, "testD", 1, false, "")
-	scB.AddSubcommand(scC, 2)
+	scB.AttachSubcommand(scC, 2)
 
-	scC.AddSubcommand(scD, 1)
+	scC.AttachSubcommand(scD, 1)
 
 	scD.AddPositionalValue(&testE, "testE", 1, true, "")
 
-	flaggy.ParseArgs([]string{"scA", "A", "-f", "B", "C", "scB", "D", "scC", "scD", "E"})
+	flaggy.ParseArgs([]string{"scA", "-f", "A", "B", "C", "scB", "D", "scC", "scD", "E"})
 
 	if !testF {
+		t.Log("testF", testF)
 		t.FailNow()
 	}
-
 	if !scA.Used {
+		t.Log("sca", scA.Name)
 		t.FailNow()
 	}
 	if !scB.Used {
+		t.Log("scb", scB.Name)
 		t.FailNow()
 	}
 	if !scC.Used {
+		t.Log("scc", scC.Name)
 		t.FailNow()
 	}
 	if !scD.Used {
+		t.Log("scd", scD.Name)
 		t.FailNow()
 	}
 	if testA != "A" {
+		t.Log("testA", testA)
 		t.FailNow()
 	}
 	if testB != "B" {
+		t.Log("testb", testB)
 		t.FailNow()
 	}
 	if testC != "C" {
+		t.Log("testC", testC)
 		t.FailNow()
 	}
 	if testD != "D" {
+		t.Log("testD", testD)
 		t.FailNow()
 	}
 	if testE != "E" {
+		t.Log("testE", testE)
 		t.FailNow()
 	}
 
@@ -88,33 +100,33 @@ func TestParsePositionalsA(t *testing.T) {
 	parser := flaggy.NewParser("testParser")
 
 	// add a bool flag to the parser
-	err = parser.AddBoolFlag(&boolT, "t", "", "test flag for bool arg")
+	err = parser.Bool(&boolT, "t", "", "test flag for bool arg")
 	if err != nil {
 		t.Fatal(err)
 	}
 	// add an int flag to the parser
-	err = parser.AddIntFlag(&intT, "i", "", "test flag for int arg")
+	err = parser.Int(&intT, "i", "", "test flag for int arg")
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	// create a subcommand
 	subCommand := flaggy.NewSubcommand("subcommand")
-	err = parser.AddSubcommand(subCommand, 1)
+	err = parser.AttachSubcommand(subCommand, 1)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	// add flags to subcommand
-	err = subCommand.AddStringFlag(&testN, "n", "testN", "test flag for value with space arg")
+	err = subCommand.String(&testN, "n", "testN", "test flag for value with space arg")
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = subCommand.AddStringFlag(&testJ, "j", "testJ", "test flag for value with equals arg")
+	err = subCommand.String(&testJ, "j", "testJ", "test flag for value with equals arg")
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = subCommand.AddStringFlag(&testK, "k", "testK", "test full length flag with attached arg")
+	err = subCommand.String(&testK, "k", "testK", "test full length flag with attached arg")
 	if err != nil {
 		t.Fatal(err)
 	}

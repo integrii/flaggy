@@ -33,7 +33,7 @@ func (f *Flag) HasName(name string) bool {
 // the value is a type that needs parsing, that is performed as well.
 func (f *Flag) identifyAndAssignValue(value string) error {
 
-	fmt.Println("attempting to assign value", value, "to flag", f.LongName)
+	debugPrint("attempting to assign value", value, "to flag", f.LongName)
 
 	var err error
 
@@ -392,7 +392,7 @@ func parseFlagToName(arg string) string {
 // flagIsBool determines if the flag is a bool within the specified parser
 // and subcommand's context
 func flagIsBool(sc *Subcommand, p *Parser, key string) bool {
-	for _, f := range sc.Flags {
+	for _, f := range append(sc.Flags, p.Flags...) {
 		if f.HasName(key) {
 			_, isBool := f.AssignmentVar.(*bool)
 			_, isBoolSlice := f.AssignmentVar.(*[]bool)

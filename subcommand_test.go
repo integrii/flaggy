@@ -48,11 +48,11 @@ func TestTypoSubcommand(t *testing.T) {
 	args := []string{"unexpectedArg"}
 	newSCA := flaggy.NewSubcommand("TestTypoSubcommandA")
 	newSCB := flaggy.NewSubcommand("TestTypoSubcommandB")
-	err := p.AddSubcommand(newSCA, 1)
+	err := p.AttachSubcommand(newSCA, 1)
 	if err != nil {
 		t.Log(err)
 	}
-	err = p.AddSubcommand(newSCB, 1)
+	err = p.AttachSubcommand(newSCB, 1)
 	if err != nil {
 		t.Log(err)
 	}
@@ -117,7 +117,7 @@ func TestSubcommandParse(t *testing.T) {
 	newSC := flaggy.NewSubcommand("testSubcommand")
 
 	// add the subcommand into the parser
-	err := p.AddSubcommand(newSC, 1)
+	err := p.AttachSubcommand(newSC, 1)
 	if err != nil {
 		t.Fatal("Error adding subcommand", err)
 	}
@@ -151,7 +151,7 @@ func TestBadSubcommand(t *testing.T) {
 
 	// create a subcommand
 	newSC := flaggy.NewSubcommand("testSubcommand")
-	err := p.AddSubcommand(newSC, 1)
+	err := p.AttachSubcommand(newSC, 1)
 	if err != nil {
 		t.Fatal("Error adding subcommand", err)
 	}
@@ -188,14 +188,14 @@ func TestBadPositional(t *testing.T) {
 
 // TestNakedBoolFlag tests a naked boolean flag, which mean it has no
 // specified value beyond the flag being present.
-func TestNakedBoolFlag(t *testing.T) {
+func TestNakedBool(t *testing.T) {
 	flaggy.ResetParser()
 	os.Args = []string{"testBinary", "-t"}
 
 	// add a bool var
 	var boolVar bool
 	var err error
-	err = flaggy.AddBoolFlag(&boolVar, "t", "boolVar", "A boolean flag for testing")
+	err = flaggy.Bool(&boolVar, "t", "boolVar", "A boolean flag for testing")
 	if err != nil {
 		t.Fatal(err)
 	}
