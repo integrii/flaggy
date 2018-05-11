@@ -6,7 +6,7 @@ func main() {
 	// Declare variables and their defaults
 	var stringFlag = "defaultValue"
 
-	//  a flag
+	// Add a flag
 	flaggy.String(&stringFlag, "f", "flag", "A test string flag")
 
 	// Parse the flag

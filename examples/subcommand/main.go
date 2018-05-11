@@ -9,7 +9,7 @@ func main() {
 	// Create the subcommand
 	subcommand := flaggy.NewSubcommand("subcommandExample")
 
-	//  a flag to the subcommand
+	// Add a flag to the subcommand
 	subcommand.String(&stringFlag, "f", "flag", "A test string flag")
 
 	//  the subcommand to the parser at position 1

@@ -116,7 +116,7 @@ This is a help addon message
 // Declare variables and their defaults
 var stringFlag = "defaultValue"
 
-//  a flag
+// Add a flag
 flaggy.String(&stringFlag, "f", "flag", "A test string flag")
 
 // Parse the flag
@@ -138,7 +138,7 @@ var stringFlag = "defaultValue"
 // Create the subcommand
 subcommand := flaggy.NewSubcommand("subcommandExample")
 
-//  a flag to the subcommand
+// Add a flag to the subcommand
 subcommand.String(&stringFlag, "f", "flag", "A test string flag")
 
 //  the subcommand to the parser at position 1
@@ -165,7 +165,7 @@ var boolFlagB bool
 subcommandExample := flaggy.NewSubcommand("subcommandExample")
 nestedSubcommand := flaggy.NewSubcommand("nestedSubcommand")
 
-//  a flag to the subcommand
+// Add a flag to the subcommand
 subcommandExample.String(&stringFlagF, "t", "testFlag", "A test string flag")
 
 nestedSubcommand.Int(&intFlagT, "f", "flag", "A test int flag")

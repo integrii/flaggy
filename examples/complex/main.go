@@ -13,7 +13,7 @@ func main() {
 	subcommandExample := flaggy.NewSubcommand("subcommandExample")
 	nestedSubcommand := flaggy.NewSubcommand("nestedSubcommand")
 
-	//  a flag to the subcommand
+	// Add a flag to the subcommand
 	subcommandExample.String(&stringFlagF, "t", "testFlag", "A test string flag")
 	nestedSubcommand.Int(&intFlagT, "f", "flag", "A test int flag")
 
