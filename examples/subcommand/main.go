@@ -9,11 +9,11 @@ func main() {
 	// Create the subcommand
 	subcommand := flaggy.NewSubcommand("subcommandExample")
 
-	// Add a flag to the subcommand
-	subcommand.AddStringFlag(&stringFlag, "f", "flag", "A test string flag")
+	//  a flag to the subcommand
+	subcommand.String(&stringFlag, "f", "flag", "A test string flag")
 
-	// Add the subcommand to the parser at position 1
-	flaggy.AddSubcommand(subcommand, 1)
+	//  the subcommand to the parser at position 1
+	flaggy.AttachSubcommand(subcommand, 1)
 
 	// Parse the subcommand and all flags
 	flaggy.Parse()

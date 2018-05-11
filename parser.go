@@ -57,7 +57,6 @@ func (p *Parser) Parse() error {
 	if err != nil {
 		return err
 	}
-	TrailingArguments = p.TrailingArguments
 	return nil
 
 }

@@ -80,8 +80,8 @@ func TestInputParsing(t *testing.T) {
 
 	// Setup input arguments for every input type
 
-	var stringFlag string = "defaultVar"
-	err = AddStringFlag(&stringFlag, "s", "string", "string flag")
+	var stringFlag = "defaultVar"
+	err = String(&stringFlag, "s", "string", "string flag")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -89,7 +89,7 @@ func TestInputParsing(t *testing.T) {
 	var stringFlagExpected = "flaggy"
 
 	var stringSliceFlag []string
-	err = AddStringSliceFlag(&stringSliceFlag, "ssf", "stringSlice", "string slice flag")
+	err = StringSlice(&stringSliceFlag, "ssf", "stringSlice", "string slice flag")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -97,7 +97,7 @@ func TestInputParsing(t *testing.T) {
 	var stringSliceFlagExpected = []string{"one", "two"}
 
 	var boolFlag bool
-	err = AddBoolFlag(&boolFlag, "bf", "bool", "bool flag")
+	err = Bool(&boolFlag, "bf", "bool", "bool flag")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -105,7 +105,7 @@ func TestInputParsing(t *testing.T) {
 	var boolFlagExpected = true
 
 	var boolSliceFlag []bool
-	err = AddBoolSliceFlag(&boolSliceFlag, "bsf", "boolSlice", "bool slice flag")
+	err = BoolSlice(&boolSliceFlag, "bsf", "boolSlice", "bool slice flag")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -113,7 +113,7 @@ func TestInputParsing(t *testing.T) {
 	var boolSliceFlagExpected = []bool{true, true}
 
 	var byteSliceFlag []byte
-	err = AddByteSliceFlag(&byteSliceFlag, "bysf", "byteSlice", "byte slice flag")
+	err = ByteSlice(&byteSliceFlag, "bysf", "byteSlice", "byte slice flag")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -121,7 +121,7 @@ func TestInputParsing(t *testing.T) {
 	var byteSliceFlagExpected = []uint8{17, 18}
 
 	var durationFlag time.Duration
-	err = AddDurationFlag(&durationFlag, "df", "duration", "duration flag")
+	err = Duration(&durationFlag, "df", "duration", "duration flag")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -129,7 +129,7 @@ func TestInputParsing(t *testing.T) {
 	var durationFlagExpected = time.Second * 33
 
 	var durationSliceFlag []time.Duration
-	err = AddDurationSliceFlag(&durationSliceFlag, "dsf", "durationSlice", "duration slice flag")
+	err = DurationSlice(&durationSliceFlag, "dsf", "durationSlice", "duration slice flag")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -137,7 +137,7 @@ func TestInputParsing(t *testing.T) {
 	var durationSliceFlagExpected = []time.Duration{time.Second * 33, time.Hour}
 
 	var float32Flag float32
-	err = AddFloat32Flag(&float32Flag, "f32", "float32", "float32 flag")
+	err = Float32(&float32Flag, "f32", "float32", "float32 flag")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -145,7 +145,7 @@ func TestInputParsing(t *testing.T) {
 	var float32FlagExpected float32 = 33.343
 
 	var float32SliceFlag []float32
-	err = AddFloat32SliceFlag(&float32SliceFlag, "f32s", "float32Slice", "float32 slice flag")
+	err = Float32Slice(&float32SliceFlag, "f32s", "float32Slice", "float32 slice flag")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -153,7 +153,7 @@ func TestInputParsing(t *testing.T) {
 	var float32SliceFlagExpected = []float32{33.343, 33.222}
 
 	var float64Flag float64
-	err = AddFloat64Flag(&float64Flag, "f64", "float64", "float64 flag")
+	err = Float64(&float64Flag, "f64", "float64", "float64 flag")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -161,7 +161,7 @@ func TestInputParsing(t *testing.T) {
 	var float64FlagExpected = 33.222343
 
 	var float64SliceFlag []float64
-	err = AddFloat64SliceFlag(&float64SliceFlag, "f64s", "float64Slice", "float64 slice flag")
+	err = Float64Slice(&float64SliceFlag, "f64s", "float64Slice", "float64 slice flag")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -169,7 +169,7 @@ func TestInputParsing(t *testing.T) {
 	var float64SliceFlagExpected = []float64{64.343, 64.222}
 
 	var intFlag int
-	err = AddIntFlag(&intFlag, "i", "int", "int flag")
+	err = Int(&intFlag, "i", "int", "int flag")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -177,7 +177,7 @@ func TestInputParsing(t *testing.T) {
 	var intFlagExpected = 3553
 
 	var intSliceFlag []int
-	err = AddIntSliceFlag(&intSliceFlag, "is", "intSlice", "int slice flag")
+	err = IntSlice(&intSliceFlag, "is", "intSlice", "int slice flag")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -185,7 +185,7 @@ func TestInputParsing(t *testing.T) {
 	var intSliceFlagExpected = []int{6446, 64}
 
 	var uintFlag uint
-	err = AddUIntFlag(&uintFlag, "ui", "uint", "uint flag")
+	err = UInt(&uintFlag, "ui", "uint", "uint flag")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -193,7 +193,7 @@ func TestInputParsing(t *testing.T) {
 	var uintFlagExpected uint = 3553
 
 	var uintSliceFlag []uint
-	err = AddUIntSliceFlag(&uintSliceFlag, "uis", "uintSlice", "uint slice flag")
+	err = UIntSlice(&uintSliceFlag, "uis", "uintSlice", "uint slice flag")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -201,7 +201,7 @@ func TestInputParsing(t *testing.T) {
 	var uintSliceFlagExpected = []uint{6446, 64}
 
 	var uint64Flag uint64
-	err = AddUInt64Flag(&uint64Flag, "ui64", "uint64", "uint64 flag")
+	err = UInt64(&uint64Flag, "ui64", "uint64", "uint64 flag")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -209,7 +209,7 @@ func TestInputParsing(t *testing.T) {
 	var uint64FlagExpected uint64 = 3553
 
 	var uint64SliceFlag []uint64
-	err = AddUInt64SliceFlag(&uint64SliceFlag, "ui64s", "uint64Slice", "uint64 slice flag")
+	err = UInt64Slice(&uint64SliceFlag, "ui64s", "uint64Slice", "uint64 slice flag")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -217,7 +217,7 @@ func TestInputParsing(t *testing.T) {
 	var uint64SliceFlagExpected = []uint64{6446, 64}
 
 	var uint32Flag uint32
-	err = AddUInt32Flag(&uint32Flag, "ui32", "uint32", "uint32 flag")
+	err = UInt32(&uint32Flag, "ui32", "uint32", "uint32 flag")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -225,7 +225,7 @@ func TestInputParsing(t *testing.T) {
 	var uint32FlagExpected uint32 = 6446
 
 	var uint32SliceFlag []uint32
-	err = AddUInt32SliceFlag(&uint32SliceFlag, "ui32s", "uint32Slice", "uint32 slice flag")
+	err = UInt32Slice(&uint32SliceFlag, "ui32s", "uint32Slice", "uint32 slice flag")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -233,7 +233,7 @@ func TestInputParsing(t *testing.T) {
 	var uint32SliceFlagExpected = []uint32{6446, 64}
 
 	var uint16Flag uint16
-	err = AddUInt16Flag(&uint16Flag, "ui16", "uint16", "uint16 flag")
+	err = UInt16(&uint16Flag, "ui16", "uint16", "uint16 flag")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -241,7 +241,7 @@ func TestInputParsing(t *testing.T) {
 	var uint16FlagExpected uint16 = 6446
 
 	var uint16SliceFlag []uint16
-	err = AddUInt16SliceFlag(&uint16SliceFlag, "ui16s", "uint16Slice", "uint16 slice flag")
+	err = UInt16Slice(&uint16SliceFlag, "ui16s", "uint16Slice", "uint16 slice flag")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -249,7 +249,7 @@ func TestInputParsing(t *testing.T) {
 	var uint16SliceFlagExpected = []uint16{6446, 64}
 
 	var uint8Flag uint8
-	err = AddUInt8Flag(&uint8Flag, "ui8", "uint8", "uint8 flag")
+	err = UInt8(&uint8Flag, "ui8", "uint8", "uint8 flag")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -257,7 +257,7 @@ func TestInputParsing(t *testing.T) {
 	var uint8FlagExpected uint8 = 50
 
 	var uint8SliceFlag []uint8
-	err = AddUInt8SliceFlag(&uint8SliceFlag, "ui8s", "uint8Slice", "uint8 slice flag")
+	err = UInt8Slice(&uint8SliceFlag, "ui8s", "uint8Slice", "uint8 slice flag")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -265,7 +265,7 @@ func TestInputParsing(t *testing.T) {
 	var uint8SliceFlagExpected = []uint8{uint8(3), uint8(2)}
 
 	var int64Flag int64
-	err = AddInt64Flag(&int64Flag, "i64", "i64", "int64 flag")
+	err = Int64(&int64Flag, "i64", "i64", "int64 flag")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -273,7 +273,7 @@ func TestInputParsing(t *testing.T) {
 	var int64FlagExpected int64 = 33445566
 
 	var int64SliceFlag []int64
-	err = AddInt64SliceFlag(&int64SliceFlag, "i64s", "int64Slice", "int64 slice flag")
+	err = Int64Slice(&int64SliceFlag, "i64s", "int64Slice", "int64 slice flag")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -281,7 +281,7 @@ func TestInputParsing(t *testing.T) {
 	var int64SliceFlagExpected = []int64{40, 50}
 
 	var int32Flag int32
-	err = AddInt32Flag(&int32Flag, "i32", "int32", "int32 flag")
+	err = Int32(&int32Flag, "i32", "int32", "int32 flag")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -289,7 +289,7 @@ func TestInputParsing(t *testing.T) {
 	var int32FlagExpected int32 = 445566
 
 	var int32SliceFlag []int32
-	err = AddInt32SliceFlag(&int32SliceFlag, "i32s", "int32Slice", "uint32 slice flag")
+	err = Int32Slice(&int32SliceFlag, "i32s", "int32Slice", "uint32 slice flag")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -297,7 +297,7 @@ func TestInputParsing(t *testing.T) {
 	var int32SliceFlagExpected = []int32{40, 50}
 
 	var int16Flag int16
-	err = AddInt16Flag(&int16Flag, "i16", "int16", "int16 flag")
+	err = Int16(&int16Flag, "i16", "int16", "int16 flag")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -305,7 +305,7 @@ func TestInputParsing(t *testing.T) {
 	var int16FlagExpected int16 = 5566
 
 	var int16SliceFlag []int16
-	err = AddInt16SliceFlag(&int16SliceFlag, "i16s", "int16Slice", "int16 slice flag")
+	err = Int16Slice(&int16SliceFlag, "i16s", "int16Slice", "int16 slice flag")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -313,7 +313,7 @@ func TestInputParsing(t *testing.T) {
 	var int16SliceFlagExpected = []int16{40, 50}
 
 	var int8Flag int8
-	err = AddInt8Flag(&int8Flag, "i8", "int8", "int8 flag")
+	err = Int8(&int8Flag, "i8", "int8", "int8 flag")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -321,7 +321,7 @@ func TestInputParsing(t *testing.T) {
 	var int8FlagExpected int8 = 32
 
 	var int8SliceFlag []int8
-	err = AddInt8SliceFlag(&int8SliceFlag, "i8s", "int8Slice", "uint8 slice flag")
+	err = Int8Slice(&int8SliceFlag, "i8s", "int8Slice", "uint8 slice flag")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -329,7 +329,7 @@ func TestInputParsing(t *testing.T) {
 	var int8SliceFlagExpected = []int8{4, 2}
 
 	var ipFlag net.IP
-	err = AddIPFlag(&ipFlag, "ip", "ipFlag", "ip flag")
+	err = IP(&ipFlag, "ip", "ipFlag", "ip flag")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -337,7 +337,7 @@ func TestInputParsing(t *testing.T) {
 	var ipFlagExpected = net.IPv4(1, 1, 1, 1)
 
 	var ipSliceFlag []net.IP
-	err = AddIPSliceFlag(&ipSliceFlag, "ips", "ipFlagSlice", "ip slice flag")
+	err = IPSlice(&ipSliceFlag, "ips", "ipFlagSlice", "ip slice flag")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -345,7 +345,7 @@ func TestInputParsing(t *testing.T) {
 	var ipSliceFlagExpected = []net.IP{net.IPv4(1, 1, 1, 1), net.IPv4(4, 4, 4, 4)}
 
 	var hwFlag net.HardwareAddr
-	err = AddHardwareAddrFlag(&hwFlag, "hw", "hwFlag", "hw flag")
+	err = HardwareAddr(&hwFlag, "hw", "hwFlag", "hw flag")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -356,7 +356,7 @@ func TestInputParsing(t *testing.T) {
 	}
 
 	var hwFlagSlice []net.HardwareAddr
-	err = AddHardwareAddrSliceFlag(&hwFlagSlice, "hws", "hwFlagSlice", "hw slice flag")
+	err = HardwareAddrSlice(&hwFlagSlice, "hws", "hwFlagSlice", "hw slice flag")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -372,7 +372,7 @@ func TestInputParsing(t *testing.T) {
 	var hwFlagSliceExpected = []net.HardwareAddr{macA, macB}
 
 	var maskFlag net.IPMask
-	err = AddIPMaskFlag(&maskFlag, "m", "mFlag", "mask flag")
+	err = IPMask(&maskFlag, "m", "mFlag", "mask flag")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -380,7 +380,7 @@ func TestInputParsing(t *testing.T) {
 	var maskFlagExpected = net.IPMask([]byte{255, 255, 255, 255})
 
 	var maskSliceFlag []net.IPMask
-	err = AddIPMaskSliceFlag(&maskSliceFlag, "ms", "mFlagSlice", "mask slice flag")
+	err = IPMaskSlice(&maskSliceFlag, "ms", "mFlagSlice", "mask slice flag")
 	if err != nil {
 		t.Fatal(err)
 	}
