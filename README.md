@@ -141,7 +141,7 @@ subcommand := flaggy.NewSubcommand("subcommandExample")
 // Add a flag to the subcommand
 subcommand.String(&stringFlag, "f", "flag", "A test string flag")
 
-//  the subcommand to the parser at position 1
+// Add the subcommand to the parser at position 1
 flaggy.AttachSubcommand(subcommand, 1)
 
 // Parse the subcommand and all flags
