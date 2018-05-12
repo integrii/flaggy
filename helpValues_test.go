@@ -22,7 +22,7 @@ func TestHelpOutput(t *testing.T) {
 	scC := flaggy.NewSubcommand("subcommandC")
 	scC.ShortName = "c"
 	scC.Description = "Subcommand C is a command that does SERIOUS stuff"
-	var posA string
+	var posA = "defaultPosA"
 	var posB string
 	p.AttachSubcommand(scA, 1)
 	p.AttachSubcommand(scB, 1)

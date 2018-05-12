@@ -387,6 +387,9 @@ func TestInputParsing(t *testing.T) {
 	inputArgs = append(inputArgs, "-ms", "255.255.255.255", "-ms", "255.255.255.0")
 	var maskSliceFlagExpected = []net.IPMask{net.IPMask([]byte{255, 255, 255, 255}), net.IPMask([]byte{255, 255, 255, 0})}
 
+	// display help with all flags used
+	ShowHelp("Showing help from TestInputParsing test.")
+
 	// Parse arguments
 	err = ParseArgs(inputArgs)
 	if err != nil {

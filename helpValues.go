@@ -1,5 +1,7 @@
 package flaggy
 
+import "fmt"
+
 // Help represents the values needed to render a Help page
 type Help struct {
 	Subcommands    []HelpSubcommand
@@ -23,17 +25,19 @@ type HelpSubcommand struct {
 
 // HelpPositional is used to template positional Help output
 type HelpPositional struct {
-	Name        string
-	Description string
-	Required    bool
-	Position    int
+	Name         string
+	Description  string
+	Required     bool
+	Position     int
+	DefaultValue string
 }
 
 // HelpFlag is used to template string flag Help output
 type HelpFlag struct {
-	ShortName   string
-	LongName    string
-	Description string
+	ShortName    string
+	LongName     string
+	Description  string
+	DefaultValue string
 }
 
 // ExtractValues extracts Help template values from a subcommand
@@ -68,10 +72,11 @@ func (h *Help) ExtractValues(sc *Subcommand, message string) {
 			continue
 		}
 		newHelpPositional := HelpPositional{
-			Name:        pos.Name,
-			Position:    pos.Position,
-			Description: pos.Description,
-			Required:    pos.Required,
+			Name:         pos.Name,
+			Position:     pos.Position,
+			Description:  pos.Description,
+			Required:     pos.Required,
+			DefaultValue: *pos.AssignmentVar,
 		}
 		h.Positionals = append(h.Positionals, newHelpPositional)
 	}
@@ -80,10 +85,19 @@ func (h *Help) ExtractValues(sc *Subcommand, message string) {
 		if f.Hidden {
 			continue
 		}
+		defaultValue, err := f.returnAssignmentVarValueAsString()
+		if err != nil {
+			fmt.Println("Error when generating help template values:", err)
+		}
+		if defaultValue == "<nil>" {
+			defaultValue = ""
+		}
+
 		newHelpFlag := HelpFlag{
-			ShortName:   f.ShortName,
-			LongName:    f.LongName,
-			Description: f.Description,
+			ShortName:    f.ShortName,
+			LongName:     f.LongName,
+			Description:  f.Description,
+			DefaultValue: defaultValue,
 		}
 		h.Flags = append(h.Flags, newHelpFlag)
 	}
