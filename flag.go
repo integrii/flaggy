@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"net"
+	"reflect"
 	"strconv"
 	"strings"
 	"time"
@@ -14,7 +15,8 @@ type Flag struct {
 	ShortName     string
 	LongName      string
 	Description   string
-	Hidden        bool // indicates this flag should be hidden from help and suggestions
+	rawValue      string // the value as a string before being parsed
+	Hidden        bool   // indicates this flag should be hidden from help and suggestions
 	AssignmentVar interface{}
 }
 
@@ -34,6 +36,7 @@ func (f *Flag) HasName(name string) bool {
 func (f *Flag) identifyAndAssignValue(value string) error {
 
 	debugPrint("attempting to assign value", value, "to flag", f.LongName)
+	f.rawValue = value // remember the raw value
 
 	var err error
 
@@ -404,4 +407,201 @@ func flagIsBool(sc *Subcommand, p *Parser, key string) bool {
 
 	// by default, the answer is false
 	return false
+}
+
+// returnAssignmentVarValueAsString returns the value of the flag's
+// assignment variable as a string.  This is used to display the
+// default value of flags before they are assigned (like when help is output).
+func (f *Flag) returnAssignmentVarValueAsString() (string, error) {
+
+	debugPrint("returning current value of assignment var of flag", f.LongName)
+
+	var err error
+
+	// depending on the type of the assignment variable, we convert the
+	// incoming string and assign it.  We only use pointers to variables
+	// in flagy.  No returning vars by value.
+	switch f.AssignmentVar.(type) {
+	case *string:
+		v, _ := (f.AssignmentVar).(*string)
+		return *v, err
+	case *[]string:
+		v := f.AssignmentVar.(*[]string)
+		return strings.Join(*v, ","), err
+	case *bool:
+		a, _ := (f.AssignmentVar).(*bool)
+		return strconv.FormatBool(*a), err
+	case *[]bool:
+		value := f.AssignmentVar.(*[]bool)
+		var ss []string
+		for _, b := range *value {
+			ss = append(ss, strconv.FormatBool(b))
+		}
+		return strings.Join(ss, ","), err
+	case *time.Duration:
+		a := f.AssignmentVar.(*time.Duration)
+		return (*a).String(), err
+	case *[]time.Duration:
+		tds := f.AssignmentVar.(*[]time.Duration)
+		var asSlice []string
+		for _, td := range *tds {
+			asSlice = append(asSlice, td.String())
+		}
+		return strings.Join(asSlice, ","), err
+	case *float32:
+		a := f.AssignmentVar.(*float32)
+		return strconv.FormatFloat(float64(*a), 'f', 2, 32), err
+	case *[]float32:
+		v := f.AssignmentVar.(*[]float32)
+		var strSlice []string
+		for _, f := range *v {
+			formatted := strconv.FormatFloat(float64(f), 'f', 2, 32)
+			strSlice = append(strSlice, formatted)
+		}
+		return strings.Join(strSlice, ","), err
+	case *float64:
+		a := f.AssignmentVar.(*float64)
+		return strconv.FormatFloat(float64(*a), 'f', 2, 64), err
+	case *[]float64:
+		v := f.AssignmentVar.(*[]float64)
+		var strSlice []string
+		for _, f := range *v {
+			formatted := strconv.FormatFloat(float64(f), 'f', 2, 64)
+			strSlice = append(strSlice, formatted)
+		}
+		return strings.Join(strSlice, ","), err
+	case *int:
+		a := f.AssignmentVar.(*int)
+		return strconv.Itoa(*a), err
+	case *[]int:
+		val := f.AssignmentVar.(*[]int)
+		var strSlice []string
+		for _, i := range *val {
+			str := strconv.Itoa(i)
+			strSlice = append(strSlice, str)
+		}
+		return strings.Join(strSlice, ","), err
+	case *uint:
+		v := f.AssignmentVar.(*uint)
+		return strconv.FormatUint(uint64(*v), 10), err
+	case *[]uint:
+		values := f.AssignmentVar.(*[]uint)
+		var strVars []string
+		for _, i := range *values {
+			strVars = append(strVars, strconv.FormatUint(uint64(i), 10))
+		}
+		return strings.Join(strVars, ","), err
+	case *uint64:
+		v := f.AssignmentVar.(*uint64)
+		return strconv.FormatUint(*v, 10), err
+	case *[]uint64:
+		values := f.AssignmentVar.(*[]uint64)
+		var strVars []string
+		for _, i := range *values {
+			strVars = append(strVars, strconv.FormatUint(i, 10))
+		}
+		return strings.Join(strVars, ","), err
+	case *uint32:
+		v := f.AssignmentVar.(*uint32)
+		return strconv.FormatUint(uint64(*v), 10), err
+	case *[]uint32:
+		values := f.AssignmentVar.(*[]uint32)
+		var strVars []string
+		for _, i := range *values {
+			strVars = append(strVars, strconv.FormatUint(uint64(i), 10))
+		}
+		return strings.Join(strVars, ","), err
+	case *uint16:
+		v := f.AssignmentVar.(*uint16)
+		return strconv.FormatUint(uint64(*v), 10), err
+	case *[]uint16:
+		values := f.AssignmentVar.(*[]uint16)
+		var strVars []string
+		for _, i := range *values {
+			strVars = append(strVars, strconv.FormatUint(uint64(i), 10))
+		}
+		return strings.Join(strVars, ","), err
+	case *uint8:
+		v := f.AssignmentVar.(*uint8)
+		return strconv.FormatUint(uint64(*v), 10), err
+	case *[]uint8:
+		values := f.AssignmentVar.(*[]uint8)
+		var strVars []string
+		for _, i := range *values {
+			strVars = append(strVars, strconv.FormatUint(uint64(i), 10))
+		}
+		return strings.Join(strVars, ","), err
+	case *int64:
+		v := f.AssignmentVar.(*int64)
+		return strconv.FormatInt(int64(*v), 10), err
+	case *[]int64:
+		values := f.AssignmentVar.(*[]int64)
+		var strVars []string
+		for _, i := range *values {
+			strVars = append(strVars, strconv.FormatInt(i, 10))
+		}
+		return strings.Join(strVars, ","), err
+	case *int32:
+		v := f.AssignmentVar.(*int32)
+		return strconv.FormatInt(int64(*v), 10), err
+	case *[]int32:
+		values := f.AssignmentVar.(*[]int32)
+		var strVars []string
+		for _, i := range *values {
+			strVars = append(strVars, strconv.FormatInt(int64(i), 10))
+		}
+		return strings.Join(strVars, ","), err
+	case *int16:
+		v := f.AssignmentVar.(*int16)
+		return strconv.FormatInt(int64(*v), 10), err
+	case *[]int16:
+		values := f.AssignmentVar.(*[]int16)
+		var strVars []string
+		for _, i := range *values {
+			strVars = append(strVars, strconv.FormatInt(int64(i), 10))
+		}
+		return strings.Join(strVars, ","), err
+	case *int8:
+		v := f.AssignmentVar.(*int8)
+		return strconv.FormatInt(int64(*v), 10), err
+	case *[]int8:
+		values := f.AssignmentVar.(*[]int8)
+		var strVars []string
+		for _, i := range *values {
+			strVars = append(strVars, strconv.FormatInt(int64(i), 10))
+		}
+		return strings.Join(strVars, ","), err
+	case *net.IP:
+		val := f.AssignmentVar.(*net.IP)
+		return val.String(), err
+	case *[]net.IP:
+		val := f.AssignmentVar.(*[]net.IP)
+		var strSlice []string
+		for _, ip := range *val {
+			strSlice = append(strSlice, ip.String())
+		}
+		return strings.Join(strSlice, ","), err
+	case *net.HardwareAddr:
+		val := f.AssignmentVar.(*net.HardwareAddr)
+		return val.String(), err
+	case *[]net.HardwareAddr:
+		val := f.AssignmentVar.(*[]net.HardwareAddr)
+		var strSlice []string
+		for _, mac := range *val {
+			strSlice = append(strSlice, mac.String())
+		}
+		return strings.Join(strSlice, ","), err
+	case *net.IPMask:
+		val := f.AssignmentVar.(*net.IPMask)
+		return val.String(), err
+	case *[]net.IPMask:
+		val := f.AssignmentVar.(*[]net.IPMask)
+		var strSlice []string
+		for _, m := range *val {
+			strSlice = append(strSlice, m.String())
+		}
+		return strings.Join(strSlice, ","), err
+	default:
+		return "", errors.New("Unknown flag assignmentVar found in flag " + f.LongName + " " + f.ShortName + ". Type not supported: " + reflect.TypeOf(f.AssignmentVar).String())
+	}
 }
