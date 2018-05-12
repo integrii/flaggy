@@ -50,7 +50,7 @@ This is a prepend for help
     testCommand [subcommandA|subcommandB|subcommandC] [testPositionalA] [testPositionalB]
 
   Positional Variables:
-    testPositionalA - (Required) Test positional A does some things with a positional value.
+    testPositionalA - (Required) Test positional A does some things with a positional value. (default: defaultValue)
     testPositionalB - Test positional B does some less than serious things with a positional value.
 
   Subcommands:
@@ -60,9 +60,9 @@ This is a prepend for help
 
   Flags:
     -s --stringFlag  This is a test string flag that does some stringy string stuff.
-    -i --intFlg  This is a test int flag that does some interesting int stuff.
-    -b --boolFlag  This is a test bool flag that does some booly bool stuff.
-    -d --durationFlag  This is a test duration flag that does some untimely stuff.
+    -i --intFlg  This is a test int flag that does some interesting int stuff. (default: 5)
+    -b --boolFlag  This is a test bool flag that does some booly bool stuff. (default: true)
+    -d --durationFlag  This is a test duration flag that does some untimely stuff. (default: 1h23s)
 
 This is an append for help
 This is a help addon message

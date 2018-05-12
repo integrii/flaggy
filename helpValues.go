@@ -85,12 +85,25 @@ func (h *Help) ExtractValues(sc *Subcommand, message string) {
 		if f.Hidden {
 			continue
 		}
+
+		// determine the default value based on the assignment variable
 		defaultValue, err := f.returnAssignmentVarValueAsString()
 		if err != nil {
 			fmt.Println("Error when generating help template values:", err)
 		}
+
+		// dont show nils
 		if defaultValue == "<nil>" {
 			defaultValue = ""
+		}
+
+		// for bools, dont show a default of false
+		_, isBool := f.AssignmentVar.(*bool)
+		if isBool {
+			b := f.AssignmentVar.(*bool)
+			if *b == false {
+				defaultValue = ""
+			}
 		}
 
 		newHelpFlag := HelpFlag{
