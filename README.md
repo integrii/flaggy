@@ -37,7 +37,7 @@ Open an issue if you hate something, or better yet, fix it and make a pull reque
 - Flags of slice types can be passed multiple times (`-f one -f two -f three`)
 - Optional but default version output with `-v` or `--version`
 - Optional but default help output with `-h` or `--help`
-- Optional but default show help when any invalid or unknown parameter is passed
+- Optional but default help output when any invalid or unknown parameter is passed
 
 
 # Example Help Output
