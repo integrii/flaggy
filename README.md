@@ -8,11 +8,9 @@
 <img src="https://img.shields.io/badge/license-Unlicense-blue.svg">
 </p>
 
-Sensible command-line flag parsing with excellent support for subcommands and positional values. Flags can be at any position.  Flaggy has no required project or package layout like [Cobra requires](https://github.com/spf13/cobra/issues/641), and **no external dependencies**!
+Sensible and _fast_ command-line flag parsing with excellent support for **subcommands** and **positional values**. Flags can be at any position.  Flaggy has no required project or package layout like [Cobra requires](https://github.com/spf13/cobra/issues/641), and **no external dependencies**!
 
 Check out the [godoc](http://godoc.org/github.com/integrii/flaggy), [examples directory](https://github.com/integrii/flaggy/tree/master/examples), and [examples in this readme](https://github.com/integrii/flaggy#super-simple-example) to get started quickly.
-
-Open an issue if you hate something, or better yet, fix it and make a pull request!
 
 # Key Features
 
@@ -38,6 +36,7 @@ Open an issue if you hate something, or better yet, fix it and make a pull reque
 - Optional but default version output with `-v` or `--version`
 - Optional but default help output with `-h` or `--help`
 - Optional but default help output when any invalid or unknown parameter is passed
+- It's _fast_. All flag and subcommand parsing takes less than `1ms` in most programs.
 
 
 # Example Help Output
