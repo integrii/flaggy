@@ -10,13 +10,7 @@ import (
 // TestDoublePositional tests errors when two positionals are
 // specified at the same time
 func TestDoublePositional(t *testing.T) {
-	defer func() {
-		err := recover()
-		if err == nil {
-			t.Log("Program did not panic when double positional values were assigned")
-			t.Fail()
-		}
-	}()
+	t.Skip("Skipped.  If this test runs, it exists the whole program.")
 	// flaggy.DebugMode = true
 	defer debugOff()
 	var posTest string
@@ -27,13 +21,7 @@ func TestDoublePositional(t *testing.T) {
 
 // TestRequiredPositional tests required positionals
 func TestRequiredPositional(t *testing.T) {
-	defer func() {
-		err := recover()
-		if err == nil {
-			t.Log("Program did not panic when required positional values were not assigned")
-			t.Fail()
-		}
-	}()
+	t.Skip("Skipped.  If this test runs, it exists the whole program.")
 	// flaggy.DebugMode = true
 	defer debugOff()
 	var posTest string
@@ -195,4 +183,48 @@ func TestNakedBool(t *testing.T) {
 // debugOff makes defers easier
 func debugOff() {
 	// flaggy.DebugMode = false
+}
+
+// BenchmarkSubcommandParse benchmarks the creation and parsing of
+// a basic subcommand
+func BenchmarkSubcommandParse(b *testing.B) {
+
+	// catch errors that may occur
+	defer func(b *testing.B) {
+		err := recover()
+		if err != nil {
+			b.Fatal("Benchmark had error:", err)
+		}
+	}(b)
+
+	for i := 0; i < b.N; i++ {
+
+		var positionA string
+
+		// create the argument parser
+		p := flaggy.NewParser("TestSubcommandParse")
+
+		// create a subcommand
+		newSC := flaggy.NewSubcommand("testSubcommand")
+
+		// add the subcommand into the parser
+		err := p.AttachSubcommand(newSC, 1)
+		if err != nil {
+			b.Fatal("Error adding subcommand", err)
+		}
+
+		// add a positional arg onto the subcommand at relative position 1
+		err = newSC.AddPositionalValue(&positionA, "positionalA", 1, false, "This is a test positional value")
+		if err != nil {
+			b.Fatal("Error adding positional value", err)
+		}
+
+		// override os args and parse them
+		os.Args = []string{"binaryName", "testSubcommand", "testPositional"}
+		err = p.Parse()
+		if err != nil {
+			b.Fatal("Error parsing args: " + err.Error())
+		}
+	}
+
 }
