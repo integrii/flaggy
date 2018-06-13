@@ -10,34 +10,35 @@ import (
 // TestDoublePositional tests errors when two positionals are
 // specified at the same time
 func TestDoublePositional(t *testing.T) {
+	defer func() {
+		err := recover()
+		if err == nil {
+			t.Log("Program did not panic when double positional values were assigned")
+			t.Fail()
+		}
+	}()
 	// flaggy.DebugMode = true
 	defer debugOff()
 	var posTest string
 	flaggy.ResetParser()
-	err := flaggy.AddPositionalValue(&posTest, "posTest", 1, true, "First test positional")
-	if err != nil {
-		t.Fatal(err)
-	}
-	err = flaggy.AddPositionalValue(&posTest, "posTest2", 1, true, "Second test positional")
-	if err == nil {
-		t.Fatal("No error found when overlapping positionals specified")
-	}
+	flaggy.AddPositionalValue(&posTest, "posTest", 1, true, "First test positional")
+	flaggy.AddPositionalValue(&posTest, "posTest2", 1, true, "Second test positional")
 }
 
 // TestRequiredPositional tests required positionals
 func TestRequiredPositional(t *testing.T) {
-	t.Skip("Proram exits if test completes")
+	defer func() {
+		err := recover()
+		if err == nil {
+			t.Log("Program did not panic when required positional values were not assigned")
+			t.Fail()
+		}
+	}()
 	// flaggy.DebugMode = true
 	defer debugOff()
 	var posTest string
-	err := flaggy.AddPositionalValue(&posTest, "posTest", 1, true, "First test positional")
-	if err != nil {
-		t.Fatal(err)
-	}
-	err = flaggy.Parse()
-	if err != nil {
-		t.Fatal(err)
-	}
+	flaggy.AddPositionalValue(&posTest, "posTest", 1, true, "First test positional")
+	flaggy.Parse()
 }
 
 // TestTypoSubcommand tests what happens when an invalid subcommand is passed
@@ -48,19 +49,9 @@ func TestTypoSubcommand(t *testing.T) {
 	args := []string{"unexpectedArg"}
 	newSCA := flaggy.NewSubcommand("TestTypoSubcommandA")
 	newSCB := flaggy.NewSubcommand("TestTypoSubcommandB")
-	err := p.AttachSubcommand(newSCA, 1)
-	if err != nil {
-		t.Log(err)
-	}
-	err = p.AttachSubcommand(newSCB, 1)
-	if err != nil {
-		t.Log(err)
-	}
-
-	err = p.ParseArgs(args)
-	if err != nil {
-		t.Log(err)
-	}
+	p.AttachSubcommand(newSCA, 1)
+	p.AttachSubcommand(newSCB, 1)
+	p.ParseArgs(args)
 }
 
 // TestSubcommandHelp tests displaying of help on unspecified commands
@@ -194,17 +185,8 @@ func TestNakedBool(t *testing.T) {
 
 	// add a bool var
 	var boolVar bool
-	var err error
-	err = flaggy.Bool(&boolVar, "t", "boolVar", "A boolean flag for testing")
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	err = flaggy.Parse()
-	if err != nil {
-		t.Fatal(err)
-	}
-
+	flaggy.Bool(&boolVar, "t", "boolVar", "A boolean flag for testing")
+	flaggy.Parse()
 	if !boolVar {
 		t.Fatal("Boolean naked val not set to true")
 	}

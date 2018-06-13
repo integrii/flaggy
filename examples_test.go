@@ -2,7 +2,6 @@ package flaggy_test
 
 import (
 	"fmt"
-	"log"
 	"os"
 
 	"github.com/integrii/flaggy"
@@ -22,35 +21,22 @@ func ExampleSubcommand_AddPositionalValue() {
 	//
 
 	var subcommandBPositional string
-	var err error
 
 	// create a subcommand
 	subcommandA := flaggy.NewSubcommand("subcommandA")
 	// add the subcommand at relative position 1 within the default root parser
-	err = flaggy.AttachSubcommand(subcommandA, 1)
-	if err != nil {
-		log.Fatal(err)
-	}
+	flaggy.AttachSubcommand(subcommandA, 1)
 
 	// create a second subcommand
 	subcommandB := flaggy.NewSubcommand("subcommandB")
 	// add the second subcommand to the first subcommand as a child at relative
 	// position 1
-	err = subcommandA.AttachSubcommand(subcommandB, 1)
-	if err != nil {
-		log.Fatal(err)
-	}
+	subcommandA.AttachSubcommand(subcommandB, 1)
 	// add a positional to the second subcommand with a relative position of 1
-	err = subcommandB.AddPositionalValue(&subcommandBPositional, "subcommandTestPositonalValue", 1, false, "A test positional input variable")
-	if err != nil {
-		log.Fatal(err)
-	}
+	subcommandB.AddPositionalValue(&subcommandBPositional, "subcommandTestPositonalValue", 1, false, "A test positional input variable")
 
 	// Parse the input arguments from the OS (os.Args) using the default parser
-	err = flaggy.Parse()
-	if err != nil {
-		log.Fatal(err)
-	}
+	flaggy.Parse()
 
 	// see if our flag was set properly
 	fmt.Println("Positional flag set to", subcommandBPositional)
@@ -197,10 +183,7 @@ func Example() {
 	// Attach the subcommand to the parser. This will error if another
 	// positional value or subcommand is already present at the depth supplied.
 	// Later you can check if this command was used with a simple bool.
-	err := flaggy.AttachSubcommand(newSC, 1)
-	if err != nil {
-		log.Fatalln(err)
-	}
+	flaggy.AttachSubcommand(newSC, 1)
 
 	// Parse the input arguments from the OS (os.Args)
 	flaggy.Parse()
