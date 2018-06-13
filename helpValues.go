@@ -146,15 +146,19 @@ func (h *Help) ExtractValues(sc *Subcommand, message string) {
 		}
 	}
 
-	// find each positional value and make our final string
-	var usageString = sc.Name
-	for i := 1; i <= highestPosition; i++ {
-		if len(commandsByPosition[i]) > 0 {
-			usageString = usageString + " [" + commandsByPosition[i] + "]"
-		} else {
-			// dont keep listing after the first position without any properties
-			// it will be impossible to reach anything beyond here anyway
-			break
+	// only have a usage string if there are positional items
+	var usageString string
+	if highestPosition > 0 {
+		// find each positional value and make our final string
+		usageString = sc.Name
+		for i := 1; i <= highestPosition; i++ {
+			if len(commandsByPosition[i]) > 0 {
+				usageString = usageString + " [" + commandsByPosition[i] + "]"
+			} else {
+				// dont keep listing after the first position without any properties
+				// it will be impossible to reach anything beyond here anyway
+				break
+			}
 		}
 	}
 

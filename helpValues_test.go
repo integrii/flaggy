@@ -7,6 +7,11 @@ import (
 	"github.com/integrii/flaggy"
 )
 
+func TestMinimalHelpOutput(t *testing.T) {
+	p := flaggy.NewParser("TestMinimalHelpOutput")
+	p.ShowHelp()
+}
+
 // TestHelpOutput tests the dislay of help with -h
 func TestHelpOutput(t *testing.T) {
 	// flaggy.DebugMode = true
