@@ -186,3 +186,49 @@ print(intFlagT)
 print(boolFlagB)
 print(flaggy.TrailingArguments[0])
 ```
+
+
+# Other Tricks
+
+- Set a name and description for your program.
+- Disable help display when flaggy has an error parsing or validating user input.
+- Prepend a message to flag help output.
+
+```go
+package main
+
+import "github.com/integrii/flaggy"
+
+// make a variable for the version which will be set at build time
+var version = "unknown"
+
+func init() {
+  // Set your program's name and description, if you want to.
+  // This shows when you run help
+  flaggy.SetName("Test Program")
+  flaggy.SetDescription("A little example program")
+
+  // you can disable various things by changing bools on the default parser (or your own parser if you have created one)
+  flaggy.DefaultParser.ShowHelpOnUnexpected = false
+
+  // you can set a help prepend or append on the default parser
+  flaggy.DefaultParser.AdditionalHelpPrepend = "http://github.com/integrii/flaggy"
+
+  // set the version and parse
+  flaggy.SetVersion(version)
+  flaggy.Parse()
+}
+func main(){}
+```
+
+##### Set Flaggy Version at Build Time
+
+```bash
+# build your app and set the version string
+$ go build -ldflags='-X main.version=1.0.3-a3db3'
+$ ./yourApp version
+Version: 1.0.3-a3db3
+$ ./yourApp --help
+Test Program - A little example program
+http://github.com/integrii/flaggy
+```
