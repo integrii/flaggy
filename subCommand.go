@@ -84,7 +84,9 @@ func (sc *Subcommand) parseAllFlagsFromArgs(p *Parser, args []string) ([]string,
 
 		// if end arg -- has been found, just add everything to TrailingArguments
 		if endArgFound {
-			p.TrailingArguments = append(p.TrailingArguments, a)
+			if !p.trailingArgumentsExtracted {
+				p.TrailingArguments = append(p.TrailingArguments, a)
+			}
 			continue
 		}
 
@@ -210,6 +212,10 @@ func (sc *Subcommand) parse(p *Parser, args []string, depth int) error {
 	if err != nil {
 		return err
 	}
+
+	// indicate that trailing arguments have been extracted, so that they aren't
+	// appended a second time
+	p.trailingArgumentsExtracted = true
 
 	// loop over positional values and look for their matching positional
 	// parameter, or their positional command.  If neither are found, then

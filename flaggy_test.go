@@ -1,10 +1,29 @@
 package flaggy_test
 
 import (
+	"os"
 	"testing"
 
 	"github.com/integrii/flaggy"
 )
+
+// TestTrailingArguments tests trailing argument parsing
+func TestTrailingArguments(t *testing.T) {
+	flaggy.ResetParser()
+	args := []string{"./flaggy.text", "--", "one", "two"}
+	os.Args = args
+	flaggy.Parse()
+	if len(flaggy.TrailingArguments) != len(args) {
+		t.Fatal("incorrect argument count parsed.  Got", len(flaggy.TrailingArguments), "but expected", len(args))
+	}
+
+	for i, _ := range args {
+		if args[i] != flaggy.TrailingArguments[i] {
+			t.Fatal("incorrect argument parsed.  Got", args[i], "but expected", flaggy.TrailingArguments[i])
+		}
+	}
+
+}
 
 // TestComplexNesting tests various levels of nested subcommands and
 // positional values intermixed with eachother.
