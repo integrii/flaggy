@@ -25,7 +25,7 @@ Check out the [godoc](http://godoc.org/github.com/integrii/flaggy), [examples di
 - Both global and subcommand specific flags
 - Both global and subcommand specific positional parameters
 - Customizable help templates for both the global command and subcommands
-- Customizable appended/prepended message for both the global command and subcommands
+- Customizable appended/prepended help messages for both the global command and subcommands
 - Simple function that displays help followed by a custom message string
 - Flags and subcommands may have both a short and long name
 - Unlimited trailing arguments after a `--`
