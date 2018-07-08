@@ -43,5 +43,5 @@ func main() {
 	// Imagine the following command line:
 	// ./customParser positionalHere subCmd -i 33 -b
 	// It would produce:
-	// positionalHere 33 b
+	// positionalHere 33 true
 }
