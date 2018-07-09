@@ -12,6 +12,10 @@ Sensible and _fast_ command-line flag parsing with excellent support for **subco
 
 Check out the [godoc](http://godoc.org/github.com/integrii/flaggy), [examples directory](https://github.com/integrii/flaggy/tree/master/examples), and [examples in this readme](https://github.com/integrii/flaggy#super-simple-example) to get started quickly.
 
+# Installation
+
+`go get -u github.com/integrii/flaggy`
+
 # Key Features
 
 - Very easy to use ([see examples below](https://github.com/integrii/flaggy#super-simple-example))
