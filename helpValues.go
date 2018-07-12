@@ -40,21 +40,26 @@ type HelpFlag struct {
 	DefaultValue string
 }
 
-// ExtractValues extracts Help template values from a subcommand
-func (h *Help) ExtractValues(sc *Subcommand, message string) {
-	// extract Help values
-	// prependMessage string
-	h.PrependMessage = sc.AdditionalHelpPrepend
-	// appendMessage  string
-	h.AppendMessage = sc.AdditionalHelpAppend
-	// message string
+// ExtractValues extracts Help template values from a subcommand and its parent
+// parser.  The parser is required in order to detect default flag settings
+// for help and version outut.
+func (h *Help) ExtractValues(p *Parser, message string) {
+
+	// accept message string for output
 	h.Message = message
+
+	// extract Help values from the current subcommand in context
+	// prependMessage string
+	h.PrependMessage = p.subcommandInContext.AdditionalHelpPrepend
+	// appendMessage  string
+	h.AppendMessage = p.subcommandInContext.AdditionalHelpAppend
 	// command name
-	h.CommandName = sc.Name
+	h.CommandName = p.subcommandInContext.Name
 	// description
-	h.Description = sc.Description
+	h.Description = p.subcommandInContext.Description
+
 	// subcommands    []HelpSubcommand
-	for _, cmd := range sc.Subcommands {
+	for _, cmd := range p.subcommandInContext.Subcommands {
 		if cmd.Hidden {
 			continue
 		}
@@ -66,8 +71,9 @@ func (h *Help) ExtractValues(sc *Subcommand, message string) {
 		}
 		h.Subcommands = append(h.Subcommands, newHelpSubcommand)
 	}
-	// positionals    []HelpPositional
-	for _, pos := range sc.PositionalFlags {
+
+	// parse positional flags into help output structs
+	for _, pos := range p.subcommandInContext.PositionalFlags {
 		if pos.Hidden {
 			continue
 		}
@@ -81,7 +87,30 @@ func (h *Help) ExtractValues(sc *Subcommand, message string) {
 		h.Positionals = append(h.Positionals, newHelpPositional)
 	}
 
-	for _, f := range sc.Flags {
+	// if the built-in version flag is enabled, then add it as a help flag
+	if p.ShowVersionWithVFlag {
+		defaultVersionFlag := HelpFlag{
+			ShortName:    "v",
+			LongName:     "version",
+			Description:  "Displays the program version string.",
+			DefaultValue: "",
+		}
+		h.Flags = append(h.Flags, defaultVersionFlag)
+	}
+
+	// if the built-in help flag exists, then add it as a help flag
+	if p.ShowHelpWithHFlag {
+		defaultHelpFlag := HelpFlag{
+			ShortName:    "h",
+			LongName:     "help",
+			Description:  "Displays help with available flag, subcommand, and positional value parameters.",
+			DefaultValue: "",
+		}
+		h.Flags = append(h.Flags, defaultHelpFlag)
+	}
+
+	// go through every flag in the subcommand and list its options
+	for _, f := range p.subcommandInContext.Flags {
 		if f.Hidden {
 			continue
 		}
@@ -114,10 +143,11 @@ func (h *Help) ExtractValues(sc *Subcommand, message string) {
 		}
 		h.Flags = append(h.Flags, newHelpFlag)
 	}
+
 	// formulate the usage string
 	// first, we capture all the command and positional names by position
 	commandsByPosition := make(map[int]string)
-	for _, pos := range sc.PositionalFlags {
+	for _, pos := range p.subcommandInContext.PositionalFlags {
 		if pos.Hidden {
 			continue
 		}
@@ -127,7 +157,7 @@ func (h *Help) ExtractValues(sc *Subcommand, message string) {
 			commandsByPosition[pos.Position] = pos.Name
 		}
 	}
-	for _, cmd := range sc.Subcommands {
+	for _, cmd := range p.subcommandInContext.Subcommands {
 		if cmd.Hidden {
 			continue
 		}
@@ -150,7 +180,7 @@ func (h *Help) ExtractValues(sc *Subcommand, message string) {
 	var usageString string
 	if highestPosition > 0 {
 		// find each positional value and make our final string
-		usageString = sc.Name
+		usageString = p.subcommandInContext.Name
 		for i := 1; i <= highestPosition; i++ {
 			if len(commandsByPosition[i]) > 0 {
 				usageString = usageString + " [" + commandsByPosition[i] + "]"

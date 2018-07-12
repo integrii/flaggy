@@ -62,13 +62,15 @@ This is a prepend for help
     subcommandC (c) - Subcommand C is a command that does SERIOUS stuff
 
   Flags:
+    -v --version  Displays the program version string.
+    -h --help  Displays help with available flag, subcommand, and positional value parameters.
     -s --stringFlag  This is a test string flag that does some stringy string stuff.
     -i --intFlg  This is a test int flag that does some interesting int stuff. (default: 5)
     -b --boolFlag  This is a test bool flag that does some booly bool stuff. (default: true)
     -d --durationFlag  This is a test duration flag that does some untimely stuff. (default: 1h23s)
 
 This is an append for help
-This is a help addon message
+This is a help add-on message
 ```
 
 # Supported Flag Types:
