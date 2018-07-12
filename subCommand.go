@@ -88,7 +88,7 @@ func (sc *Subcommand) parseAllFlagsFromArgs(p *Parser, args []string) ([]string,
 		// if the flag being passed is version or v and the option to display
 		// version with version flags, then display version
 		if p.ShowVersionWithVFlag {
-			if flagName == "v" || flagName == "version" {
+			if flagName == versionFlagShortName || flagName == versionFlagLongName {
 				p.ShowVersionAndExit()
 			}
 		}
@@ -96,7 +96,7 @@ func (sc *Subcommand) parseAllFlagsFromArgs(p *Parser, args []string) ([]string,
 		// if the show Help on h flag option is set, then show Help when h or Help
 		// is passed as an option
 		if p.ShowHelpWithHFlag {
-			if flagName == "h" || flagName == "help" {
+			if flagName == helpFlagShortName || flagName == helpFlagLongName {
 				// Ensure this is the last subcommand passed so we give the correct
 				// help output
 				helpRequested = true
@@ -192,7 +192,16 @@ func (sc *Subcommand) parse(p *Parser, args []string, depth int) error {
 
 	// as subcommands are used, they become the context of the parser.  This helps
 	// us understand how to display help based on which subcommand is being used
-	p.subcommandInContext = sc
+	p.subcommandContext = sc
+
+	// ensure that help and version flags are not used if the parser has the
+	// built-in help and version flags enabled
+	if p.ShowHelpWithHFlag {
+		sc.ensureNoConflictWithBuiltinHelp()
+	}
+	if p.ShowVersionWithVFlag {
+		sc.ensureNoConflictWithBuiltinVersion()
+	}
 
 	// Parse the normal flags out of the argument list and retain the positionals.
 	// Apply the flags to the parent parser and the current subcommand context.
@@ -355,7 +364,9 @@ func (sc *Subcommand) AttachSubcommand(newSC *Subcommand, relativePosition int) 
 	return nil
 }
 
-// addFlag is a generic to add flags of any type
+// addFlag is a generic to add flags of any type.  Checks the supplied parent
+// parser to ensure that the user isnt setting version or help flags that
+// conflict with the built-in help and version flag behavior.
 func (sc *Subcommand) add(assignmentVar interface{}, shortName string, longName string, description string) error {
 
 	// if the flag is already used, throw an error
@@ -630,4 +641,66 @@ func (sc *Subcommand) SetValueForKey(key string, value string) (bool, error) {
 
 	// debugPrint(sc.Name, "was unable to find a key named", key, "to set to value", value)
 	return false, nil
+}
+
+// ensureNoConflictWithBuiltinHelp ensures that the flags on this subcommand do
+// not conflict with the builtin help flags (-h or --help). Exits the program
+// if a conflict is found.
+func (sc *Subcommand) ensureNoConflictWithBuiltinHelp() {
+	for _, f := range sc.Flags {
+		if f.LongName == helpFlagLongName {
+			sc.exitBecauseOfHelpFlagConflict(f.LongName)
+		}
+		if f.LongName == helpFlagShortName {
+			sc.exitBecauseOfHelpFlagConflict(f.LongName)
+		}
+		if f.ShortName == helpFlagLongName {
+			sc.exitBecauseOfHelpFlagConflict(f.ShortName)
+		}
+		if f.ShortName == helpFlagShortName {
+			sc.exitBecauseOfHelpFlagConflict(f.ShortName)
+		}
+	}
+}
+
+// ensureNoConflictWithBuiltinVersion ensures that the flags on this subcommand do
+// not conflict with the builtin version flags (-v or --version). Exits the program
+// if a conflict is found.
+func (sc *Subcommand) ensureNoConflictWithBuiltinVersion() {
+	for _, f := range sc.Flags {
+		if f.LongName == versionFlagLongName {
+			sc.exitBecauseOfVersionFlagConflict(f.LongName)
+		}
+		if f.LongName == versionFlagShortName {
+			sc.exitBecauseOfVersionFlagConflict(f.LongName)
+		}
+		if f.ShortName == versionFlagLongName {
+			sc.exitBecauseOfVersionFlagConflict(f.ShortName)
+		}
+		if f.ShortName == versionFlagShortName {
+			sc.exitBecauseOfVersionFlagConflict(f.ShortName)
+		}
+	}
+}
+
+// exitBecauseOfVersionFlagConflict exits the program with a message about how to prevent
+// flags being efined from conflicting with the builtin flags.
+func (sc *Subcommand) exitBecauseOfVersionFlagConflict(flagName string) {
+	fmt.Println(`Command with name '` + flagName + `' conflicts with the internal --version or -v flag in flaggy.
+
+  You must either change the flag's name, or disable flaggy's internal version
+	flag with 'flaggy.DefaultParser.ShowVersionWithVFlag = false'.  If you are using
+	a custom parser, you must instead set '.ShowVersionWithVFlag = false' on it.`)
+	os.Exit(1)
+}
+
+// exitBecauseOfHelpFlagConflict exits the program with a message about how to prevent
+// flags being efined from conflicting with the builtin flags.
+func (sc *Subcommand) exitBecauseOfHelpFlagConflict(flagName string) {
+	fmt.Println(`Command with name '` + flagName + `' conflicts with the internal --help or -h flag in flaggy.
+
+  You must either change the flag's name, or disable flaggy's internal help
+	flag with 'flaggy.DefaultParser.ShowHelpWithHFlag = false'.  If you are using
+	a custom parser, you must instead set '.ShowHelpWithHFlag = false' on it.`)
+	os.Exit(1)
 }
