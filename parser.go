@@ -20,7 +20,7 @@ type Parser struct {
 	HelpTemplate               *template.Template // template for Help output
 	trailingArgumentsExtracted bool               // indicates that tariling args have been parsed and should not be appended again
 	parsed                     bool               // indicates this parser has parsed
-	subcommandInContext        *Subcommand        // points to the most specific subcommand being used
+	subcommandContext          *Subcommand        // points to the most specific subcommand being used
 }
 
 // NewParser creates a new ArgumentParser ready to parse inputs
@@ -33,7 +33,7 @@ func NewParser(name string) *Parser {
 	p.ShowHelpWithHFlag = true
 	p.ShowVersionWithVFlag = true
 	p.SetHelpTemplate(DefaultHelpTemplate)
-	p.subcommandInContext = &Subcommand{}
+	p.subcommandContext = &Subcommand{}
 	return p
 }
 
@@ -81,7 +81,7 @@ func (p *Parser) Parse() error {
 
 // ShowHelp shows Help without an error message
 func (p *Parser) ShowHelp() {
-	debugPrint("showing help for", p.subcommandInContext.Name)
+	debugPrint("showing help for", p.subcommandContext.Name)
 	p.ShowHelpWithMessage("")
 }
 

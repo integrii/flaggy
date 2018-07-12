@@ -50,16 +50,16 @@ func (h *Help) ExtractValues(p *Parser, message string) {
 
 	// extract Help values from the current subcommand in context
 	// prependMessage string
-	h.PrependMessage = p.subcommandInContext.AdditionalHelpPrepend
+	h.PrependMessage = p.subcommandContext.AdditionalHelpPrepend
 	// appendMessage  string
-	h.AppendMessage = p.subcommandInContext.AdditionalHelpAppend
+	h.AppendMessage = p.subcommandContext.AdditionalHelpAppend
 	// command name
-	h.CommandName = p.subcommandInContext.Name
+	h.CommandName = p.subcommandContext.Name
 	// description
-	h.Description = p.subcommandInContext.Description
+	h.Description = p.subcommandContext.Description
 
 	// subcommands    []HelpSubcommand
-	for _, cmd := range p.subcommandInContext.Subcommands {
+	for _, cmd := range p.subcommandContext.Subcommands {
 		if cmd.Hidden {
 			continue
 		}
@@ -73,7 +73,7 @@ func (h *Help) ExtractValues(p *Parser, message string) {
 	}
 
 	// parse positional flags into help output structs
-	for _, pos := range p.subcommandInContext.PositionalFlags {
+	for _, pos := range p.subcommandContext.PositionalFlags {
 		if pos.Hidden {
 			continue
 		}
@@ -110,7 +110,7 @@ func (h *Help) ExtractValues(p *Parser, message string) {
 	}
 
 	// go through every flag in the subcommand and list its options
-	for _, f := range p.subcommandInContext.Flags {
+	for _, f := range p.subcommandContext.Flags {
 		if f.Hidden {
 			continue
 		}
@@ -147,7 +147,7 @@ func (h *Help) ExtractValues(p *Parser, message string) {
 	// formulate the usage string
 	// first, we capture all the command and positional names by position
 	commandsByPosition := make(map[int]string)
-	for _, pos := range p.subcommandInContext.PositionalFlags {
+	for _, pos := range p.subcommandContext.PositionalFlags {
 		if pos.Hidden {
 			continue
 		}
@@ -157,7 +157,7 @@ func (h *Help) ExtractValues(p *Parser, message string) {
 			commandsByPosition[pos.Position] = pos.Name
 		}
 	}
-	for _, cmd := range p.subcommandInContext.Subcommands {
+	for _, cmd := range p.subcommandContext.Subcommands {
 		if cmd.Hidden {
 			continue
 		}
@@ -180,7 +180,7 @@ func (h *Help) ExtractValues(p *Parser, message string) {
 	var usageString string
 	if highestPosition > 0 {
 		// find each positional value and make our final string
-		usageString = p.subcommandInContext.Name
+		usageString = p.subcommandContext.Name
 		for i := 1; i <= highestPosition; i++ {
 			if len(commandsByPosition[i]) > 0 {
 				usageString = usageString + " [" + commandsByPosition[i] + "]"

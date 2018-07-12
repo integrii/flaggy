@@ -192,7 +192,7 @@ func (sc *Subcommand) parse(p *Parser, args []string, depth int) error {
 
 	// as subcommands are used, they become the context of the parser.  This helps
 	// us understand how to display help based on which subcommand is being used
-	p.subcommandInContext = sc
+	p.subcommandContext = sc
 
 	// Parse the normal flags out of the argument list and retain the positionals.
 	// Apply the flags to the parent parser and the current subcommand context.
@@ -355,7 +355,9 @@ func (sc *Subcommand) AttachSubcommand(newSC *Subcommand, relativePosition int) 
 	return nil
 }
 
-// addFlag is a generic to add flags of any type
+// addFlag is a generic to add flags of any type.  Checks the supplied parent
+// parser to ensure that the user isnt setting version or help flags that
+// conflict with the built-in help and version flag behavior.
 func (sc *Subcommand) add(assignmentVar interface{}, shortName string, longName string, description string) error {
 
 	// if the flag is already used, throw an error
