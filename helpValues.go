@@ -90,8 +90,8 @@ func (h *Help) ExtractValues(p *Parser, message string) {
 	// if the built-in version flag is enabled, then add it as a help flag
 	if p.ShowVersionWithVFlag {
 		defaultVersionFlag := HelpFlag{
-			ShortName:    "v",
-			LongName:     "version",
+			ShortName:    versionFlagShortName,
+			LongName:     versionFlagLongName,
 			Description:  "Displays the program version string.",
 			DefaultValue: "",
 		}
@@ -101,8 +101,8 @@ func (h *Help) ExtractValues(p *Parser, message string) {
 	// if the built-in help flag exists, then add it as a help flag
 	if p.ShowHelpWithHFlag {
 		defaultHelpFlag := HelpFlag{
-			ShortName:    "h",
-			LongName:     "help",
+			ShortName:    helpFlagShortName,
+			LongName:     helpFlagLongName,
 			Description:  "Displays help with available flag, subcommand, and positional value parameters.",
 			DefaultValue: "",
 		}

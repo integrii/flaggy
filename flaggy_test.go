@@ -13,14 +13,16 @@ func TestTrailingArguments(t *testing.T) {
 	args := []string{"./flaggy.text", "--", "one", "two"}
 	os.Args = args
 	flaggy.Parse()
-	if len(flaggy.TrailingArguments) != len(args) {
-		t.Fatal("incorrect argument count parsed.  Got", len(flaggy.TrailingArguments), "but expected", len(args))
+	if len(flaggy.TrailingArguments) != 2 {
+		t.Fatal("incorrect argument count parsed.  Got", len(flaggy.TrailingArguments), "but expected", 2)
 	}
 
-	for i, _ := range args {
-		if args[i] != flaggy.TrailingArguments[i] {
-			t.Fatal("incorrect argument parsed.  Got", args[i], "but expected", flaggy.TrailingArguments[i])
-		}
+	if flaggy.TrailingArguments[0] != "one" {
+		t.Fatal("incorrect argument parsed.  Got", flaggy.TrailingArguments[0], "but expected one")
+	}
+
+	if flaggy.TrailingArguments[1] != "two" {
+		t.Fatal("incorrect argument parsed.  Got", flaggy.TrailingArguments[1], "but expected two")
 	}
 
 }

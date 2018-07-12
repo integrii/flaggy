@@ -60,7 +60,7 @@ func (p *Parser) ShowVersionAndExit() {
 // Help.
 func (p *Parser) SetHelpTemplate(tmpl string) error {
 	var err error
-	p.HelpTemplate = template.New("Help")
+	p.HelpTemplate = template.New(helpFlagLongName)
 	p.HelpTemplate, err = p.HelpTemplate.Parse(tmpl)
 	if err != nil {
 		return err

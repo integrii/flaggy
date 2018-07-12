@@ -34,6 +34,12 @@ import (
 	"time"
 )
 
+// strings used for builtin help and version flags both short and long
+const versionFlagLongName = "version"
+const versionFlagShortName = "v"
+const helpFlagLongName = "help"
+const helpFlagShortName = "h"
+
 // defaultVersion is applied to parsers when they are created
 const defaultVersion = "0.0.0"
 
