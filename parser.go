@@ -4,19 +4,23 @@ import (
 	"errors"
 	"fmt"
 	"os"
+
+	"github.com/alecthomas/template"
 )
 
 // Parser represents the set of vars and subcommands we are expecting
 // from our input args, and the parser than handles them all.
 type Parser struct {
 	Subcommand
-	Version                    string   // the optional version of the paser.
-	ShowHelpWithHFlag          bool     // display help when -h or --help passed
-	ShowVersionWithVFlag       bool     // display the version when -v or --version passed
-	ShowHelpOnUnexpected       bool     // display help when an unexpected flag is passed
-	TrailingArguments          []string // everything after a -- is placed here
-	trailingArgumentsExtracted bool     // indicates that tariling args have been parsed and should not be appended again
-	parsed                     bool     // indicates this parser has parsed
+	Version                    string             // the optional version of the paser.
+	ShowHelpWithHFlag          bool               // display help when -h or --help passed
+	ShowVersionWithVFlag       bool               // display the version when -v or --version passed
+	ShowHelpOnUnexpected       bool               // display help when an unexpected flag is passed
+	TrailingArguments          []string           // everything after a -- is placed here
+	HelpTemplate               *template.Template // template for Help output
+	trailingArgumentsExtracted bool               // indicates that tariling args have been parsed and should not be appended again
+	parsed                     bool               // indicates this parser has parsed
+	subcommandInContext        *Subcommand        // points to the most specific subcommand being used
 }
 
 // NewParser creates a new ArgumentParser ready to parse inputs
@@ -29,6 +33,7 @@ func NewParser(name string) *Parser {
 	p.ShowHelpWithHFlag = true
 	p.ShowVersionWithVFlag = true
 	p.SetHelpTemplate(DefaultHelpTemplate)
+	p.subcommandInContext = &Subcommand{}
 	return p
 }
 
@@ -51,6 +56,18 @@ func (p *Parser) ShowVersionAndExit() {
 	os.Exit(0)
 }
 
+// SetHelpTemplate sets the go template this parser will use when rendering
+// Help.
+func (p *Parser) SetHelpTemplate(tmpl string) error {
+	var err error
+	p.HelpTemplate = template.New("Help")
+	p.HelpTemplate, err = p.HelpTemplate.Parse(tmpl)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 // Parse calculates all flags and subcommands
 func (p *Parser) Parse() error {
 
@@ -60,4 +77,24 @@ func (p *Parser) Parse() error {
 	}
 	return nil
 
+}
+
+// ShowHelp shows Help without an error message
+func (p *Parser) ShowHelp() {
+	debugPrint("showing help for", p.subcommandInContext.Name)
+	p.ShowHelpWithMessage("")
+}
+
+// ShowHelpWithMessage shows the Help for this parser with an optional string error
+// message as a header.  The supplied subcommand will be the context of Help
+// displayed to the user.
+func (p *Parser) ShowHelpWithMessage(message string) {
+
+	// create a new Help values template and extract values into it
+	help := Help{}
+	help.ExtractValues(p, message)
+	err := p.HelpTemplate.Execute(os.Stderr, help)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "Error rendering Help template:", err)
+	}
 }
