@@ -70,7 +70,7 @@ func TestHelpWithHFlagB(t *testing.T) {
 func TestVersionWithVFlagB(t *testing.T) {
 	t.Skip("Skipped.  If this test runs, it exists the whole program.")
 	p := flaggy.NewParser("TestSubcommandVersion")
-	p.ShowVersionWithVFlag = true
+	p.ShowVersionWithVersionFlag = true
 	p.Version = "TestVersionWithVFlagB 0.0.0a"
 	args := []string{"--version"}
 	p.ParseArgs(args)
