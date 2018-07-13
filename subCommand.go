@@ -87,7 +87,7 @@ func (sc *Subcommand) parseAllFlagsFromArgs(p *Parser, args []string) ([]string,
 
 		// if the flag being passed is version or v and the option to display
 		// version with version flags, then display version
-		if p.ShowVersionWithVFlag {
+		if p.ShowVersionWithVersionFlag {
 			if flagName == versionFlagLongName {
 				p.ShowVersionAndExit()
 			}
@@ -199,7 +199,7 @@ func (sc *Subcommand) parse(p *Parser, args []string, depth int) error {
 	if p.ShowHelpWithHFlag {
 		sc.ensureNoConflictWithBuiltinHelp()
 	}
-	if p.ShowVersionWithVFlag {
+	if p.ShowVersionWithVersionFlag {
 		sc.ensureNoConflictWithBuiltinVersion()
 	}
 
@@ -683,8 +683,8 @@ func (sc *Subcommand) exitBecauseOfVersionFlagConflict(flagName string) {
 	fmt.Println(`Flag with name '` + flagName + `' conflicts with the internal --version flag in flaggy.
 
 You must either change the flag's name, or disable flaggy's internal version
-flag with 'flaggy.DefaultParser.ShowVersionWithVFlag = false'.  If you are using
-a custom parser, you must instead set '.ShowVersionWithVFlag = false' on it.`)
+flag with 'flaggy.DefaultParser.ShowVersionWithVersionFlag = false'.  If you are using
+a custom parser, you must instead set '.ShowVersionWithVersionFlag = false' on it.`)
 	os.Exit(1)
 }
 
