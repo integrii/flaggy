@@ -37,7 +37,7 @@ Check out the [godoc](http://godoc.org/github.com/integrii/flaggy), [examples di
 - Flags can have `=` assignment operators, or use a space (`--flag=value`, `--flag value`)
 - Flags support single quote globs with spaces (`--flag 'this is all one value'`)
 - Flags of slice types can be passed multiple times (`-f one -f two -f three`)
-- Optional but default version output with `-v` or `--version`
+- Optional but default version output with `--version`
 - Optional but default help output with `-h` or `--help`
 - Optional but default help output when any invalid or unknown parameter is passed
 - It's _fast_. All flag and subcommand parsing takes less than `1ms` in most programs.
@@ -62,7 +62,7 @@ This is a prepend for help
     subcommandC (c) - Subcommand C is a command that does SERIOUS stuff
 
   Flags:
-    -v --version  Displays the program version string.
+       --version  Displays the program version string.
     -h --help  Displays help with available flag, subcommand, and positional value parameters.
     -s --stringFlag  This is a test string flag that does some stringy string stuff.
     -i --intFlg  This is a test int flag that does some interesting int stuff. (default: 5)

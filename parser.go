@@ -14,7 +14,7 @@ type Parser struct {
 	Subcommand
 	Version                    string             // the optional version of the paser.
 	ShowHelpWithHFlag          bool               // display help when -h or --help passed
-	ShowVersionWithVFlag       bool               // display the version when -v or --version passed
+	ShowVersionWithVFlag       bool               // display the version when --version passed
 	ShowHelpOnUnexpected       bool               // display help when an unexpected flag is passed
 	TrailingArguments          []string           // everything after a -- is placed here
 	HelpTemplate               *template.Template // template for Help output
