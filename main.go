@@ -36,7 +36,6 @@ import (
 
 // strings used for builtin help and version flags both short and long
 const versionFlagLongName = "version"
-const versionFlagShortName = "v"
 const helpFlagLongName = "help"
 const helpFlagShortName = "h"
 

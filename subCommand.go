@@ -88,7 +88,7 @@ func (sc *Subcommand) parseAllFlagsFromArgs(p *Parser, args []string) ([]string,
 		// if the flag being passed is version or v and the option to display
 		// version with version flags, then display version
 		if p.ShowVersionWithVFlag {
-			if flagName == versionFlagShortName || flagName == versionFlagLongName {
+			if flagName == versionFlagLongName {
 				p.ShowVersionAndExit()
 			}
 		}
@@ -664,20 +664,14 @@ func (sc *Subcommand) ensureNoConflictWithBuiltinHelp() {
 }
 
 // ensureNoConflictWithBuiltinVersion ensures that the flags on this subcommand do
-// not conflict with the builtin version flags (-v or --version). Exits the program
+// not conflict with the builtin version flag (--version). Exits the program
 // if a conflict is found.
 func (sc *Subcommand) ensureNoConflictWithBuiltinVersion() {
 	for _, f := range sc.Flags {
 		if f.LongName == versionFlagLongName {
 			sc.exitBecauseOfVersionFlagConflict(f.LongName)
 		}
-		if f.LongName == versionFlagShortName {
-			sc.exitBecauseOfVersionFlagConflict(f.LongName)
-		}
 		if f.ShortName == versionFlagLongName {
-			sc.exitBecauseOfVersionFlagConflict(f.ShortName)
-		}
-		if f.ShortName == versionFlagShortName {
 			sc.exitBecauseOfVersionFlagConflict(f.ShortName)
 		}
 	}
@@ -686,21 +680,21 @@ func (sc *Subcommand) ensureNoConflictWithBuiltinVersion() {
 // exitBecauseOfVersionFlagConflict exits the program with a message about how to prevent
 // flags being efined from conflicting with the builtin flags.
 func (sc *Subcommand) exitBecauseOfVersionFlagConflict(flagName string) {
-	fmt.Println(`Command with name '` + flagName + `' conflicts with the internal --version or -v flag in flaggy.
+	fmt.Println(`Flag with name '` + flagName + `' conflicts with the internal --version flag in flaggy.
 
-  You must either change the flag's name, or disable flaggy's internal version
-	flag with 'flaggy.DefaultParser.ShowVersionWithVFlag = false'.  If you are using
-	a custom parser, you must instead set '.ShowVersionWithVFlag = false' on it.`)
+You must either change the flag's name, or disable flaggy's internal version
+flag with 'flaggy.DefaultParser.ShowVersionWithVFlag = false'.  If you are using
+a custom parser, you must instead set '.ShowVersionWithVFlag = false' on it.`)
 	os.Exit(1)
 }
 
 // exitBecauseOfHelpFlagConflict exits the program with a message about how to prevent
 // flags being efined from conflicting with the builtin flags.
 func (sc *Subcommand) exitBecauseOfHelpFlagConflict(flagName string) {
-	fmt.Println(`Command with name '` + flagName + `' conflicts with the internal --help or -h flag in flaggy.
+	fmt.Println(`Flag with name '` + flagName + `' conflicts with the internal --help or -h flag in flaggy.
 
-  You must either change the flag's name, or disable flaggy's internal help
-	flag with 'flaggy.DefaultParser.ShowHelpWithHFlag = false'.  If you are using
-	a custom parser, you must instead set '.ShowHelpWithHFlag = false' on it.`)
+You must either change the flag's name, or disable flaggy's internal help
+flag with 'flaggy.DefaultParser.ShowHelpWithHFlag = false'.  If you are using
+a custom parser, you must instead set '.ShowHelpWithHFlag = false' on it.`)
 	os.Exit(1)
 }
