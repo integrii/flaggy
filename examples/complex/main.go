@@ -1,6 +1,10 @@
 package main
 
-import "github.com/integrii/flaggy"
+import (
+	"fmt"
+
+	"github.com/integrii/flaggy"
+)
 
 func main() {
 
@@ -30,12 +34,12 @@ func main() {
 	flaggy.Parse()
 
 	// Use the flags and trailing arguments
-	print(stringFlagF)
-	print(intFlagT)
+	fmt.Println(stringFlagF)
+	fmt.Println(intFlagT)
 
 	// we can check if a subcommand was used easily
 	if nestedSubcommand.Used {
-		print(boolFlagB)
+		fmt.Println(boolFlagB)
 	}
-	print(flaggy.TrailingArguments[0:])
+	fmt.Println(flaggy.TrailingArguments[0:])
 }
