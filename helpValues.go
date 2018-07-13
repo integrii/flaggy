@@ -90,7 +90,7 @@ func (h *Help) ExtractValues(p *Parser, message string) {
 	// if the built-in version flag is enabled, then add it as a help flag
 	if p.ShowVersionWithVFlag {
 		defaultVersionFlag := HelpFlag{
-			ShortName:    versionFlagShortName,
+			ShortName:    "",
 			LongName:     versionFlagLongName,
 			Description:  "Displays the program version string.",
 			DefaultValue: "",
