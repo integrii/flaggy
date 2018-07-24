@@ -255,9 +255,9 @@ func (sc *Subcommand) parse(p *Parser, args []string, depth int) error {
 			}
 		}
 
-		// if there aren't any positional flags but there are sub subcommands that
+		// if there aren't any positional flags but there are subcommands that
 		// were not used, display a useful message with subcommand options.
-		if !foundPositional {
+		if !foundPositional && p.ShowHelpOnUnexpected {
 			debugPrint("No positional at position", relativeDepth)
 			var foundSubcommandAtDepth bool
 			for _, cmd := range sc.Subcommands {
