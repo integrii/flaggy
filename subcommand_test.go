@@ -42,7 +42,7 @@ func TestTypoSubcommand(t *testing.T) {
 	p.ParseArgs(args)
 }
 
-// TestTypoSubcommand tests what happens when an invalid subcommand is passed but should be ignored
+// TestIgnoreUnexpected tests what happens when an invalid subcommand is passed but should be ignored
 func TestIgnoreUnexpected(t *testing.T) {
 	p := flaggy.NewParser("TestTypoSubcommand")
 	p.ShowHelpOnUnexpected = false
