@@ -274,7 +274,7 @@ func (sc *Subcommand) parse(p *Parser, args []string, depth int) error {
 				if len(displaySCName) < 1 {
 					displaySCName = sc.ShortName
 				}
-				fmt.Fprintln(os.Stderr, displaySCName+":", "No subcommand or positional value not found at depth", strconv.Itoa(relativeDepth)+".  Available subcommands:")
+				fmt.Fprintln(os.Stderr, displaySCName+":", "No subcommand or positional value found at depth", strconv.Itoa(relativeDepth)+".  Available subcommands:")
 				var output string
 				for _, cmd := range sc.Subcommands {
 					if cmd.Hidden {
