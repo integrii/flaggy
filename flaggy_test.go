@@ -87,7 +87,7 @@ func TestComplexNesting(t *testing.T) {
 		t.FailNow()
 	}
 	if testB != "B" {
-		t.Log("testb", testB)
+		t.Log("testB", testB)
 		t.FailNow()
 	}
 	if testC != "C" {

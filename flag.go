@@ -355,7 +355,7 @@ func determineArgType(arg string) string {
 	return argIsPositional
 }
 
-// parseArgWithValue parses a key=value concatentated argument into a key and
+// parseArgWithValue parses a key=value concatenated argument into a key and
 // value
 func parseArgWithValue(arg string) (key string, value string) {
 
