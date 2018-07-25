@@ -10,7 +10,12 @@ import (
 // TestDoublePositional tests errors when two positionals are
 // specified at the same time
 func TestDoublePositional(t *testing.T) {
-	t.Skip("Skipped.  If this test runs, it exists the whole program.")
+	defer func() {
+		r := recover()
+		if r == nil {
+			t.Fatal("Expected crash on double assignment")
+		}
+	}()
 	// flaggy.DebugMode = true
 	defer debugOff()
 	var posTest string
@@ -21,7 +26,12 @@ func TestDoublePositional(t *testing.T) {
 
 // TestRequiredPositional tests required positionals
 func TestRequiredPositional(t *testing.T) {
-	t.Skip("Skipped.  If this test runs, it exists the whole program.")
+	defer func() {
+		r := recover()
+		if r == nil {
+			t.Fatal("Expected crash on unused required positional")
+		}
+	}()
 	// flaggy.DebugMode = true
 	defer debugOff()
 	var posTest string
@@ -31,7 +41,12 @@ func TestRequiredPositional(t *testing.T) {
 
 // TestTypoSubcommand tests what happens when an invalid subcommand is passed
 func TestTypoSubcommand(t *testing.T) {
-	t.Skip("Skipped.  If this test runs, it exists the whole program.")
+	defer func() {
+		r := recover()
+		if r == nil {
+			t.Fatal("Expected crash on subcommand typo")
+		}
+	}()
 	p := flaggy.NewParser("TestTypoSubcommand")
 	p.ShowHelpOnUnexpected = true
 	args := []string{"unexpectedArg"}
@@ -44,7 +59,12 @@ func TestTypoSubcommand(t *testing.T) {
 
 // TestSubcommandHelp tests displaying of help on unspecified commands
 func TestSubcommandHelp(t *testing.T) {
-	t.Skip("Skipped.  If this test runs, it exists the whole program.")
+	defer func() {
+		r := recover()
+		if r == nil {
+			t.Fatal("Expected crash on subcommand help display")
+		}
+	}()
 	p := flaggy.NewParser("TestSubcommandHelp")
 	p.ShowHelpOnUnexpected = true
 	args := []string{"unexpectedArg"}
@@ -52,7 +72,12 @@ func TestSubcommandHelp(t *testing.T) {
 }
 
 func TestHelpWithHFlagA(t *testing.T) {
-	t.Skip("Skipped.  If this test runs, it exists the whole program.")
+	defer func() {
+		r := recover()
+		if r == nil {
+			t.Fatal("Expected crash on help flag use")
+		}
+	}()
 	p := flaggy.NewParser("TestHelpWithHFlag")
 	p.ShowHelpWithHFlag = true
 	args := []string{"-h"}
@@ -60,7 +85,12 @@ func TestHelpWithHFlagA(t *testing.T) {
 }
 
 func TestHelpWithHFlagB(t *testing.T) {
-	t.Skip("Skipped.  If this test runs, it exists the whole program.")
+	defer func() {
+		r := recover()
+		if r == nil {
+			t.Fatal("Expected crash on help flag use")
+		}
+	}()
 	p := flaggy.NewParser("TestHelpWithHFlag")
 	p.ShowHelpWithHFlag = true
 	args := []string{"--help"}
@@ -68,7 +98,12 @@ func TestHelpWithHFlagB(t *testing.T) {
 }
 
 func TestVersionWithVFlagB(t *testing.T) {
-	t.Skip("Skipped.  If this test runs, it exists the whole program.")
+	defer func() {
+		r := recover()
+		if r == nil {
+			t.Fatal("Expected crash on version flag use")
+		}
+	}()
 	p := flaggy.NewParser("TestSubcommandVersion")
 	p.ShowVersionWithVersionFlag = true
 	p.Version = "TestVersionWithVFlagB 0.0.0a"

@@ -157,7 +157,7 @@ func (sc *Subcommand) parseAllFlagsFromArgs(p *Parser, args []string) ([]string,
 			// if the next arg was not found, then show a Help message
 			if !nextArgExists {
 				p.ShowHelpWithMessage("Expected a following arg for flag " + a + ", but it did not exist.")
-				os.Exit(2)
+				exitOrPanic(2)
 			}
 			_, err = setValueForParsers(a, nextArg, p, sc)
 			if err != nil {
@@ -283,20 +283,20 @@ func (sc *Subcommand) parse(p *Parser, args []string, depth int) error {
 					output = output + " " + cmd.Name
 				}
 				fmt.Fprintln(os.Stderr, output) // follow up with a newline
-				os.Exit(2)
+				exitOrPanic(2)
 			}
 
 			// if there were not any flags or subcommands at this position at all, then
 			// throw an error (display Help if necessary)
 			p.ShowHelpWithMessage("Unexpected argument: " + v)
-			os.Exit(2)
+			exitOrPanic(2)
 		}
 	}
 
 	// if help was requested and we should show help when h is passed,
 	if helpRequested && p.ShowHelpWithHFlag {
 		p.ShowHelp()
-		os.Exit(0)
+		exitOrPanic(0)
 	}
 
 	// find any positionals that were not used on subcommands that were
@@ -304,13 +304,13 @@ func (sc *Subcommand) parse(p *Parser, args []string, depth int) error {
 	for _, pv := range p.PositionalFlags {
 		if pv.Required && !pv.Found {
 			p.ShowHelpWithMessage("Required global positional variable " + pv.Name + " not found at position " + strconv.Itoa(pv.Position))
-			os.Exit(2)
+			exitOrPanic(2)
 		}
 	}
 	for _, pv := range sc.PositionalFlags {
 		if pv.Required && !pv.Found {
 			p.ShowHelpWithMessage("Required positional of subcommand " + sc.Name + " named " + pv.Name + " not found at position " + strconv.Itoa(pv.Position))
-			os.Exit(2)
+			exitOrPanic(2)
 		}
 	}
 
@@ -685,7 +685,7 @@ func (sc *Subcommand) exitBecauseOfVersionFlagConflict(flagName string) {
 You must either change the flag's name, or disable flaggy's internal version
 flag with 'flaggy.DefaultParser.ShowVersionWithVersionFlag = false'.  If you are using
 a custom parser, you must instead set '.ShowVersionWithVersionFlag = false' on it.`)
-	os.Exit(1)
+	exitOrPanic(1)
 }
 
 // exitBecauseOfHelpFlagConflict exits the program with a message about how to prevent
@@ -696,5 +696,5 @@ func (sc *Subcommand) exitBecauseOfHelpFlagConflict(flagName string) {
 You must either change the flag's name, or disable flaggy's internal help
 flag with 'flaggy.DefaultParser.ShowHelpWithHFlag = false'.  If you are using
 a custom parser, you must instead set '.ShowHelpWithHFlag = false' on it.`)
-	os.Exit(1)
+	exitOrPanic(1)
 }

@@ -14,7 +14,6 @@ func debugOff() {
 }
 
 func TestGlobs(t *testing.T) {
-	t.Skip("This is only used to test os arg globbing")
 	for _, a := range os.Args {
 		fmt.Println(a)
 	}

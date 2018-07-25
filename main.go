@@ -30,6 +30,7 @@ import (
 	"log"
 	"net"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -448,7 +449,19 @@ func SetName(name string) {
 // ShowHelpAndExit shows parser help and exits with status code 2
 func ShowHelpAndExit(message string) {
 	ShowHelp(message)
-	os.Exit(2)
+	exitOrPanic(2)
+}
+
+// PanicInsteadOfExit is used when running tests
+var PanicInsteadOfExit bool
+
+// exitOrPanic panics instead of calling os.Exit so that tests can catch
+// more failures
+func exitOrPanic(code int) {
+	if PanicInsteadOfExit {
+		panic("Panic instead of exit with code: " + strconv.Itoa(code))
+	}
+	os.Exit(code)
 }
 
 // AddPositionalValue adds a positional value to the main parser at the global
