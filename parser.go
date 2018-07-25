@@ -12,13 +12,13 @@ import (
 // from our input args, and the parser than handles them all.
 type Parser struct {
 	Subcommand
-	Version                    string             // the optional version of the paser.
+	Version                    string             // the optional version of the parser.
 	ShowHelpWithHFlag          bool               // display help when -h or --help passed
 	ShowVersionWithVersionFlag bool               // display the version when --version passed
 	ShowHelpOnUnexpected       bool               // display help when an unexpected flag is passed
 	TrailingArguments          []string           // everything after a -- is placed here
 	HelpTemplate               *template.Template // template for Help output
-	trailingArgumentsExtracted bool               // indicates that tariling args have been parsed and should not be appended again
+	trailingArgumentsExtracted bool               // indicates that trailing args have been parsed and should not be appended again
 	parsed                     bool               // indicates this parser has parsed
 	subcommandContext          *Subcommand        // points to the most specific subcommand being used
 }

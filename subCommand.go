@@ -274,7 +274,7 @@ func (sc *Subcommand) parse(p *Parser, args []string, depth int) error {
 				if len(displaySCName) < 1 {
 					displaySCName = sc.ShortName
 				}
-				fmt.Fprintln(os.Stderr, displaySCName+":", "No subcommand or positional value not found at depth", strconv.Itoa(relativeDepth)+".  Available subcommands:")
+				fmt.Fprintln(os.Stderr, displaySCName+":", "No subcommand or positional value found at depth", strconv.Itoa(relativeDepth)+".  Available subcommands:")
 				var output string
 				for _, cmd := range sc.Subcommands {
 					if cmd.Hidden {
@@ -364,15 +364,15 @@ func (sc *Subcommand) AttachSubcommand(newSC *Subcommand, relativePosition int) 
 	return nil
 }
 
-// addFlag is a generic to add flags of any type.  Checks the supplied parent
-// parser to ensure that the user isnt setting version or help flags that
+// addFlag is a generic to add flags of any type. Checks the supplied parent
+// parser to ensure that the user isn't setting version or help flags that
 // conflict with the built-in help and version flag behavior.
 func (sc *Subcommand) add(assignmentVar interface{}, shortName string, longName string, description string) error {
 
 	// if the flag is already used, throw an error
 	for _, existingFlag := range sc.Flags {
 		if longName != "" && existingFlag.LongName == longName {
-			return errors.New("Flag " + longName + " added to subcommand " + sc.Name + " but the name isalready assigned.")
+			return errors.New("Flag " + longName + " added to subcommand " + sc.Name + " but the name is already assigned.")
 		}
 		if shortName != "" && existingFlag.ShortName == shortName {
 			return errors.New("Flag " + shortName + " added to subcommand " + sc.Name + " but the short name is already assigned.")
@@ -678,7 +678,7 @@ func (sc *Subcommand) ensureNoConflictWithBuiltinVersion() {
 }
 
 // exitBecauseOfVersionFlagConflict exits the program with a message about how to prevent
-// flags being efined from conflicting with the builtin flags.
+// flags being defined from conflicting with the builtin flags.
 func (sc *Subcommand) exitBecauseOfVersionFlagConflict(flagName string) {
 	fmt.Println(`Flag with name '` + flagName + `' conflicts with the internal --version flag in flaggy.
 
@@ -689,7 +689,7 @@ a custom parser, you must instead set '.ShowVersionWithVersionFlag = false' on i
 }
 
 // exitBecauseOfHelpFlagConflict exits the program with a message about how to prevent
-// flags being efined from conflicting with the builtin flags.
+// flags being defined from conflicting with the builtin flags.
 func (sc *Subcommand) exitBecauseOfHelpFlagConflict(flagName string) {
 	fmt.Println(`Flag with name '` + flagName + `' conflicts with the internal --help or -h flag in flaggy.
 
