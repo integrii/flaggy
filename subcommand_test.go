@@ -42,6 +42,16 @@ func TestTypoSubcommand(t *testing.T) {
 	p.ParseArgs(args)
 }
 
+// TestIgnoreUnexpected tests what happens when an invalid subcommand is passed but should be ignored
+func TestIgnoreUnexpected(t *testing.T) {
+	p := flaggy.NewParser("TestTypoSubcommand")
+	p.ShowHelpOnUnexpected = false
+	args := []string{"unexpectedArg"}
+	newSCA := flaggy.NewSubcommand("TestTypoSubcommandA")
+	p.AttachSubcommand(newSCA, 1)
+	p.ParseArgs(args)
+}
+
 // TestSubcommandHelp tests displaying of help on unspecified commands
 func TestSubcommandHelp(t *testing.T) {
 	t.Skip("Skipped.  If this test runs, it exists the whole program.")
