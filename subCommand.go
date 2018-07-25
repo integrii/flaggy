@@ -274,7 +274,7 @@ func (sc *Subcommand) parse(p *Parser, args []string, depth int) error {
 				if len(displaySCName) < 1 {
 					displaySCName = sc.ShortName
 				}
-				fmt.Fprintln(os.Stderr, displaySCName+":", "No subcommand or positional value found at depth", strconv.Itoa(relativeDepth)+".  Available subcommands:")
+				fmt.Fprintln(os.Stderr, displaySCName+":", "No subcommand or positional value found at depth", strconv.Itoa(relativeDepth)+".")
 				var output string
 				for _, cmd := range sc.Subcommands {
 					if cmd.Hidden {
@@ -282,7 +282,10 @@ func (sc *Subcommand) parse(p *Parser, args []string, depth int) error {
 					}
 					output = output + " " + cmd.Name
 				}
-				fmt.Fprintln(os.Stderr, output) // follow up with a newline
+				// if there are available subcommands, let the user know
+				if len(output) > 0 {
+					fmt.Println("Available Subcommands:", output)
+				}
 				exitOrPanic(2)
 			}
 

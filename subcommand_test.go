@@ -24,6 +24,35 @@ func TestDoublePositional(t *testing.T) {
 	flaggy.AddPositionalValue(&posTest, "posTest2", 1, true, "Second test positional")
 }
 
+func TestNextArgDoesNotExist(t *testing.T) {
+	defer func() {
+		r := recover()
+		if r == nil {
+			t.Fatal("Expected crash when next arg not specifid")
+		}
+	}()
+	flaggy.ResetParser()
+	flaggy.PanicInsteadOfExit = true
+	var test string
+	flaggy.String(&test, "t", "test", "Description goes here")
+	flaggy.ParseArgs([]string{"-t"})
+}
+
+func TestSubcommandHidden(t *testing.T) {
+	defer func() {
+		r := recover()
+		if r == nil {
+			t.Fatal("Expected crash instead of exit.  Subcommand id was wrong")
+		}
+	}()
+	flaggy.ResetParser()
+	sc := flaggy.NewSubcommand("")
+	sc.Hidden = true
+	sc.ShortName = "sc"
+	flaggy.AttachSubcommand(sc, 1)
+	flaggy.ParseArgs([]string{"x"})
+}
+
 // TestRequiredPositional tests required positionals
 func TestRequiredPositional(t *testing.T) {
 	defer func() {
