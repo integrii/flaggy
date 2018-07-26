@@ -14,8 +14,10 @@ func TestMinimalHelpOutput(t *testing.T) {
 
 // TestHelpOutput tests the dislay of help with -h
 func TestHelpOutput(t *testing.T) {
+	flaggy.ResetParser()
 	// flaggy.DebugMode = true
 	// defer debugOff()
+
 	p := flaggy.NewParser("testCommand")
 	p.Description = "Description goes here.  Get more information at http://flaggy.flag."
 	scA := flaggy.NewSubcommand("subcommandA")
@@ -24,16 +26,17 @@ func TestHelpOutput(t *testing.T) {
 	scB := flaggy.NewSubcommand("subcommandB")
 	scB.ShortName = "b"
 	scB.Description = "Subcommand B is a command that does other stuff"
-	scC := flaggy.NewSubcommand("subcommandC")
-	scC.ShortName = "c"
-	scC.Description = "Subcommand C is a command that does SERIOUS stuff"
+	scX := flaggy.NewSubcommand("subcommandX")
+	scX.Description = "This should be hidden."
+	scX.Hidden = true
+
 	var posA = "defaultPosA"
 	var posB string
 	p.AttachSubcommand(scA, 1)
-	p.AttachSubcommand(scB, 1)
-	p.AttachSubcommand(scC, 1)
-	p.AddPositionalValue(&posA, "testPositionalA", 2, true, "Test positional A does some things with a positional value.")
-	p.AddPositionalValue(&posB, "testPositionalB", 3, false, "Test positional B does some less than serious things with a positional value.")
+	scA.AttachSubcommand(scB, 1)
+	scA.AddPositionalValue(&posA, "testPositionalA", 2, false, "Test positional A does some things with a positional value.")
+	scB.AddPositionalValue(&posB, "hiddenPositional", 1, false, "Hidden test positional B does some less than serious things with a positional value.")
+	scB.PositionalFlags[0].Hidden = true
 	var stringFlag string
 	var intFlag int
 	var boolFlag bool
@@ -45,4 +48,5 @@ func TestHelpOutput(t *testing.T) {
 	p.AdditionalHelpPrepend = "This is a prepend for help"
 	p.AdditionalHelpAppend = "This is an append for help"
 	p.ShowHelpWithMessage("This is a help addon message")
+	p.ParseArgs([]string{"subcommandA", "subcommandB", "hiddenPositional1"})
 }

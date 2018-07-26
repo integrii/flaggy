@@ -28,6 +28,11 @@ func TestSetVersion(t *testing.T) {
 	}
 }
 
+func TestParserWithNoArgs(t *testing.T) {
+	os.Args = []string{}
+	flaggy.ResetParser()
+}
+
 func TestSetName(t *testing.T) {
 	name := "Test Name"
 	flaggy.SetName(name)

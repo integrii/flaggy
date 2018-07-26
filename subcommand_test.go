@@ -7,6 +7,32 @@ import (
 	"github.com/integrii/flaggy"
 )
 
+func TestFlagExists(t *testing.T) {
+	sc := flaggy.NewSubcommand("testFlagExists")
+	e := sc.FlagExists("test")
+	if e == true {
+		t.Fatal("Flag exists on subcommand that should not")
+	}
+	var testA string
+
+	sc.String(&testA, "", "test", "a test flag")
+	e = sc.FlagExists("test")
+	if e == false {
+		t.Fatal("Flag does not exist on a subcommand that should")
+	}
+
+}
+
+// func TestBoolStringSupplied(t *testing.T) {
+// 	flaggy.ResetParser()
+// 	flaggy.DebugMode = true
+// 	defer debugOff()
+// 	var boolA bool
+// 	flaggy.Bool(&boolA, "b", "boolean", "test bool flag")
+// 	os.Args = []string{"-b", "true"}
+// 	flaggy.Parse()
+// }
+
 // TestDoublePositional tests errors when two positionals are
 // specified at the same time
 func TestDoublePositional(t *testing.T) {
@@ -162,23 +188,14 @@ func TestSubcommandParse(t *testing.T) {
 	newSC := flaggy.NewSubcommand("testSubcommand")
 
 	// add the subcommand into the parser
-	err := p.AttachSubcommand(newSC, 1)
-	if err != nil {
-		t.Fatal("Error adding subcommand", err)
-	}
+	p.AttachSubcommand(newSC, 1)
 
 	// add a positional arg onto the subcommand at relative position 1
-	err = newSC.AddPositionalValue(&positionA, "positionalA", 1, false, "This is a test positional value")
-	if err != nil {
-		t.Fatal("Error adding positional value", err)
-	}
+	newSC.AddPositionalValue(&positionA, "positionalA", 1, false, "This is a test positional value")
 
 	// override os args and parse them
 	os.Args = []string{"binaryName", "testSubcommand", "testPositional"}
-	err = p.Parse()
-	if err != nil {
-		t.Fatal("Error parsing args: " + err.Error())
-	}
+	p.Parse()
 
 	// ensure subcommand and positional used
 	if !newSC.Used {
@@ -196,17 +213,11 @@ func TestBadSubcommand(t *testing.T) {
 
 	// create a subcommand
 	newSC := flaggy.NewSubcommand("testSubcommand")
-	err := p.AttachSubcommand(newSC, 1)
-	if err != nil {
-		t.Fatal("Error adding subcommand", err)
-	}
+	p.AttachSubcommand(newSC, 1)
 
 	//  test what happens if you add a bad subcommand
 	os.Args = []string{"test"}
-	err = p.Parse()
-	if err != nil {
-		t.Fatal("Threw an error when bad subcommand positional was passed, but should not have")
-	}
+	p.Parse()
 }
 
 func TestBadPositional(t *testing.T) {
@@ -218,10 +229,7 @@ func TestBadPositional(t *testing.T) {
 	// add a positional arg into the subcommand
 	var positionA string
 	var err error
-	err = p.AddPositionalValue(&positionA, "positionalA", 1, false, "This is a test positional value")
-	if err != nil {
-		t.Fatal(err)
-	}
+	p.AddPositionalValue(&positionA, "positionalA", 1, false, "This is a test positional value")
 
 	//  test what happens if you add a bad subcommand
 	os.Args = []string{"test", "badPositional"}
@@ -274,20 +282,14 @@ func BenchmarkSubcommandParse(b *testing.B) {
 		newSC := flaggy.NewSubcommand("testSubcommand")
 
 		// add the subcommand into the parser
-		err := p.AttachSubcommand(newSC, 1)
-		if err != nil {
-			b.Fatal("Error adding subcommand", err)
-		}
+		p.AttachSubcommand(newSC, 1)
 
 		// add a positional arg onto the subcommand at relative position 1
-		err = newSC.AddPositionalValue(&positionA, "positionalA", 1, false, "This is a test positional value")
-		if err != nil {
-			b.Fatal("Error adding positional value", err)
-		}
+		newSC.AddPositionalValue(&positionA, "positionalA", 1, false, "This is a test positional value")
 
 		// override os args and parse them
 		os.Args = []string{"binaryName", "testSubcommand", "testPositional"}
-		err = p.Parse()
+		err := p.Parse()
 		if err != nil {
 			b.Fatal("Error parsing args: " + err.Error())
 		}
