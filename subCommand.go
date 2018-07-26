@@ -505,6 +505,11 @@ func (sc *Subcommand) UInt8Slice(assignmentVar *[]uint8, shortName string, longN
 	sc.add(assignmentVar, shortName, longName, description)
 }
 
+// Int64 adds a new int64 flag.
+func (sc *Subcommand) Int64(assignmentVar *int64, shortName string, longName string, description string) {
+	sc.add(assignmentVar, shortName, longName, description)
+}
+
 // Int64Slice adds a new int64 slice flag.
 // Specify the flag multiple times to fill the slice.
 func (sc *Subcommand) Int64Slice(assignmentVar *[]int64, shortName string, longName string, description string) {
