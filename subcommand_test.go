@@ -23,16 +23,6 @@ func TestFlagExists(t *testing.T) {
 
 }
 
-// func TestBoolStringSupplied(t *testing.T) {
-// 	flaggy.ResetParser()
-// 	flaggy.DebugMode = true
-// 	defer debugOff()
-// 	var boolA bool
-// 	flaggy.Bool(&boolA, "b", "boolean", "test bool flag")
-// 	os.Args = []string{"-b", "true"}
-// 	flaggy.Parse()
-// }
-
 // TestDoublePositional tests errors when two positionals are
 // specified at the same time
 func TestDoublePositional(t *testing.T) {

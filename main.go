@@ -308,8 +308,8 @@ func IPMaskSlice(assignmentVar *[]net.IPMask, shortName string, longName string,
 }
 
 // AttachSubcommand adds a subcommand for parsing
-func AttachSubcommand(newSC *Subcommand, relativePosition int) {
-	DefaultParser.AttachSubcommand(newSC, relativePosition)
+func AttachSubcommand(subcommand *Subcommand, relativePosition int) {
+	DefaultParser.AttachSubcommand(subcommand, relativePosition)
 }
 
 // ShowHelp shows parser help

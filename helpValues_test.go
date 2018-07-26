@@ -12,6 +12,20 @@ func TestMinimalHelpOutput(t *testing.T) {
 	p.ShowHelp()
 }
 
+func TestHelpWithMissingSCName(t *testing.T) {
+	defer func() {
+		r := recover()
+		if r == nil {
+			t.Fatal("Expected panic with subcommand avilability at position, but did not get one")
+		}
+	}()
+	flaggy.ResetParser()
+	sc := flaggy.NewSubcommand("")
+	sc.ShortName = "sn"
+	flaggy.AttachSubcommand(sc, 1)
+	flaggy.ParseArgs([]string{"x"})
+}
+
 // TestHelpOutput tests the dislay of help with -h
 func TestHelpOutput(t *testing.T) {
 	flaggy.ResetParser()

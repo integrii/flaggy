@@ -124,27 +124,12 @@ func (sc *Subcommand) parseAllFlagsFromArgs(p *Parser, args []string) ([]string,
 		case argIsFlagWithSpace:
 			a = parseFlagToName(a)
 			// debugPrint("Arg", i, "is flag with space:", a)
-			skipNext = true
 			// parse next arg as value to this flag and apply to subcommand flags
 			// if the flag is a bool flag, then we check for a following positional
 			// and skip it if necessary
 			if flagIsBool(sc, p, a) {
 				debugPrint(sc.Name, "bool flag", a, "next var is:", nextArg)
-				switch {
-				case nextArgExists && nextArg == "true":
-					debugPrint("true")
-					_, err = setValueForParsers(a, "true", p, sc)
-				case nextArgExists && nextArg == "false":
-					debugPrint("false")
-					_, err = setValueForParsers(a, "false", p, sc)
-				default:
-					// if the next value was not true or false, we assume this bool
-					// flag stands alone and should be assumed to mean true.  In this
-					// case, we do not skip the next flag in the argument list.
-					skipNext = false
-					debugPrint("not skipping next arg for bool:", nextArg)
-					_, err = setValueForParsers(a, "true", p, sc)
-				}
+				_, err = setValueForParsers(a, "true", p, sc)
 
 				// if an error occurs, just return it and quit parsing
 				if err != nil {
@@ -153,6 +138,8 @@ func (sc *Subcommand) parseAllFlagsFromArgs(p *Parser, args []string) ([]string,
 				// by default, we just assign the next argument to the value and continue
 				continue
 			}
+
+			skipNext = true
 			debugPrint(sc.Name, "NOT bool flag", a)
 
 			// if the next arg was not found, then show a Help message
@@ -271,11 +258,7 @@ func (sc *Subcommand) parse(p *Parser, args []string, depth int) error {
 			// as a suggestion to the user before exiting.
 			if foundSubcommandAtDepth {
 				// determine which name to use in upcoming help output
-				displaySCName := sc.Name
-				if len(displaySCName) < 1 {
-					displaySCName = sc.ShortName
-				}
-				fmt.Fprintln(os.Stderr, displaySCName+":", "No subcommand or positional value found at position", strconv.Itoa(relativeDepth)+".")
+				fmt.Fprintln(os.Stderr, sc.Name+":", "No subcommand or positional value found at position", strconv.Itoa(relativeDepth)+".")
 				var output string
 				for _, cmd := range sc.Subcommands {
 					if cmd.Hidden {
@@ -367,7 +350,7 @@ func (sc *Subcommand) AttachSubcommand(newSC *Subcommand, relativePosition int) 
 	sc.Subcommands = append(sc.Subcommands, newSC)
 }
 
-// addFlag is a generic to add flags of any type. Checks the supplied parent
+// add is a "generic" to add flags of any type. Checks the supplied parent
 // parser to ensure that the user isn't setting version or help flags that
 // conflict with the built-in help and version flag behavior.
 func (sc *Subcommand) add(assignmentVar interface{}, shortName string, longName string, description string) {
