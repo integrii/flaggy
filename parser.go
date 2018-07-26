@@ -53,7 +53,7 @@ func (p *Parser) ParseArgs(args []string) error {
 // ShowVersionAndExit shows the version of this parser
 func (p *Parser) ShowVersionAndExit() {
 	fmt.Println("Version:", p.Version)
-	os.Exit(0)
+	exitOrPanic(0)
 }
 
 // SetHelpTemplate sets the go template this parser will use when rendering

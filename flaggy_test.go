@@ -121,46 +121,22 @@ func TestParsePositionalsA(t *testing.T) {
 	parser := flaggy.NewParser("testParser")
 
 	// add a bool flag to the parser
-	err = parser.Bool(&boolT, "t", "", "test flag for bool arg")
-	if err != nil {
-		t.Fatal(err)
-	}
+	parser.Bool(&boolT, "t", "", "test flag for bool arg")
 	// add an int flag to the parser
-	err = parser.Int(&intT, "i", "", "test flag for int arg")
-	if err != nil {
-		t.Fatal(err)
-	}
+	parser.Int(&intT, "i", "", "test flag for int arg")
 
 	// create a subcommand
 	subCommand := flaggy.NewSubcommand("subcommand")
-	err = parser.AttachSubcommand(subCommand, 1)
-	if err != nil {
-		t.Fatal(err)
-	}
+	parser.AttachSubcommand(subCommand, 1)
 
 	// add flags to subcommand
-	err = subCommand.String(&testN, "n", "testN", "test flag for value with space arg")
-	if err != nil {
-		t.Fatal(err)
-	}
-	err = subCommand.String(&testJ, "j", "testJ", "test flag for value with equals arg")
-	if err != nil {
-		t.Fatal(err)
-	}
-	err = subCommand.String(&testK, "k", "testK", "test full length flag with attached arg")
-	if err != nil {
-		t.Fatal(err)
-	}
+	subCommand.String(&testN, "n", "testN", "test flag for value with space arg")
+	subCommand.String(&testJ, "j", "testJ", "test flag for value with equals arg")
+	subCommand.String(&testK, "k", "testK", "test full length flag with attached arg")
 
 	// add positionals to subcommand
-	err = subCommand.AddPositionalValue(&positionalA, "PositionalA", 1, false, "PositionalA test value")
-	if err != nil {
-		t.Fatal(err)
-	}
-	err = subCommand.AddPositionalValue(&positionalB, "PositionalB", 2, false, "PositionalB test value")
-	if err != nil {
-		t.Fatal(err)
-	}
+	subCommand.AddPositionalValue(&positionalA, "PositionalA", 1, false, "PositionalA test value")
+	subCommand.AddPositionalValue(&positionalB, "PositionalB", 2, false, "PositionalB test value")
 
 	// parse input
 	err = parser.ParseArgs(inputLine)

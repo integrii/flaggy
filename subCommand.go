@@ -1,11 +1,12 @@
 package flaggy
 
 import (
-	"errors"
 	"fmt"
+	"log"
 	"net"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -123,27 +124,12 @@ func (sc *Subcommand) parseAllFlagsFromArgs(p *Parser, args []string) ([]string,
 		case argIsFlagWithSpace:
 			a = parseFlagToName(a)
 			// debugPrint("Arg", i, "is flag with space:", a)
-			skipNext = true
 			// parse next arg as value to this flag and apply to subcommand flags
 			// if the flag is a bool flag, then we check for a following positional
 			// and skip it if necessary
 			if flagIsBool(sc, p, a) {
 				debugPrint(sc.Name, "bool flag", a, "next var is:", nextArg)
-				switch {
-				case nextArgExists && nextArg == "true":
-					debugPrint("true")
-					_, err = setValueForParsers(a, "true", p, sc)
-				case nextArgExists && nextArg == "false":
-					debugPrint("false")
-					_, err = setValueForParsers(a, "false", p, sc)
-				default:
-					// if the next value was not true or false, we assume this bool
-					// flag stands alone and should be assumed to mean true.  In this
-					// case, we do not skip the next flag in the argument list.
-					skipNext = false
-					debugPrint("not skipping next arg for bool:", nextArg)
-					_, err = setValueForParsers(a, "true", p, sc)
-				}
+				_, err = setValueForParsers(a, "true", p, sc)
 
 				// if an error occurs, just return it and quit parsing
 				if err != nil {
@@ -152,12 +138,14 @@ func (sc *Subcommand) parseAllFlagsFromArgs(p *Parser, args []string) ([]string,
 				// by default, we just assign the next argument to the value and continue
 				continue
 			}
+
+			skipNext = true
 			debugPrint(sc.Name, "NOT bool flag", a)
 
 			// if the next arg was not found, then show a Help message
 			if !nextArgExists {
 				p.ShowHelpWithMessage("Expected a following arg for flag " + a + ", but it did not exist.")
-				os.Exit(2)
+				exitOrPanic(2)
 			}
 			_, err = setValueForParsers(a, nextArg, p, sc)
 			if err != nil {
@@ -270,11 +258,7 @@ func (sc *Subcommand) parse(p *Parser, args []string, depth int) error {
 			// as a suggestion to the user before exiting.
 			if foundSubcommandAtDepth {
 				// determine which name to use in upcoming help output
-				displaySCName := sc.Name
-				if len(displaySCName) < 1 {
-					displaySCName = sc.ShortName
-				}
-				fmt.Fprintln(os.Stderr, displaySCName+":", "No subcommand or positional value found at depth", strconv.Itoa(relativeDepth)+".  Available subcommands:")
+				fmt.Fprintln(os.Stderr, sc.Name+":", "No subcommand or positional value found at position", strconv.Itoa(relativeDepth)+".")
 				var output string
 				for _, cmd := range sc.Subcommands {
 					if cmd.Hidden {
@@ -282,21 +266,25 @@ func (sc *Subcommand) parse(p *Parser, args []string, depth int) error {
 					}
 					output = output + " " + cmd.Name
 				}
-				fmt.Fprintln(os.Stderr, output) // follow up with a newline
-				os.Exit(2)
+				// if there are available subcommands, let the user know
+				if len(output) > 0 {
+					output = strings.TrimLeft(output, " ")
+					fmt.Println("Available subcommands:", output)
+				}
+				exitOrPanic(2)
 			}
 
 			// if there were not any flags or subcommands at this position at all, then
 			// throw an error (display Help if necessary)
 			p.ShowHelpWithMessage("Unexpected argument: " + v)
-			os.Exit(2)
+			exitOrPanic(2)
 		}
 	}
 
 	// if help was requested and we should show help when h is passed,
 	if helpRequested && p.ShowHelpWithHFlag {
 		p.ShowHelp()
-		os.Exit(0)
+		exitOrPanic(0)
 	}
 
 	// find any positionals that were not used on subcommands that were
@@ -304,13 +292,13 @@ func (sc *Subcommand) parse(p *Parser, args []string, depth int) error {
 	for _, pv := range p.PositionalFlags {
 		if pv.Required && !pv.Found {
 			p.ShowHelpWithMessage("Required global positional variable " + pv.Name + " not found at position " + strconv.Itoa(pv.Position))
-			os.Exit(2)
+			exitOrPanic(2)
 		}
 	}
 	for _, pv := range sc.PositionalFlags {
 		if pv.Required && !pv.Found {
 			p.ShowHelpWithMessage("Required positional of subcommand " + sc.Name + " named " + pv.Name + " not found at position " + strconv.Itoa(pv.Position))
-			os.Exit(2)
+			exitOrPanic(2)
 		}
 	}
 
@@ -331,7 +319,7 @@ func (sc *Subcommand) FlagExists(name string) bool {
 }
 
 // AttachSubcommand adds a possible subcommand to the Parser.
-func (sc *Subcommand) AttachSubcommand(newSC *Subcommand, relativePosition int) error {
+func (sc *Subcommand) AttachSubcommand(newSC *Subcommand, relativePosition int) {
 
 	// assign the depth of the subcommand when its attached
 	newSC.Position = relativePosition
@@ -341,12 +329,12 @@ func (sc *Subcommand) AttachSubcommand(newSC *Subcommand, relativePosition int) 
 		if newSC.Position == other.Position {
 			if newSC.Name != "" {
 				if newSC.Name == other.Name {
-					return errors.New("Unable to add subcommand because one already exists at position" + strconv.Itoa(newSC.Position) + " with name " + other.Name)
+					log.Panicln("Unable to add subcommand because one already exists at position" + strconv.Itoa(newSC.Position) + " with name " + other.Name)
 				}
 			}
 			if newSC.ShortName != "" {
 				if newSC.ShortName == other.ShortName {
-					return errors.New("Unable to add subcommand because one already exists at position" + strconv.Itoa(newSC.Position) + " with name " + other.ShortName)
+					log.Panicln("Unable to add subcommand because one already exists at position" + strconv.Itoa(newSC.Position) + " with name " + other.ShortName)
 				}
 			}
 		}
@@ -355,27 +343,25 @@ func (sc *Subcommand) AttachSubcommand(newSC *Subcommand, relativePosition int) 
 	// ensure no positionals at this depth
 	for _, other := range sc.PositionalFlags {
 		if newSC.Position == other.Position {
-			return errors.New("Unable to add subcommand because a positional value already exists at position " + strconv.Itoa(newSC.Position) + ": " + other.Name)
+			log.Panicln("Unable to add subcommand because a positional value already exists at position " + strconv.Itoa(newSC.Position) + ": " + other.Name)
 		}
 	}
 
 	sc.Subcommands = append(sc.Subcommands, newSC)
-
-	return nil
 }
 
-// addFlag is a generic to add flags of any type. Checks the supplied parent
+// add is a "generic" to add flags of any type. Checks the supplied parent
 // parser to ensure that the user isn't setting version or help flags that
 // conflict with the built-in help and version flag behavior.
-func (sc *Subcommand) add(assignmentVar interface{}, shortName string, longName string, description string) error {
+func (sc *Subcommand) add(assignmentVar interface{}, shortName string, longName string, description string) {
 
 	// if the flag is already used, throw an error
 	for _, existingFlag := range sc.Flags {
 		if longName != "" && existingFlag.LongName == longName {
-			return errors.New("Flag " + longName + " added to subcommand " + sc.Name + " but the name is already assigned.")
+			log.Panicln("Flag " + longName + " added to subcommand " + sc.Name + " but the name is already assigned.")
 		}
 		if shortName != "" && existingFlag.ShortName == shortName {
-			return errors.New("Flag " + shortName + " added to subcommand " + sc.Name + " but the short name is already assigned.")
+			log.Panicln("Flag " + shortName + " added to subcommand " + sc.Name + " but the short name is already assigned.")
 		}
 	}
 
@@ -386,228 +372,231 @@ func (sc *Subcommand) add(assignmentVar interface{}, shortName string, longName 
 		Description:   description,
 	}
 	sc.Flags = append(sc.Flags, &newFlag)
-
-	return nil
 }
 
 // String adds a new string flag
-func (sc *Subcommand) String(assignmentVar *string, shortName string, longName string, description string) error {
-	return sc.add(assignmentVar, shortName, longName, description)
+func (sc *Subcommand) String(assignmentVar *string, shortName string, longName string, description string) {
+	sc.add(assignmentVar, shortName, longName, description)
 }
 
 // StringSlice adds a new slice of strings flag
 // Specify the flag multiple times to fill the slice
-func (sc *Subcommand) StringSlice(assignmentVar *[]string, shortName string, longName string, description string) error {
-	return sc.add(assignmentVar, shortName, longName, description)
+func (sc *Subcommand) StringSlice(assignmentVar *[]string, shortName string, longName string, description string) {
+	sc.add(assignmentVar, shortName, longName, description)
 }
 
 // Bool adds a new bool flag
-func (sc *Subcommand) Bool(assignmentVar *bool, shortName string, longName string, description string) error {
-	return sc.add(assignmentVar, shortName, longName, description)
+func (sc *Subcommand) Bool(assignmentVar *bool, shortName string, longName string, description string) {
+	sc.add(assignmentVar, shortName, longName, description)
 }
 
 // BoolSlice adds a new slice of bools flag
 // Specify the flag multiple times to fill the slice
-func (sc *Subcommand) BoolSlice(assignmentVar *[]bool, shortName string, longName string, description string) error {
-	return sc.add(assignmentVar, shortName, longName, description)
+func (sc *Subcommand) BoolSlice(assignmentVar *[]bool, shortName string, longName string, description string) {
+	sc.add(assignmentVar, shortName, longName, description)
 }
 
 // ByteSlice adds a new slice of bytes flag
 // Specify the flag multiple times to fill the slice.  Takes hex as input.
-func (sc *Subcommand) ByteSlice(assignmentVar *[]byte, shortName string, longName string, description string) error {
-	return sc.add(assignmentVar, shortName, longName, description)
+func (sc *Subcommand) ByteSlice(assignmentVar *[]byte, shortName string, longName string, description string) {
+	sc.add(assignmentVar, shortName, longName, description)
 }
 
 // Duration adds a new time.Duration flag.
 // Input format is described in time.ParseDuration().
 // Example values: 1h, 1h50m, 32s
-func (sc *Subcommand) Duration(assignmentVar *time.Duration, shortName string, longName string, description string) error {
-	return sc.add(assignmentVar, shortName, longName, description)
+func (sc *Subcommand) Duration(assignmentVar *time.Duration, shortName string, longName string, description string) {
+	sc.add(assignmentVar, shortName, longName, description)
 }
 
 // DurationSlice adds a new time.Duration flag.
 // Input format is described in time.ParseDuration().
 // Example values: 1h, 1h50m, 32s
 // Specify the flag multiple times to fill the slice.
-func (sc *Subcommand) DurationSlice(assignmentVar *[]time.Duration, shortName string, longName string, description string) error {
-	return sc.add(assignmentVar, shortName, longName, description)
+func (sc *Subcommand) DurationSlice(assignmentVar *[]time.Duration, shortName string, longName string, description string) {
+	sc.add(assignmentVar, shortName, longName, description)
 }
 
 // Float32 adds a new float32 flag.
-func (sc *Subcommand) Float32(assignmentVar *float32, shortName string, longName string, description string) error {
-	return sc.add(assignmentVar, shortName, longName, description)
+func (sc *Subcommand) Float32(assignmentVar *float32, shortName string, longName string, description string) {
+	sc.add(assignmentVar, shortName, longName, description)
 }
 
 // Float32Slice adds a new float32 flag.
 // Specify the flag multiple times to fill the slice.
-func (sc *Subcommand) Float32Slice(assignmentVar *[]float32, shortName string, longName string, description string) error {
-	return sc.add(assignmentVar, shortName, longName, description)
+func (sc *Subcommand) Float32Slice(assignmentVar *[]float32, shortName string, longName string, description string) {
+	sc.add(assignmentVar, shortName, longName, description)
 }
 
 // Float64 adds a new float64 flag.
-func (sc *Subcommand) Float64(assignmentVar *float64, shortName string, longName string, description string) error {
-	return sc.add(assignmentVar, shortName, longName, description)
+func (sc *Subcommand) Float64(assignmentVar *float64, shortName string, longName string, description string) {
+	sc.add(assignmentVar, shortName, longName, description)
 }
 
 // Float64Slice adds a new float64 flag.
 // Specify the flag multiple times to fill the slice.
-func (sc *Subcommand) Float64Slice(assignmentVar *[]float64, shortName string, longName string, description string) error {
-	return sc.add(assignmentVar, shortName, longName, description)
+func (sc *Subcommand) Float64Slice(assignmentVar *[]float64, shortName string, longName string, description string) {
+	sc.add(assignmentVar, shortName, longName, description)
 }
 
 // Int adds a new int flag
-func (sc *Subcommand) Int(assignmentVar *int, shortName string, longName string, description string) error {
-	return sc.add(assignmentVar, shortName, longName, description)
+func (sc *Subcommand) Int(assignmentVar *int, shortName string, longName string, description string) {
+	sc.add(assignmentVar, shortName, longName, description)
 }
 
 // IntSlice adds a new int slice flag.
 // Specify the flag multiple times to fill the slice.
-func (sc *Subcommand) IntSlice(assignmentVar *[]int, shortName string, longName string, description string) error {
-	return sc.add(assignmentVar, shortName, longName, description)
+func (sc *Subcommand) IntSlice(assignmentVar *[]int, shortName string, longName string, description string) {
+	sc.add(assignmentVar, shortName, longName, description)
 }
 
 // UInt adds a new uint flag
-func (sc *Subcommand) UInt(assignmentVar *uint, shortName string, longName string, description string) error {
-	return sc.add(assignmentVar, shortName, longName, description)
+func (sc *Subcommand) UInt(assignmentVar *uint, shortName string, longName string, description string) {
+	sc.add(assignmentVar, shortName, longName, description)
 }
 
 // UIntSlice adds a new uint slice flag.
 // Specify the flag multiple times to fill the slice.
-func (sc *Subcommand) UIntSlice(assignmentVar *[]uint, shortName string, longName string, description string) error {
-	return sc.add(assignmentVar, shortName, longName, description)
+func (sc *Subcommand) UIntSlice(assignmentVar *[]uint, shortName string, longName string, description string) {
+	sc.add(assignmentVar, shortName, longName, description)
 }
 
 // UInt64 adds a new uint64 flag
-func (sc *Subcommand) UInt64(assignmentVar *uint64, shortName string, longName string, description string) error {
-	return sc.add(assignmentVar, shortName, longName, description)
+func (sc *Subcommand) UInt64(assignmentVar *uint64, shortName string, longName string, description string) {
+	sc.add(assignmentVar, shortName, longName, description)
 }
 
 // UInt64Slice adds a new uint64 slice flag.
 // Specify the flag multiple times to fill the slice.
-func (sc *Subcommand) UInt64Slice(assignmentVar *[]uint64, shortName string, longName string, description string) error {
-	return sc.add(assignmentVar, shortName, longName, description)
+func (sc *Subcommand) UInt64Slice(assignmentVar *[]uint64, shortName string, longName string, description string) {
+	sc.add(assignmentVar, shortName, longName, description)
 }
 
 // UInt32 adds a new uint32 flag
-func (sc *Subcommand) UInt32(assignmentVar *uint32, shortName string, longName string, description string) error {
-	return sc.add(assignmentVar, shortName, longName, description)
+func (sc *Subcommand) UInt32(assignmentVar *uint32, shortName string, longName string, description string) {
+	sc.add(assignmentVar, shortName, longName, description)
 }
 
 // UInt32Slice adds a new uint32 slice flag.
 // Specify the flag multiple times to fill the slice.
-func (sc *Subcommand) UInt32Slice(assignmentVar *[]uint32, shortName string, longName string, description string) error {
-	return sc.add(assignmentVar, shortName, longName, description)
+func (sc *Subcommand) UInt32Slice(assignmentVar *[]uint32, shortName string, longName string, description string) {
+	sc.add(assignmentVar, shortName, longName, description)
 }
 
 // UInt16 adds a new uint16 flag
-func (sc *Subcommand) UInt16(assignmentVar *uint16, shortName string, longName string, description string) error {
-	return sc.add(assignmentVar, shortName, longName, description)
+func (sc *Subcommand) UInt16(assignmentVar *uint16, shortName string, longName string, description string) {
+	sc.add(assignmentVar, shortName, longName, description)
 }
 
 // UInt16Slice adds a new uint16 slice flag.
 // Specify the flag multiple times to fill the slice.
-func (sc *Subcommand) UInt16Slice(assignmentVar *[]uint16, shortName string, longName string, description string) error {
-	return sc.add(assignmentVar, shortName, longName, description)
+func (sc *Subcommand) UInt16Slice(assignmentVar *[]uint16, shortName string, longName string, description string) {
+	sc.add(assignmentVar, shortName, longName, description)
 }
 
 // UInt8 adds a new uint8 flag
-func (sc *Subcommand) UInt8(assignmentVar *uint8, shortName string, longName string, description string) error {
-	return sc.add(assignmentVar, shortName, longName, description)
+func (sc *Subcommand) UInt8(assignmentVar *uint8, shortName string, longName string, description string) {
+	sc.add(assignmentVar, shortName, longName, description)
 }
 
 // UInt8Slice adds a new uint8 slice flag.
 // Specify the flag multiple times to fill the slice.
-func (sc *Subcommand) UInt8Slice(assignmentVar *[]uint8, shortName string, longName string, description string) error {
-	return sc.add(assignmentVar, shortName, longName, description)
+func (sc *Subcommand) UInt8Slice(assignmentVar *[]uint8, shortName string, longName string, description string) {
+	sc.add(assignmentVar, shortName, longName, description)
+}
+
+// Int64 adds a new int64 flag.
+func (sc *Subcommand) Int64(assignmentVar *int64, shortName string, longName string, description string) {
+	sc.add(assignmentVar, shortName, longName, description)
 }
 
 // Int64Slice adds a new int64 slice flag.
 // Specify the flag multiple times to fill the slice.
-func (sc *Subcommand) Int64Slice(assignmentVar *[]int64, shortName string, longName string, description string) error {
-	return sc.add(assignmentVar, shortName, longName, description)
+func (sc *Subcommand) Int64Slice(assignmentVar *[]int64, shortName string, longName string, description string) {
+	sc.add(assignmentVar, shortName, longName, description)
 }
 
 // Int32 adds a new int32 flag
-func (sc *Subcommand) Int32(assignmentVar *int32, shortName string, longName string, description string) error {
-	return sc.add(assignmentVar, shortName, longName, description)
+func (sc *Subcommand) Int32(assignmentVar *int32, shortName string, longName string, description string) {
+	sc.add(assignmentVar, shortName, longName, description)
 }
 
 // Int32Slice adds a new int32 slice flag.
 // Specify the flag multiple times to fill the slice.
-func (sc *Subcommand) Int32Slice(assignmentVar *[]int32, shortName string, longName string, description string) error {
-	return sc.add(assignmentVar, shortName, longName, description)
+func (sc *Subcommand) Int32Slice(assignmentVar *[]int32, shortName string, longName string, description string) {
+	sc.add(assignmentVar, shortName, longName, description)
 }
 
 // Int16 adds a new int16 flag
-func (sc *Subcommand) Int16(assignmentVar *int16, shortName string, longName string, description string) error {
-	return sc.add(assignmentVar, shortName, longName, description)
+func (sc *Subcommand) Int16(assignmentVar *int16, shortName string, longName string, description string) {
+	sc.add(assignmentVar, shortName, longName, description)
 }
 
 // Int16Slice adds a new int16 slice flag.
 // Specify the flag multiple times to fill the slice.
-func (sc *Subcommand) Int16Slice(assignmentVar *[]int16, shortName string, longName string, description string) error {
-	return sc.add(assignmentVar, shortName, longName, description)
+func (sc *Subcommand) Int16Slice(assignmentVar *[]int16, shortName string, longName string, description string) {
+	sc.add(assignmentVar, shortName, longName, description)
 }
 
 // Int8 adds a new int8 flag
-func (sc *Subcommand) Int8(assignmentVar *int8, shortName string, longName string, description string) error {
-	return sc.add(assignmentVar, shortName, longName, description)
+func (sc *Subcommand) Int8(assignmentVar *int8, shortName string, longName string, description string) {
+	sc.add(assignmentVar, shortName, longName, description)
 }
 
 // Int8Slice adds a new int8 slice flag.
 // Specify the flag multiple times to fill the slice.
-func (sc *Subcommand) Int8Slice(assignmentVar *[]int8, shortName string, longName string, description string) error {
-	return sc.add(assignmentVar, shortName, longName, description)
+func (sc *Subcommand) Int8Slice(assignmentVar *[]int8, shortName string, longName string, description string) {
+	sc.add(assignmentVar, shortName, longName, description)
 }
 
 // IP adds a new net.IP flag.
-func (sc *Subcommand) IP(assignmentVar *net.IP, shortName string, longName string, description string) error {
-	return sc.add(assignmentVar, shortName, longName, description)
+func (sc *Subcommand) IP(assignmentVar *net.IP, shortName string, longName string, description string) {
+	sc.add(assignmentVar, shortName, longName, description)
 }
 
 // IPSlice adds a new int8 slice flag.
 // Specify the flag multiple times to fill the slice.
-func (sc *Subcommand) IPSlice(assignmentVar *[]net.IP, shortName string, longName string, description string) error {
-	return sc.add(assignmentVar, shortName, longName, description)
+func (sc *Subcommand) IPSlice(assignmentVar *[]net.IP, shortName string, longName string, description string) {
+	sc.add(assignmentVar, shortName, longName, description)
 }
 
 // HardwareAddr adds a new net.HardwareAddr flag.
-func (sc *Subcommand) HardwareAddr(assignmentVar *net.HardwareAddr, shortName string, longName string, description string) error {
-	return sc.add(assignmentVar, shortName, longName, description)
+func (sc *Subcommand) HardwareAddr(assignmentVar *net.HardwareAddr, shortName string, longName string, description string) {
+	sc.add(assignmentVar, shortName, longName, description)
 }
 
 // HardwareAddrSlice adds a new net.HardwareAddr slice flag.
 // Specify the flag multiple times to fill the slice.
-func (sc *Subcommand) HardwareAddrSlice(assignmentVar *[]net.HardwareAddr, shortName string, longName string, description string) error {
-	return sc.add(assignmentVar, shortName, longName, description)
+func (sc *Subcommand) HardwareAddrSlice(assignmentVar *[]net.HardwareAddr, shortName string, longName string, description string) {
+	sc.add(assignmentVar, shortName, longName, description)
 }
 
 // IPMask adds a new net.IPMask flag. IPv4 Only.
-func (sc *Subcommand) IPMask(assignmentVar *net.IPMask, shortName string, longName string, description string) error {
-	return sc.add(assignmentVar, shortName, longName, description)
+func (sc *Subcommand) IPMask(assignmentVar *net.IPMask, shortName string, longName string, description string) {
+	sc.add(assignmentVar, shortName, longName, description)
 }
 
 // IPMaskSlice adds a new net.HardwareAddr slice flag. IPv4 only.
 // Specify the flag multiple times to fill the slice.
-func (sc *Subcommand) IPMaskSlice(assignmentVar *[]net.IPMask, shortName string, longName string, description string) error {
-	return sc.add(assignmentVar, shortName, longName, description)
+func (sc *Subcommand) IPMaskSlice(assignmentVar *[]net.IPMask, shortName string, longName string, description string) {
+	sc.add(assignmentVar, shortName, longName, description)
 }
 
 // AddPositionalValue adds a positional value to the subcommand.  the
 // relativePosition starts at 1 and is relative to the subcommand it belongs to
-func (sc *Subcommand) AddPositionalValue(assignmentVar *string, name string, relativePosition int, required bool, description string) error {
+func (sc *Subcommand) AddPositionalValue(assignmentVar *string, name string, relativePosition int, required bool, description string) {
 
 	// ensure no other positionals are at this depth
 	for _, other := range sc.PositionalFlags {
 		if relativePosition == other.Position {
-			return errors.New("Unable to add positional value because one already exists at position: " + strconv.Itoa(relativePosition))
+			log.Panicln("Unable to add positional value because one already exists at position: " + strconv.Itoa(relativePosition))
 		}
 	}
 
 	// ensure no subcommands at this depth
 	for _, other := range sc.Subcommands {
 		if relativePosition == other.Position {
-			return errors.New("Unable to add positional value a subcommand already exists at position: " + strconv.Itoa(relativePosition))
+			log.Panicln("Unable to add positional value a subcommand already exists at position: " + strconv.Itoa(relativePosition))
 		}
 	}
 
@@ -619,8 +608,6 @@ func (sc *Subcommand) AddPositionalValue(assignmentVar *string, name string, rel
 		Description:   description,
 	}
 	sc.PositionalFlags = append(sc.PositionalFlags, &newPositionalValue)
-
-	return nil
 }
 
 // SetValueForKey sets the value for the specified key. If setting a bool
@@ -685,7 +672,7 @@ func (sc *Subcommand) exitBecauseOfVersionFlagConflict(flagName string) {
 You must either change the flag's name, or disable flaggy's internal version
 flag with 'flaggy.DefaultParser.ShowVersionWithVersionFlag = false'.  If you are using
 a custom parser, you must instead set '.ShowVersionWithVersionFlag = false' on it.`)
-	os.Exit(1)
+	exitOrPanic(1)
 }
 
 // exitBecauseOfHelpFlagConflict exits the program with a message about how to prevent
@@ -696,5 +683,5 @@ func (sc *Subcommand) exitBecauseOfHelpFlagConflict(flagName string) {
 You must either change the flag's name, or disable flaggy's internal help
 flag with 'flaggy.DefaultParser.ShowHelpWithHFlag = false'.  If you are using
 a custom parser, you must instead set '.ShowHelpWithHFlag = false' on it.`)
-	os.Exit(1)
+	exitOrPanic(1)
 }
