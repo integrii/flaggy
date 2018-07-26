@@ -6,7 +6,7 @@
 <a href="https://travis-ci.org/integrii/flaggy"><img src="https://travis-ci.org/integrii/flaggy.svg?branch=master"></a>
 <a href="http://godoc.org/github.com/integrii/flaggy"><img src="https://camo.githubusercontent.com/d48cccd1ce67ddf8ba7fc356ec1087f3f7aa6d12/68747470733a2f2f676f646f632e6f72672f6769746875622e636f6d2f6c696c65696f2f6c696c653f7374617475732e737667"></a>
 <a href="http://unlicense.org/"><img src="https://img.shields.io/badge/license-Unlicense-blue.svg"></a>
-<a href="<https://cover.run/go?tag=golang-1.10&repo=github.com%2Fintegrii%2Fflaggy"><img src="https://cover.run/go/github.com/integrii/flaggy.svg?style=flat&tag=golang-1.10"></a>
+<img src="https://cover.run/go/github.com/integrii/flaggy.svg?style=flat&tag=golang-1.10">
 
 </p>
 
