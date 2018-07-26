@@ -9,6 +9,21 @@ import (
 	"github.com/integrii/flaggy"
 )
 
+func TestSCNameExists(t *testing.T) {
+	defer func() {
+		r := recover()
+		if r == nil {
+			t.Fatal("Expected crash from double subcommand name use at same position")
+		}
+	}()
+	flaggy.ResetParser()
+	scA := flaggy.NewSubcommand("test")
+	scB := flaggy.NewSubcommand("test")
+	flaggy.AttachSubcommand(scA, 1)
+	flaggy.AttachSubcommand(scB, 1)
+
+}
+
 func TestFlagExists(t *testing.T) {
 	sc := flaggy.NewSubcommand("testFlagExists")
 	e := sc.FlagExists("test")
