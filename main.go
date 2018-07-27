@@ -1,28 +1,9 @@
-// Package flaggy is a input flag parsing tool that supports subcommands
-// positional values, and any-position flags without unnecessary complexeties.
-/*
-
-Supported Flag Types
-
-Strings and Ints
- -key=var
- --key=var
- --key var
- -key var
-
-Booleans (sets to true if flag is specified without value)
- --key
- --key true
- --key=false
- -k false
- -k=true
- -k
-
-All arguments after a double dash (--) are added as strings to the
-TrailingArguments slice.
-
-
-*/
+// Package flaggy is a input flag parsing package that supports recursive 
+// subcommands, positional values, and any-position flags without 
+// unnecessary complexeties.
+//
+// For a getting started tutorial and full feature list, check out the
+// readme at https://github.com/integrii/flaggy.
 package flaggy
 
 import (
