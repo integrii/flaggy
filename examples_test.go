@@ -123,8 +123,8 @@ func ExampleInt() {
 	// Output: Flag set to: 5
 }
 
-// ExampleStringFlag shows how to global string flags in your program.
-func ExampleString() {
+// Example shows how to add string flags in your program.
+func Example() {
 
 	// Simulate some input from the CLI.  Don't do this in your program.
 	flaggy.ResetParser()
@@ -150,8 +150,8 @@ func ExampleString() {
 	// Output: Flag set to: flagName
 }
 
-// Example shows some basic usage of flaggy.
-func Example() {
+// ExampleSubcommand_Basic shows usage of subcommands in flaggy.
+func ExampleSubcommand_Basic() {
 
 	// Do not include the following two lines in your real program, it is for this
 	// example only:
@@ -169,8 +169,8 @@ func Example() {
 	// ./programName subcommandName subcommandPositional -v=VariableHere -- trailingVar
 	//
 
-	// Create a new subcommand at the first position to what it is attached to.
-	// The depth is relative to the thing this subcommand is attached to.
+	// Create a new subcommand to attach flags and other subcommands to.  It must be attached
+	// to something before being used.
 	newSC := flaggy.NewSubcommand("subcommandName")
 
 	// Attach a string variable to the subcommand
@@ -180,9 +180,9 @@ func Example() {
 	var subcommandPositional string
 	newSC.AddPositionalValue(&subcommandPositional, "testPositionalVar", 1, false, "A test positional variable to a subcommand.")
 
-	// Attach the subcommand to the parser. This will error if another
+	// Attach the subcommand to the parser. This will panic if another
 	// positional value or subcommand is already present at the depth supplied.
-	// Later you can check if this command was used with a simple bool.
+	// Later you can check if this command was used with a simple bool (newSC.Used).
 	flaggy.AttachSubcommand(newSC, 1)
 
 	// Parse the input arguments from the OS (os.Args)
