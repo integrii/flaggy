@@ -2,15 +2,20 @@ package main
 
 import "github.com/integrii/flaggy"
 
+// Declare variables and their defaults
+var stringFlagA = "defaultValueA"
+var stringFlagB = "defaultValueB"
+
 func main() {
-	// Declare variables and their defaults
-	var stringFlag = "defaultValue"
+
+	// Add a flag to the root of flaggy
+	flaggy.String(&stringFlagA, "a", "flagA", "A test string flag (A)")
 
 	// Create the subcommand
 	subcommand := flaggy.NewSubcommand("subcommandExample")
 
 	// Add a flag to the subcommand
-	subcommand.String(&stringFlag, "f", "flag", "A test string flag")
+	subcommand.String(&stringFlagB, "b", "flagB", "A test string flag (B)")
 
 	// Add the subcommand to the parser at position 1
 	flaggy.AttachSubcommand(subcommand, 1)
@@ -18,6 +23,7 @@ func main() {
 	// Parse the subcommand and all flags
 	flaggy.Parse()
 
-	// Use the flag
-	print(stringFlag)
+	// Use the flags
+	print("A: " + stringFlagA)
+	print("B: " + stringFlagB)
 }
