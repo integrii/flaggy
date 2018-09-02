@@ -24,6 +24,6 @@ func main() {
 	flaggy.Parse()
 
 	// Use the flags
-	print("A: " + stringFlagA)
-	print("B: " + stringFlagB)
+	println("A: " + stringFlagA)
+	println("B: " + stringFlagB)
 }
