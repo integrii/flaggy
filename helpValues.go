@@ -1,7 +1,5 @@
 package flaggy
 
-import "fmt"
-
 // Help represents the values needed to render a Help page
 type Help struct {
 	Subcommands    []HelpSubcommand
@@ -82,7 +80,7 @@ func (h *Help) ExtractValues(p *Parser, message string) {
 			Position:     pos.Position,
 			Description:  pos.Description,
 			Required:     pos.Required,
-			DefaultValue: *pos.AssignmentVar,
+			DefaultValue: pos.defaultValue,
 		}
 		h.Positionals = append(h.Positionals, newHelpPositional)
 	}
@@ -176,10 +174,7 @@ func (h *Help) parseFlagsToHelpFlags(flags []*Flag) {
 		}
 
 		// determine the default value based on the assignment variable
-		defaultValue, err := f.returnAssignmentVarValueAsString()
-		if err != nil {
-			fmt.Println("Error when generating help template values:", err)
-		}
+		defaultValue := f.defaultValue
 
 		// dont show nils
 		if defaultValue == "<nil>" {
