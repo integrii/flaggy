@@ -85,6 +85,12 @@ func (p *Parser) ShowHelp() {
 	p.ShowHelpWithMessage("")
 }
 
+// ShowHelpAndExit shows parser help and exits with status code 2
+func (p *Parser) ShowHelpAndExit(message string) {
+	p.ShowHelpWithMessage(message)
+	exitOrPanic(2)
+}
+
 // ShowHelpWithMessage shows the Help for this parser with an optional string error
 // message as a header.  The supplied subcommand will be the context of Help
 // displayed to the user.
