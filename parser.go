@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/alecthomas/template"
+	"text/template"
 )
 
 // Parser represents the set of vars and subcommands we are expecting
