@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/alecthomas/template"
+	"text/template"
 )
 
 // Parser represents the set of vars and subcommands we are expecting
@@ -83,6 +83,12 @@ func (p *Parser) Parse() error {
 func (p *Parser) ShowHelp() {
 	debugPrint("showing help for", p.subcommandContext.Name)
 	p.ShowHelpWithMessage("")
+}
+
+// ShowHelpAndExit shows parser help and exits with status code 2
+func (p *Parser) ShowHelpAndExit(message string) {
+	p.ShowHelpWithMessage(message)
+	exitOrPanic(2)
 }
 
 // ShowHelpWithMessage shows the Help for this parser with an optional string error

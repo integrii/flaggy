@@ -150,8 +150,8 @@ func Example() {
 	// Output: Flag set to: flagName
 }
 
-// ExampleSubcommand_Basic shows usage of subcommands in flaggy.
-func ExampleSubcommand_Basic() {
+// ExampleSubcommand shows usage of subcommands in flaggy.
+func ExampleSubcommand() {
 
 	// Do not include the following two lines in your real program, it is for this
 	// example only:

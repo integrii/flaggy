@@ -234,6 +234,10 @@ func (sc *Subcommand) parse(p *Parser, args []string, depth int) error {
 		for _, val := range sc.PositionalFlags {
 			if relativeDepth == val.Position {
 				debugPrint("Found a positional value at relativePos:", relativeDepth, "value:", v)
+
+				// set original value for help output
+				val.defaultValue = *val.AssignmentVar
+
 				// defrerence the struct pointer, then set the pointer property within it
 				*val.AssignmentVar = v
 				// debugPrint("set positional to value", *val.AssignmentVar)

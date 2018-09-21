@@ -18,6 +18,8 @@ type Flag struct {
 	rawValue      string // the value as a string before being parsed
 	Hidden        bool   // indicates this flag should be hidden from help and suggestions
 	AssignmentVar interface{}
+	defaultValue  string // the value (as a string), that was set by default before any parsing and assignment
+	parsed        bool   // indicates that this flag has already been parsed
 }
 
 // HasName indicates that this flag's short or long name matches the
@@ -35,10 +37,21 @@ func (f *Flag) HasName(name string) bool {
 // the value is a type that needs parsing, that is performed as well.
 func (f *Flag) identifyAndAssignValue(value string) error {
 
+	var err error
+
+	// Only parse this flag default value once. This keeps us from
+	// overwriting the default value in help output
+	if !f.parsed {
+		f.parsed = true
+		// parse the default value as a string and remember it for help output
+		f.defaultValue, err = f.returnAssignmentVarValueAsString()
+		if err != nil {
+			return err
+		}
+	}
+
 	debugPrint("attempting to assign value", value, "to flag", f.LongName)
 	f.rawValue = value // remember the raw value
-
-	var err error
 
 	// depending on the type of the assignment variable, we convert the
 	// incoming string and assign it.  We only use pointers to variables

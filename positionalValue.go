@@ -10,4 +10,5 @@ type PositionalValue struct {
 	Required      bool    // this subcommand must always be specified
 	Found         bool    // was this positional found during parsing?
 	Hidden        bool    // indicates this positional value should be hidden from help
+	defaultValue  string  // used for help output
 }

@@ -1,7 +1,5 @@
 package flaggy
 
-import "fmt"
-
 // Help represents the values needed to render a Help page
 type Help struct {
 	Subcommands    []HelpSubcommand
@@ -82,7 +80,7 @@ func (h *Help) ExtractValues(p *Parser, message string) {
 			Position:     pos.Position,
 			Description:  pos.Description,
 			Required:     pos.Required,
-			DefaultValue: *pos.AssignmentVar,
+			DefaultValue: pos.defaultValue,
 		}
 		h.Positionals = append(h.Positionals, newHelpPositional)
 	}
@@ -109,40 +107,11 @@ func (h *Help) ExtractValues(p *Parser, message string) {
 		h.Flags = append(h.Flags, defaultHelpFlag)
 	}
 
-	// go through every flag in the subcommand and list its options
-	for _, f := range p.subcommandContext.Flags {
-		if f.Hidden {
-			continue
-		}
+	// go through every flag in the subcommand and add it to help output
+	h.parseFlagsToHelpFlags(p.subcommandContext.Flags)
 
-		// determine the default value based on the assignment variable
-		defaultValue, err := f.returnAssignmentVarValueAsString()
-		if err != nil {
-			fmt.Println("Error when generating help template values:", err)
-		}
-
-		// dont show nils
-		if defaultValue == "<nil>" {
-			defaultValue = ""
-		}
-
-		// for bools, dont show a default of false
-		_, isBool := f.AssignmentVar.(*bool)
-		if isBool {
-			b := f.AssignmentVar.(*bool)
-			if *b == false {
-				defaultValue = ""
-			}
-		}
-
-		newHelpFlag := HelpFlag{
-			ShortName:    f.ShortName,
-			LongName:     f.LongName,
-			Description:  f.Description,
-			DefaultValue: defaultValue,
-		}
-		h.Flags = append(h.Flags, newHelpFlag)
-	}
+	// go through every flag in the parent parser and add it to help output
+	h.parseFlagsToHelpFlags(p.Flags)
 
 	// formulate the usage string
 	// first, we capture all the command and positional names by position
@@ -194,4 +163,53 @@ func (h *Help) ExtractValues(p *Parser, message string) {
 
 	h.UsageString = usageString
 
+}
+
+// parseFlagsToHelpFlags parses the specified slice of flags into
+// help flags on the the calling help command
+func (h *Help) parseFlagsToHelpFlags(flags []*Flag) {
+	for _, f := range flags {
+		if f.Hidden {
+			continue
+		}
+
+		// determine the default value based on the assignment variable
+		defaultValue := f.defaultValue
+
+		// dont show nils
+		if defaultValue == "<nil>" {
+			defaultValue = ""
+		}
+
+		// for bools, dont show a default of false
+		_, isBool := f.AssignmentVar.(*bool)
+		if isBool {
+			b := f.AssignmentVar.(*bool)
+			if *b == false {
+				defaultValue = ""
+			}
+		}
+
+		newHelpFlag := HelpFlag{
+			ShortName:    f.ShortName,
+			LongName:     f.LongName,
+			Description:  f.Description,
+			DefaultValue: defaultValue,
+		}
+
+		h.AddFlagToHelp(newHelpFlag)
+	}
+}
+
+// AddFlagToHelp adds a flag to help output if it does not exist
+func (h *Help) AddFlagToHelp(f HelpFlag) {
+	for _, existingFlag := range h.Flags {
+		if len(existingFlag.ShortName) > 0 && existingFlag.ShortName == f.ShortName {
+			return
+		}
+		if len(existingFlag.LongName) > 0 && existingFlag.LongName == f.LongName {
+			return
+		}
+	}
+	h.Flags = append(h.Flags, f)
 }

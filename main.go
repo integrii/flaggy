@@ -1,5 +1,5 @@
-// Package flaggy is a input flag parsing package that supports recursive 
-// subcommands, positional values, and any-position flags without 
+// Package flaggy is a input flag parsing package that supports recursive
+// subcommands, positional values, and any-position flags without
 // unnecessary complexeties.
 //
 // For a getting started tutorial and full feature list, check out the
@@ -29,7 +29,7 @@ var DebugMode bool
 
 // DefaultHelpTemplate is the help template that will be used
 // for newly created subcommands and commands
-var DefaultHelpTemplate string
+var DefaultHelpTemplate = defaultHelpTemplate
 
 // DefaultParser is the default parser that is used with the package-level public
 // functions
@@ -40,10 +40,6 @@ var DefaultParser *Parser
 var TrailingArguments []string
 
 func init() {
-
-	// Users may set DefaultHelpTemplate to save repeated template
-	// assignment on every subcommand
-	DefaultHelpTemplate = defaultHelpTemplate
 
 	// set the default help template
 	// allow usage like flaggy.StringVar by enabling a default Parser
