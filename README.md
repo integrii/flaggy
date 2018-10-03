@@ -22,7 +22,7 @@ Check out the [godoc](http://godoc.org/github.com/integrii/flaggy), [examples di
 
 - Very easy to use ([see examples below](https://github.com/integrii/flaggy#super-simple-example))
 - 35 different flag types supported
-- Any flag can be at at any position
+- Any flag can be at any position
 - Pretty and readable help output by default
 - Positional subcommands
 - Positional parameters
