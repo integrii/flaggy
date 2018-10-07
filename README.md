@@ -195,7 +195,7 @@ print(flaggy.TrailingArguments[0])
 
 # Recommended Program Structure
 
-Best practice when using flaggy flaggy includes setting your program's name, description, and version (at build time).
+Best practice when using flaggy includes setting your program's name, description, and version (at build time).
 
 ```go
 package main
@@ -204,6 +204,9 @@ import "github.com/integrii/flaggy"
 
 // make a variable for the version which will be set at build time
 var version = "unknown"
+
+// keep subcommands as globals so you can easily check if they were used later on
+var mySubcommand *flaggy.Subcommand
 
 func init() {
   // Set your program's name and description.  These appear in help output.
@@ -216,13 +219,19 @@ func init() {
 
   // you can set a help prepend or append on the default parser
   flaggy.DefaultParser.AdditionalHelpPrepend = "http://github.com/integrii/flaggy"
+  
+  // create any subcommands and set their parameters
+  mySubcommand = flaggy.NewSubcommand("mySubcommand")
+  mySubcommand.Description = "My great subcommand!"
 
   // set the version and parse all inputs into variables
   flaggy.SetVersion(version)
   flaggy.Parse()
 }
 func main(){
-    ...
+    if mySubcommand.Used {
+      ...
+    }
 }
 ```
 
