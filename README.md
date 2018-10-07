@@ -193,11 +193,9 @@ print(flaggy.TrailingArguments[0])
 ```
 
 
-# Other Tricks
+# Recommended Program Structure
 
-- Set a name and description for your program.
-- Disable help display when flaggy has an error parsing or validating user input.
-- Prepend a message to flag help output.
+Best practice when using flaggy flaggy includes setting your program's name, description, and version (at build time).
 
 ```go
 package main
@@ -208,25 +206,27 @@ import "github.com/integrii/flaggy"
 var version = "unknown"
 
 func init() {
-  // Set your program's name and description, if you want to.
-  // This shows when you run help
+  // Set your program's name and description.  These appear in help output.
   flaggy.SetName("Test Program")
   flaggy.SetDescription("A little example program")
 
-  // you can disable various things by changing bools on the default parser (or your own parser if you have created one)
+  // you can disable various things by changing bools on the default parser 
+  // (or your own parser if you have created one)
   flaggy.DefaultParser.ShowHelpOnUnexpected = false
 
   // you can set a help prepend or append on the default parser
   flaggy.DefaultParser.AdditionalHelpPrepend = "http://github.com/integrii/flaggy"
 
-  // set the version and parse
+  // set the version and parse all inputs into variables
   flaggy.SetVersion(version)
   flaggy.Parse()
 }
-func main(){}
+func main(){
+    ...
+}
 ```
 
-##### Set Flaggy Version at Build Time
+Then, you can use the following build command to set the `version` variable in the above program at build time.
 
 ```bash
 # build your app and set the version string
@@ -237,3 +237,8 @@ $ ./yourApp --help
 Test Program - A little example program
 http://github.com/integrii/flaggy
 ```
+
+
+# Contributions
+
+Please feel free to open an issue if you find any bugs or see any features that make sense.  Pull requests will be reviewed and accepted if they make sense, but it is always wise to submit a proposal issue before any major changes.
