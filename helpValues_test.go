@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/integrii/flaggy/v1"
+	"github.com/integrii/flaggy"
 )
 
 func TestMinimalHelpOutput(t *testing.T) {

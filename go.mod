@@ -1,1 +1,1 @@
-module github.com/integrii/flaggy/v1
+module github.com/integrii/flaggy

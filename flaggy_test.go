@@ -4,7 +4,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/integrii/flaggy/v1"
+	"github.com/integrii/flaggy"
 )
 
 // TestTrailingArguments tests trailing argument parsing

@@ -4,7 +4,7 @@
 //
 // For a getting started tutorial and full feature list, check out the
 // readme at https://github.com/integrii/flaggy.
-package flaggy
+package flaggy // import "github.com/integrii/flaggy"
 
 import (
 	"fmt"
