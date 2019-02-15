@@ -104,3 +104,8 @@ func (p *Parser) ShowHelpWithMessage(message string) {
 		fmt.Fprintln(os.Stderr, "Error rendering Help template:", err)
 	}
 }
+
+// Disable show version with --version. It is enabled by default.
+func (p *Parser) DisableShowVersionWithVersion() {
+	p.ShowVersionWithVersionFlag = false
+}

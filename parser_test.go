@@ -14,3 +14,17 @@ func TestDoubleParse(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+func TestDisableShowVersionFlag(t *testing.T) {
+	ResetParser()
+
+	if DefaultParser.ShowVersionWithVersionFlag != true {
+		t.Fatal("Why not true?")
+	}
+
+	DefaultParser.DisableShowVersionWithVersion()
+
+	if DefaultParser.ShowVersionWithVersionFlag != false {
+		t.Fatal("ShowVersionWithVersionFlag should have been false.")
+	}
+}
