@@ -18,8 +18,10 @@ func TestDoubleParse(t *testing.T) {
 func TestDisableShowVersionFlag(t *testing.T) {
 	ResetParser()
 
+	// if this fails the function tested might be useless.
+	// Review if it's still useful and adjust.
 	if DefaultParser.ShowVersionWithVersionFlag != true {
-		t.Fatal("Why not true?")
+		t.Fatal("The tested function might not make sense any more.")
 	}
 
 	DefaultParser.DisableShowVersionWithVersion()
