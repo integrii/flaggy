@@ -62,7 +62,8 @@ func (f *Flag) identifyAndAssignValue(value string) error {
 		*v = value
 	case *[]string:
 		v := f.AssignmentVar.(*[]string)
-		new := append(*v, value)
+		splitString := strings.Split(value, ",")
+		new := append(*v, splitString...)
 		*v = new
 	case *bool:
 		v, err := strconv.ParseBool(value)
