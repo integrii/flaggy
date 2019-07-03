@@ -75,46 +75,6 @@ This is an append for help
 This is a help add-on message
 ```
 
-# Supported Flag Types:
-
-- string
-- []string
-- bool
-- []bool
-- time.Duration
-- []time.Duration
-- float32
-- []float32
-- float64
-- []float64
-- uint
-- uint64
-- []uint64
-- uint32
-- []uint32
-- uint16
-- []uint16
-- uint8
-- []uint8
-- []byte
-- int
-- []int
-- int64
-- []int64
-- int32
-- []int32
-- int16
-- []int16
-- int8
-- []int8
-- net.IP
-- []net.IP
-- net.HardwareAddr
-- []net.HardwareAddr
-- net.IPMask
-- []net.IPMask
-
-
 # Super Simple Example
 
 `./yourApp -f test`
@@ -191,6 +151,45 @@ print(intFlagT)
 print(boolFlagB)
 print(flaggy.TrailingArguments[0])
 ```
+
+# Supported Flag Types:
+
+- string
+- []string
+- bool
+- []bool
+- time.Duration
+- []time.Duration
+- float32
+- []float32
+- float64
+- []float64
+- uint
+- uint64
+- []uint64
+- uint32
+- []uint32
+- uint16
+- []uint16
+- uint8
+- []uint8
+- []byte
+- int
+- []int
+- int64
+- []int64
+- int32
+- []int32
+- int16
+- []int16
+- int8
+- []int8
+- net.IP
+- []net.IP
+- net.HardwareAddr
+- []net.HardwareAddr
+- net.IPMask
+- []net.IPMask
 
 
 # Recommended Program Structure
