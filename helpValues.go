@@ -173,6 +173,13 @@ func (h *Help) parseFlagsToHelpFlags(flags []*Flag) {
 			continue
 		}
 
+		// parse help values out if the flag hasn't been parsed yet
+		if !f.parsed {
+			f.parsed = true
+			// parse the default value as a string and remember it for help output
+			f.defaultValue, _ = f.returnAssignmentVarValueAsString()
+		}
+
 		// determine the default value based on the assignment variable
 		defaultValue := f.defaultValue
 
@@ -196,7 +203,6 @@ func (h *Help) parseFlagsToHelpFlags(flags []*Flag) {
 			Description:  f.Description,
 			DefaultValue: defaultValue,
 		}
-
 		h.AddFlagToHelp(newHelpFlag)
 	}
 }

@@ -33,7 +33,7 @@ func TestHelpOutput(t *testing.T) {
 	// defer debugOff()
 
 	p := flaggy.NewParser("testCommand")
-	p.Description = "Description goes here.  Get more information at http://flaggy.flag."
+	p.Description = "Description goes here.  Get more information at https://github.com/integrii/flaggy."
 	scA := flaggy.NewSubcommand("subcommandA")
 	scA.ShortName = "a"
 	scA.Description = "Subcommand A is a command that does stuff"
@@ -51,7 +51,7 @@ func TestHelpOutput(t *testing.T) {
 	scA.AddPositionalValue(&posA, "testPositionalA", 2, false, "Test positional A does some things with a positional value.")
 	scB.AddPositionalValue(&posB, "hiddenPositional", 1, false, "Hidden test positional B does some less than serious things with a positional value.")
 	scB.PositionalFlags[0].Hidden = true
-	var stringFlag string
+	var stringFlag = "defaultStringHere"
 	var intFlag int
 	var boolFlag bool
 	var durationFlag time.Duration
@@ -61,6 +61,6 @@ func TestHelpOutput(t *testing.T) {
 	p.Duration(&durationFlag, "d", "durationFlag", "This is a test duration flag that does some untimely stuff.")
 	p.AdditionalHelpPrepend = "This is a prepend for help"
 	p.AdditionalHelpAppend = "This is an append for help"
-	p.ShowHelpWithMessage("This is a help addon message")
 	p.ParseArgs([]string{"subcommandA", "subcommandB", "hiddenPositional1"})
+	p.ShowHelpWithMessage("This is a help message on exit")
 }
