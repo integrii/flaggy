@@ -278,7 +278,12 @@ func getLongestNameLength(slice interface{}, min int) int {
 	return maxLength
 }
 
+// makeSpacer creates a string of whitespaces, with a length of the given
+// maxLength minus the length of the given name
 func makeSpacer(name string, maxLength int) string {
 	length := maxLength - utf8.RuneCountInString(name)
+	if length < 0 {
+		length = 0
+	}
 	return strings.Repeat(" ", length)
 }
