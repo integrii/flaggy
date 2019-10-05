@@ -16,6 +16,7 @@ type Parser struct {
 	ShowHelpWithHFlag          bool               // display help when -h or --help passed
 	ShowVersionWithVersionFlag bool               // display the version when --version passed
 	ShowHelpOnUnexpected       bool               // display help when an unexpected flag is passed
+	ProcessMultipleShorts      bool               // process multiple short options like -lvp
 	TrailingArguments          []string           // everything after a -- is placed here
 	HelpTemplate               *template.Template // template for Help output
 	trailingArgumentsExtracted bool               // indicates that trailing args have been parsed and should not be appended again
@@ -31,6 +32,7 @@ func NewParser(name string) *Parser {
 	p.Version = defaultVersion
 	p.ShowHelpOnUnexpected = true
 	p.ShowHelpWithHFlag = true
+        p.ProcessMultipleShorts = false
 	p.ShowVersionWithVersionFlag = true
 	p.SetHelpTemplate(DefaultHelpTemplate)
 	p.subcommandContext = &Subcommand{}
