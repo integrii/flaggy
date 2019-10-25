@@ -10,9 +10,9 @@
 <a href="https://github.com/avelino/awesome-go"><img src="https://cdn.rawgit.com/sindresorhus/awesome/d7305f38d29fed78fa85652e3a63e154dd8e8829/media/badge.svg"></a>
 </p>
 
-Sensible and _fast_ command-line flag parsing with excellent support for **subcommands** and **positional values**. Flags can be at any position.  Flaggy has no required project or package layout like [Cobra requires](https://github.com/spf13/cobra/issues/641), and **no external dependencies**!
+Sensible and _fast_ command-line flag parsing with excellent support for **subcommands** and **positional values**. Flags can be at any position. Flaggy has no required project or package layout like [Cobra requires](https://github.com/spf13/cobra/issues/641), and **no external dependencies**!
 
-Check out the [godoc](http://godoc.org/github.com/integrii/flaggy), [examples directory](https://github.com/integrii/flaggy/tree/master/examples), and [examples in this readme](https://github.com/integrii/flaggy#super-simple-example) to get started quickly.  You can also read the Flaggy introduction post with helpful examples [on my weblog](https://ericgreer.info/post/a-better-flags-package-for-go/).
+Check out the [godoc](http://godoc.org/github.com/integrii/flaggy), [examples directory](https://github.com/integrii/flaggy/tree/master/examples), and [examples in this readme](https://github.com/integrii/flaggy#super-simple-example) to get started quickly. You can also read the Flaggy introduction post with helpful examples [on my weblog](https://ericgreer.info/post/a-better-flags-package-for-go/).
 
 # Installation
 
@@ -44,7 +44,6 @@ Check out the [godoc](http://godoc.org/github.com/integrii/flaggy), [examples di
 - Optional but default help output when any invalid or unknown parameter is passed
 - It's _fast_. All flag and subcommand parsing takes less than `1ms` in most programs.
 
-
 # Example Help Output
 
 ```
@@ -55,21 +54,21 @@ This is a prepend for help
     testCommand [subcommandA|subcommandB|subcommandC] [testPositionalA] [testPositionalB]
 
   Positional Variables:
-    testPositionalA - (Required) Test positional A does some things with a positional value. (default: defaultValue)
-    testPositionalB - Test positional B does some less than serious things with a positional value.
+    testPositionalA   Test positional A does some things with a positional value. (Required)
+    testPositionalB   Test positional B does some less than serious things with a positional value.
 
   Subcommands:
-    subcommandA (a) - Subcommand A is a command that does stuff
-    subcommandB (b) - Subcommand B is a command that does other stuff
-    subcommandC (c) - Subcommand C is a command that does SERIOUS stuff
+    subcommandA (a)   Subcommand A is a command that does stuff
+    subcommandB (b)   Subcommand B is a command that does other stuff
+    subcommandC (c)   Subcommand C is a command that does SERIOUS stuff
 
   Flags:
-       --version  Displays the program version string.
-    -h --help  Displays help with available flag, subcommand, and positional value parameters.
-    -s --stringFlag  This is a test string flag that does some stringy string stuff.
-    -i --intFlg  This is a test int flag that does some interesting int stuff. (default: 5)
-    -b --boolFlag  This is a test bool flag that does some booly bool stuff. (default: true)
-    -d --durationFlag  This is a test duration flag that does some untimely stuff. (default: 1h23s)
+       --version        Displays the program version string.
+    -h --help           Displays help with available flag, subcommand, and positional value parameters.
+    -s --stringFlag     This is a test string flag that does some stringy string stuff.
+    -i --intFlg         This is a test int flag that does some interesting int stuff. (default: 5)
+    -b --boolFlag       This is a test bool flag that does some booly bool stuff. (default: true)
+    -d --durationFlag   This is a test duration flag that does some untimely stuff. (default: 1h23s)
 
 This is an append for help
 This is a help add-on message
@@ -152,7 +151,7 @@ print(boolFlagB)
 print(flaggy.TrailingArguments[0])
 ```
 
-# Supported Flag Types:
+# Supported Flag Types
 
 - string
 - []string
@@ -191,7 +190,6 @@ print(flaggy.TrailingArguments[0])
 - net.IPMask
 - []net.IPMask
 
-
 # Recommended Program Structure
 
 Best practice when using flaggy includes setting your program's name, description, and version (at build time).
@@ -212,13 +210,13 @@ func init() {
   flaggy.SetName("Test Program")
   flaggy.SetDescription("A little example program")
 
-  // you can disable various things by changing bools on the default parser 
+  // you can disable various things by changing bools on the default parser
   // (or your own parser if you have created one)
   flaggy.DefaultParser.ShowHelpOnUnexpected = false
 
   // you can set a help prepend or append on the default parser
   flaggy.DefaultParser.AdditionalHelpPrepend = "http://github.com/integrii/flaggy"
-  
+
   // create any subcommands and set their parameters
   mySubcommand = flaggy.NewSubcommand("mySubcommand")
   mySubcommand.Description = "My great subcommand!"
@@ -246,7 +244,6 @@ Test Program - A little example program
 http://github.com/integrii/flaggy
 ```
 
-
 # Contributions
 
-Please feel free to open an issue if you find any bugs or see any features that make sense.  Pull requests will be reviewed and accepted if they make sense, but it is always wise to submit a proposal issue before any major changes.
+Please feel free to open an issue if you find any bugs or see any features that make sense. Pull requests will be reviewed and accepted if they make sense, but it is always wise to submit a proposal issue before any major changes.
