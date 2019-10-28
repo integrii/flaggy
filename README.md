@@ -30,7 +30,7 @@ Check out the [godoc](http://godoc.org/github.com/integrii/flaggy), [examples di
 - Nested subcommands
 - Both global and subcommand specific flags
 - Both global and subcommand specific positional parameters
-- Customizable help templates for both the global command and subcommands
+- [Customizable help templates for both the global command and subcommands](https://github.com/integrii/flaggy/blob/master/examples/customTemplate/main.go)
 - Customizable appended/prepended help messages for both the global command and subcommands
 - Simple function that displays help followed by a custom message string
 - Flags and subcommands may have both a short and long name
