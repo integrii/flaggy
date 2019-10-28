@@ -153,42 +153,24 @@ print(flaggy.TrailingArguments[0])
 
 # Supported Flag Types
 
-- string
-- []string
-- bool
-- []bool
-- time.Duration
-- []time.Duration
-- float32
-- []float32
-- float64
-- []float64
-- uint
-- uint64
-- []uint64
-- uint32
-- []uint32
-- uint16
-- []uint16
-- uint8
-- []uint8
-- []byte
-- int
-- []int
-- int64
-- []int64
-- int32
-- []int32
-- int16
-- []int16
-- int8
-- []int8
+Flaggy has specific functions for all basic types included in go as well as slice of those types.  This includes:
+
+- string and []string
+- bool and []bool
+- all float types and all []float types
+- all uint types and all []uint types
+- all int types and all []int types
+
+Other more specific types can also be used as flag types.  They will be automatically parsed using the standard parsing functions included with those types in those packages.  This includes:
+
 - net.IP
 - []net.IP
 - net.HardwareAddr
 - []net.HardwareAddr
 - net.IPMask
 - []net.IPMask
+- time.Duration
+- []time.Duration
 
 # Recommended Program Structure
 
