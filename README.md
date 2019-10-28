@@ -153,13 +153,13 @@ print(flaggy.TrailingArguments[0])
 
 # Supported Flag Types
 
-Flaggy has specific functions for all basic types included in go as well as slice of those types.  This includes:
+Flaggy has specific flag types for all basic types included in go as well as a slice of any of those types.  This includes all of the following types:
 
 - string and []string
 - bool and []bool
+- all int types and all []int types
 - all float types and all []float types
 - all uint types and all []uint types
-- all int types and all []int types
 
 Other more specific types can also be used as flag types.  They will be automatically parsed using the standard parsing functions included with those types in those packages.  This includes:
 
