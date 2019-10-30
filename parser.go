@@ -47,7 +47,7 @@ func (p *Parser) ParseArgs(args []string) error {
 	}
 	p.parsed = true
 	// debugPrint("Kicking off parsing with args:", args)
-	return p.parse(p, args, 0)
+	return p.parse(p, args, 0, false)
 }
 
 // ShowVersionAndExit shows the version of this parser

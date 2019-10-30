@@ -40,7 +40,7 @@ func NewSubcommand(name string) *Subcommand {
 
 // parseAllFlagsFromArgs parses the non-positional flags such as -f or -v=value
 // out of the supplied args and returns the positional items in order.
-func (sc *Subcommand) parseAllFlagsFromArgs(p *Parser, args []string) ([]string, bool, error) {
+func (sc *Subcommand) parseAllFlagsFromArgs(p *Parser, args []string, detectUnknownFlags bool) ([]string, bool, error) {
 
 	var err error
 	var positionalOnlyArguments []string
@@ -124,6 +124,15 @@ func (sc *Subcommand) parseAllFlagsFromArgs(p *Parser, args []string) ([]string,
 		case argIsFlagWithSpace:
 			a = parseFlagToName(a)
 			// debugPrint("Arg", i, "is flag with space:", a)
+
+			// show help if the flag is unexpected and the 'show help on unexpected' flag is set
+			if p.ShowHelpOnUnexpected && detectUnknownFlags {
+				if !p.FlagExists(a) && !sc.FlagExists(a) {
+					p.ShowHelpWithMessage("An unknown flag (" + a + ") was specified.")
+					exitOrPanic(2)
+				}
+			}
+
 			// parse next arg as value to this flag and apply to subcommand flags
 			// if the flag is a bool flag, then we check for a following positional
 			// and skip it if necessary
@@ -160,8 +169,13 @@ func (sc *Subcommand) parseAllFlagsFromArgs(p *Parser, args []string) ([]string,
 			if err != nil {
 				return []string{}, false, err
 			}
-			// if this flag type was found and not set, and the parser is set to show
-			// Help when an unknown flag is found, then show Help and exit.
+			// show help if the flag is unexpected and the 'show help on unexpected' flag is set
+			if p.ShowHelpOnUnexpected && detectUnknownFlags {
+				if !p.FlagExists(key) && !sc.FlagExists(key) {
+					p.ShowHelpWithMessage("An unknown flag (" + key + ") was specified.")
+					exitOrPanic(2)
+				}
+			}
 		}
 
 	}
@@ -171,7 +185,7 @@ func (sc *Subcommand) parseAllFlagsFromArgs(p *Parser, args []string) ([]string,
 
 // Parse causes the argument parser to parse based on the supplied []string.
 // depth specifies the non-flag subcommand positional depth
-func (sc *Subcommand) parse(p *Parser, args []string, depth int) error {
+func (sc *Subcommand) parse(p *Parser, args []string, depth int, detectUnknownFlags bool) error {
 
 	debugPrint("- Parsing subcommand", sc.Name, "with depth of", depth, "and args", args)
 
@@ -194,7 +208,7 @@ func (sc *Subcommand) parse(p *Parser, args []string, depth int) error {
 	// Parse the normal flags out of the argument list and retain the positionals.
 	// Apply the flags to the parent parser and the current subcommand context.
 	// ./command -f -z subcommand someVar -b becomes ./command subcommand somevar
-	positionalOnlyArguments, helpRequested, err := sc.parseAllFlagsFromArgs(p, args)
+	positionalOnlyArguments, helpRequested, err := sc.parseAllFlagsFromArgs(p, args, detectUnknownFlags)
 	if err != nil {
 		return err
 	}
@@ -225,7 +239,7 @@ func (sc *Subcommand) parse(p *Parser, args []string, depth int) error {
 			// debugPrint("Subcommand being compared", relativeDepth, "==", cmd.Position, "and", v, "==", cmd.Name, "==", cmd.ShortName)
 			if relativeDepth == cmd.Position && (v == cmd.Name || v == cmd.ShortName) {
 				debugPrint("Decending into positional subcommand", cmd.Name, "at relativeDepth", relativeDepth, "and absolute depth", depth+1)
-				return cmd.parse(p, args, depth+parsedArgCount) // continue recursive positional parsing
+				return cmd.parse(p, args, depth+parsedArgCount, true) // continue recursive positional parsing
 			}
 		}
 

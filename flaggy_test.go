@@ -31,6 +31,7 @@ func TestTrailingArguments(t *testing.T) {
 // positional values intermixed with eachother.
 func TestComplexNesting(t *testing.T) {
 
+	os.Args = os.Args[0:1]
 	flaggy.ResetParser()
 
 	var testA string

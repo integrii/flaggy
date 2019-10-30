@@ -1,8 +1,12 @@
 package flaggy
 
-import "testing"
+import (
+	"os"
+	"testing"
+)
 
 func TestDoubleParse(t *testing.T) {
+	os.Args = os.Args[0:1]
 	ResetParser()
 
 	err := DefaultParser.Parse()
