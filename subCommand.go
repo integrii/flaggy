@@ -32,6 +32,10 @@ type Subcommand struct {
 // NewSubcommand creates a new subcommand that can have flags or PositionalFlags
 // added to it.  The position starts with 1, not 0
 func NewSubcommand(name string) *Subcommand {
+	if len(name) == 0 {
+		fmt.Fprintln(os.Stderr, "Error creating subcommand (NewSubcommand()).  No subcommand name was specified.")
+		exitOrPanic(2)
+	}
 	newSC := &Subcommand{
 		Name: name,
 	}
@@ -156,12 +160,16 @@ func (sc *Subcommand) parseAllFlagsFromArgs(p *Parser, args []string) ([]string,
 			a = parseFlagToName(a)
 			// parse flag into key and value and apply to subcommand flags
 			key, val := parseArgWithValue(a)
-			_, err = setValueForParsers(key, val, p, sc)
+			foundFlag, err := setValueForParsers(key, val, p, sc)
 			if err != nil {
 				return []string{}, false, err
 			}
 			// if this flag type was found and not set, and the parser is set to show
 			// Help when an unknown flag is found, then show Help and exit.
+			if !foundFlag && p.ShowHelpOnUnexpected {
+				p.ShowHelpWithMessage("Unexpected flag provided: " + key)
+				exitOrPanic(2)
+			}
 		}
 
 	}

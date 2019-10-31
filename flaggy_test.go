@@ -106,7 +106,7 @@ func TestComplexNesting(t *testing.T) {
 }
 
 func TestParsePositionalsA(t *testing.T) {
-	inputLine := []string{"-t", "-i=3", "subcommand", "-n", "testN", "-j=testJ", "positionalA", "positionalB", "--testK=testK", "--", "trailingA", "trailingB"}
+	inputLine := []string{"-t", "subcommand", "-i", "3", "-n", "testN", "positionalA", "positionalB", "--", "trailingA", "trailingB"}
 
 	var boolT bool
 	var intT int
@@ -151,14 +151,8 @@ func TestParsePositionalsA(t *testing.T) {
 	if boolT != true {
 		t.Fatal("Global bool flag -t was incorrect:", boolT)
 	}
-	if testK != "testK" {
-		t.Fatal("Subcommand flag testK was incorrect:", testK)
-	}
 	if testN != "testN" {
 		t.Fatal("Subcommand flag testN was incorrect:", testN)
-	}
-	if testJ != "testJ" {
-		t.Fatal("Subcommand flag testJ was incorrect:", testJ)
 	}
 	if positionalA != "positionalA" {
 		t.Fatal("Positional A was incorrect:", positionalA)
