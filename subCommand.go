@@ -122,14 +122,40 @@ func (sc *Subcommand) parseAllFlagsFromArgs(p *Parser, args []string) ([]string,
 			// we can determine if its a subcommand or positional value later
 			positionalOnlyArguments = append(positionalOnlyArguments, a)
 		case argIsFlagWithSpace:
-			a = parseFlagToName(a)
+			am := parseFlagToName(a)
+			debugPrint(sc.Name, "flags", am)
+
+			var val string
+			if p.ProcessMultipleShorts {
+				amsize := len(am)
+				debugPrint(sc.Name, "processing single dash", amsize, string(am))
+				for i, c := range am {
+					debugPrint(sc.Name, "processing subletter", i, string(c))
+					if i < (amsize-1) {
+						ch := string(c)
+						if flagIsBool(sc,p,ch) {
+							debugPrint(sc.Name, "bool flag", ch)
+							_, err = setValueForParsers(ch, "true", p, sc)
+							// if an error occurs, just return it and quit parsing
+							if err != nil {
+								return []string{}, false, err
+							}
+						}
+					} else {
+						debugPrint(sc.Name, "setting last value", i, string(c))
+						val = string(c)
+					}
+				}
+			} else {
+				val = am
+			}
 			// debugPrint("Arg", i, "is flag with space:", a)
 			// parse next arg as value to this flag and apply to subcommand flags
 			// if the flag is a bool flag, then we check for a following positional
 			// and skip it if necessary
-			if flagIsBool(sc, p, a) {
-				debugPrint(sc.Name, "bool flag", a, "next var is:", nextArg)
-				_, err = setValueForParsers(a, "true", p, sc)
+			if flagIsBool(sc, p, val) {
+				debugPrint(sc.Name, "bool flag", val, "next var is:", nextArg)
+				_, err = setValueForParsers(val, "true", p, sc)
 
 				// if an error occurs, just return it and quit parsing
 				if err != nil {
@@ -140,14 +166,14 @@ func (sc *Subcommand) parseAllFlagsFromArgs(p *Parser, args []string) ([]string,
 			}
 
 			skipNext = true
-			debugPrint(sc.Name, "NOT bool flag", a)
+			debugPrint(sc.Name, "NOT bool flag", val)
 
 			// if the next arg was not found, then show a Help message
 			if !nextArgExists {
-				p.ShowHelpWithMessage("Expected a following arg for flag " + a + ", but it did not exist.")
+				p.ShowHelpWithMessage("Expected a following arg for flag " + val + ", but it did not exist.")
 				exitOrPanic(2)
 			}
-			_, err = setValueForParsers(a, nextArg, p, sc)
+			_, err = setValueForParsers(val, nextArg, p, sc)
 			if err != nil {
 				return []string{}, false, err
 			}
