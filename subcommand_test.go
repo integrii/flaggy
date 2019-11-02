@@ -75,7 +75,7 @@ func TestSubcommandHidden(t *testing.T) {
 	defer func() {
 		r := recover()
 		if r == nil {
-			t.Fatal("Expected crash instead of exit.  Subcommand id was wrong")
+			t.Fatal("Expected crash instead of exit.  Subcommand id was set to a blank")
 		}
 	}()
 	flaggy.ResetParser()

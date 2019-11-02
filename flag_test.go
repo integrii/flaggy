@@ -8,9 +8,14 @@ import (
 	"time"
 )
 
-// debugOff makes defers easier
+// debugOff makes defers easier and turns off debug mode
 func debugOff() {
 	DebugMode = false
+}
+
+// debugOn turns on debug mode
+func debugOn() {
+	DebugMode = true
 }
 
 func TestGlobs(t *testing.T) {

@@ -106,7 +106,9 @@ func TestComplexNesting(t *testing.T) {
 }
 
 func TestParsePositionalsA(t *testing.T) {
-	inputLine := []string{"-t", "subcommand", "-i", "3", "-n", "testN", "positionalA", "positionalB", "--", "trailingA", "trailingB"}
+	inputLine := []string{"-t", "-i=3", "subcommand", "-n", "testN", "-j=testJ", "positionalA", "positionalB", "--testK=testK", "--", "trailingA", "trailingB"}
+
+	flaggy.DebugMode = true
 
 	var boolT bool
 	var intT int

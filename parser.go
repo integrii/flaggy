@@ -105,7 +105,8 @@ func (p *Parser) ShowHelpWithMessage(message string) {
 	}
 }
 
-// Disable show version with --version. It is enabled by default.
+// DisableShowVersionWithVersion disables the showing of version information
+// with --version. It is enabled by default.
 func (p *Parser) DisableShowVersionWithVersion() {
 	p.ShowVersionWithVersionFlag = false
 }

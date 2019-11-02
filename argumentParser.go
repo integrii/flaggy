@@ -5,7 +5,7 @@ package flaggy
 // The return values represent the key being set, and any errors
 // returned when setting the key, such as failures to convert the string
 // into the appropriate flag value.  We stop assigning values as soon
-// as we find a parser that accepts it.
+// as we find a any parser that accepts it.
 func setValueForParsers(key string, value string, parsers ...ArgumentParser) (bool, error) {
 
 	for _, p := range parsers {

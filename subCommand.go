@@ -43,11 +43,14 @@ func NewSubcommand(name string) *Subcommand {
 }
 
 // parseAllFlagsFromArgs parses the non-positional flags such as -f or -v=value
-// out of the supplied args and returns the positional items in order.
-func (sc *Subcommand) parseAllFlagsFromArgs(p *Parser, args []string) ([]string, bool, error) {
+// out of the supplied args and returns the resulting positional items in order,
+// all the flag names found (without values), a bool to indicate if help was
+// requested, and any errors found during parsing
+func (sc *Subcommand) parseAllFlagsFromArgs(p *Parser, args []string) ([]string, []string, bool, error) {
 
 	var err error
 	var positionalOnlyArguments []string
+	var flagNamesFound []string
 	var helpRequested bool // indicates the user has supplied -h and we
 	// should render help if we are the last subcommand
 
@@ -127,6 +130,10 @@ func (sc *Subcommand) parseAllFlagsFromArgs(p *Parser, args []string) ([]string,
 			positionalOnlyArguments = append(positionalOnlyArguments, a)
 		case argIsFlagWithSpace:
 			a = parseFlagToName(a)
+
+			// track all flag names found during parsing
+			flagNamesFound = append(flagNamesFound, a)
+
 			// debugPrint("Arg", i, "is flag with space:", a)
 			// parse next arg as value to this flag and apply to subcommand flags
 			// if the flag is a bool flag, then we check for a following positional
@@ -137,7 +144,7 @@ func (sc *Subcommand) parseAllFlagsFromArgs(p *Parser, args []string) ([]string,
 
 				// if an error occurs, just return it and quit parsing
 				if err != nil {
-					return []string{}, false, err
+					return []string{}, []string{}, false, err
 				}
 				// by default, we just assign the next argument to the value and continue
 				continue
@@ -153,31 +160,28 @@ func (sc *Subcommand) parseAllFlagsFromArgs(p *Parser, args []string) ([]string,
 			}
 			_, err = setValueForParsers(a, nextArg, p, sc)
 			if err != nil {
-				return []string{}, false, err
+				return []string{}, []string{}, false, err
 			}
 		case argIsFlagWithValue:
 			// debugPrint("Arg", i, "is flag with value:", a)
 			a = parseFlagToName(a)
+
+			// track all flag names found during parsing
+			flagNamesFound = append(flagNamesFound, a)
+
 			// parse flag into key and value and apply to subcommand flags
 			key, val := parseArgWithValue(a)
-			foundFlag, err := setValueForParsers(key, val, p, sc)
+			_, err := setValueForParsers(key, val, p, sc)
 			if err != nil {
-				return []string{}, false, err
-			}
-			// if this flag type was found and not set, and the parser is set to show
-			// Help when an unknown flag is found, then show Help and exit.
-			if !foundFlag && p.ShowHelpOnUnexpected {
-				p.ShowHelpWithMessage("Unexpected flag provided: " + key)
-				exitOrPanic(2)
+				return []string{}, []string{}, false, err
 			}
 		}
-
 	}
 
-	return positionalOnlyArguments, helpRequested, nil
+	return positionalOnlyArguments, flagNamesFound, helpRequested, nil
 }
 
-// Parse causes the argument parser to parse based on the supplied []string.
+// parse causes the argument parser to parse based on the supplied []string.
 // depth specifies the non-flag subcommand positional depth
 func (sc *Subcommand) parse(p *Parser, args []string, depth int) error {
 
@@ -202,9 +206,34 @@ func (sc *Subcommand) parse(p *Parser, args []string, depth int) error {
 	// Parse the normal flags out of the argument list and retain the positionals.
 	// Apply the flags to the parent parser and the current subcommand context.
 	// ./command -f -z subcommand someVar -b becomes ./command subcommand somevar
-	positionalOnlyArguments, helpRequested, err := sc.parseAllFlagsFromArgs(p, args)
+	positionalOnlyArguments, flagNames, helpRequested, err := sc.parseAllFlagsFromArgs(p, args)
 	if err != nil {
 		return err
+	}
+
+	// if we are set to show help on unexpected flags, we should ensure that
+	// all flags that aren't positional arguments are found in the list of flag
+	// names
+	debugPrint("flags and positionals:", flagNames, positionalOnlyArguments)
+	if p.ShowHelpOnUnexpected {
+
+		// check over all arguments specified to ensure they are all known as either
+		// a flag or a subcommand
+		for _, a := range args {
+
+			// check if the arg matches any known flag name
+			if stringInSlice(flagNames, a) {
+				continue
+			}
+
+			// check if the flag matches any known positional name
+			if stringInSlice(positionalOnlyArguments, a) {
+				continue
+			}
+
+			// crash out if any argument is unknown as both a flag and positional
+			p.ShowHelpAndExit("Unknown argument: " + a)
+		}
 	}
 
 	// indicate that trailing arguments have been extracted, so that they aren't
@@ -300,7 +329,7 @@ func (sc *Subcommand) parse(p *Parser, args []string, depth int) error {
 	}
 
 	// find any positionals that were not used on subcommands that were
-	// found and throw help (unknown argument)
+	// found and throw help (unknown argument) in the global parse or subcommand
 	for _, pv := range p.PositionalFlags {
 		if pv.Required && !pv.Found {
 			p.ShowHelpWithMessage("Required global positional variable " + pv.Name + " not found at position " + strconv.Itoa(pv.Position))
@@ -631,7 +660,7 @@ func (sc *Subcommand) SetValueForKey(key string, value string) (bool, error) {
 	// debugPrint("Looking to set key", key, "to value", value)
 	// check for and assign flags that match the key
 	for _, f := range sc.Flags {
-		// debugPrint("Evaluating string flag", f.ShortName, "==", key, "||", f.LongName, "==", key)
+		debugPrint("Evaluating string flag", f.ShortName, "==", key, "||", f.LongName, "==", key)
 		if f.ShortName == key || f.LongName == key {
 			// debugPrint("Setting string value for", key, "to", value)
 			f.identifyAndAssignValue(value)
