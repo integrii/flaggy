@@ -8,19 +8,17 @@ package flaggy
 // as we find a parser that accepts it.
 func setValueForParsers(key string, value string, parsers ...ArgumentParser) (bool, error) {
 
-	var valueWasSet bool
-
 	for _, p := range parsers {
 		valueWasSet, err := p.SetValueForKey(key, value)
 		if err != nil {
 			return valueWasSet, err
 		}
 		if valueWasSet {
-			break
+			return true, nil
 		}
 	}
 
-	return valueWasSet, nil
+	return false, nil
 }
 
 // ArgumentParser represents a parser or subcommand
