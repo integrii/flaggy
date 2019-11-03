@@ -15,7 +15,7 @@ type Parser struct {
 	Version                    string             // the optional version of the parser.
 	ShowHelpWithHFlag          bool               // display help when -h or --help passed
 	ShowVersionWithVersionFlag bool               // display the version when --version passed
-	ShowHelpOnUnexpected       bool               // display help when an unexpected flag is passed
+	ShowHelpOnUnexpected       bool               // display help when an unexpected flag or subcommand is passed
 	TrailingArguments          []string           // everything after a -- is placed here
 	HelpTemplate               *template.Template // template for Help output
 	trailingArgumentsExtracted bool               // indicates that trailing args have been parsed and should not be appended again
@@ -47,7 +47,68 @@ func (p *Parser) ParseArgs(args []string) error {
 	}
 	p.parsed = true
 	// debugPrint("Kicking off parsing with args:", args)
-	return p.parse(p, args, 0)
+	err := p.parse(p, args, 0)
+	if err != nil {
+		return err
+	}
+
+	// if we are set to crash on unexpected args, look for those here TODO
+	if p.ShowHelpOnUnexpected {
+		parsedValues := p.findAllParsedValues()
+		argsNotParsed := findArgsNotInParsedValues(args, parsedValues)
+		if len(argsNotParsed) > 0 {
+			// flatten out unused args for our error message
+			var argsNotParedFlat string
+			for _, a := range argsNotParsed {
+				argsNotParedFlat = argsNotParedFlat + " " + a
+			}
+			p.ShowHelpAndExit("Unknown arguments supplied: " + argsNotParedFlat)
+		}
+	}
+
+	return nil
+}
+
+// findArgsNotInParsedValues finds arguments not used in parsed values
+func findArgsNotInParsedValues(args []string, parsedValues []parsedValue) []string {
+	var argsNotUsed []string
+
+	var skipNext bool
+	for _, arg := range args {
+		// allow for skipping the next arg when needed
+		if skipNext {
+			skipNext = false
+			continue
+		}
+
+		// indicates that we found this arg used in one of the parsed values. Used
+		// to indicate which values should be added to argsNotUsed.
+		var foundArgUsed bool
+
+		// search all args for a corresponding parsed value
+		for _, pv := range parsedValues {
+			// this argumenet was a key
+			if pv.Key == arg {
+				foundArgUsed = true
+				// if the value is not a positional value and the parsed value had a
+				// value that was not blank, we skip the next value in the argument list
+				if !pv.IsPositional && len(pv.Value) > 0 {
+					skipNext = true
+					break
+				}
+			}
+			// this prevents excessive parsed values from being checked after we find
+			// the arg used for the first time
+			if foundArgUsed {
+				break
+			}
+		}
+		if !foundArgUsed {
+			argsNotUsed = append(argsNotUsed, arg)
+		}
+	}
+
+	return argsNotUsed
 }
 
 // ShowVersionAndExit shows the version of this parser

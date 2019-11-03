@@ -55,7 +55,6 @@ func ResetParser() {
 	} else {
 		DefaultParser = NewParser("default")
 	}
-	DefaultParser.ShowHelpOnUnexpected = false
 }
 
 // Parse parses flags as requested in the default package parser
