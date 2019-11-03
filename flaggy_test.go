@@ -31,6 +31,9 @@ func TestTrailingArguments(t *testing.T) {
 // positional values intermixed with eachother.
 func TestComplexNesting(t *testing.T) {
 
+	flaggy.DebugMode = true
+	defer debugOff()
+
 	flaggy.ResetParser()
 
 	var testA string
@@ -47,11 +50,12 @@ func TestComplexNesting(t *testing.T) {
 
 	flaggy.Bool(&testF, "f", "testF", "")
 
+	flaggy.AttachSubcommand(scA, 1)
+
 	scA.AddPositionalValue(&testA, "testA", 1, false, "")
 	scA.AddPositionalValue(&testB, "testB", 2, false, "")
 	scA.AddPositionalValue(&testC, "testC", 3, false, "")
 	scA.AttachSubcommand(scB, 4)
-	flaggy.AttachSubcommand(scA, 1)
 
 	scB.AddPositionalValue(&testD, "testD", 1, false, "")
 	scB.AttachSubcommand(scC, 2)
@@ -60,7 +64,9 @@ func TestComplexNesting(t *testing.T) {
 
 	scD.AddPositionalValue(&testE, "testE", 1, true, "")
 
-	flaggy.ParseArgs([]string{"scA", "-f", "A", "B", "C", "scB", "D", "scC", "scD", "E"})
+	args := []string{"scA", "-f", "A", "B", "C", "scB", "D", "scC", "scD", "E"}
+	t.Log(args)
+	flaggy.ParseArgs(args)
 
 	if !testF {
 		t.Log("testF", testF)

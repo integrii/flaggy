@@ -65,7 +65,7 @@ func (sc *Subcommand) parseAllFlagsFromArgs(p *Parser, args []string) ([]string,
 	// find all the normal flags (not positional) and parse them out
 	for i, a := range args {
 
-		debugPrint("parsing arg", 1, a)
+		debugPrint("parsing arg:", a)
 
 		// evaluate if there is a following arg to avoid panics
 		var nextArgExists bool
@@ -157,7 +157,7 @@ func (sc *Subcommand) parseAllFlagsFromArgs(p *Parser, args []string) ([]string,
 			}
 
 			skipNext = true
-			debugPrint(sc.Name, "NOT bool flag", a)
+			// debugPrint(sc.Name, "NOT bool flag", a)
 
 			// if the next arg was not found, then show a Help message
 			if !nextArgExists {
@@ -193,10 +193,14 @@ func (sc *Subcommand) parseAllFlagsFromArgs(p *Parser, args []string) ([]string,
 }
 
 // findAllParsedValues finds all values parsed by all subcommands and this
-// subcommand and its children
+// subcommand and its child subcommands
 func (sc *Subcommand) findAllParsedValues() []parsedValue {
 	parsedValues := sc.ParsedValues
 	for _, sc := range sc.Subcommands {
+		// skip unused subcommands
+		if !sc.Used {
+			continue
+		}
 		parsedValues = append(parsedValues, sc.findAllParsedValues()...)
 	}
 	return parsedValues
@@ -212,6 +216,13 @@ func (sc *Subcommand) parse(p *Parser, args []string, depth int) error {
 
 	// if a command is parsed, its used
 	sc.Used = true
+	debugPrint("used subcommand", sc.Name, sc.ShortName)
+	if len(sc.Name) > 0 {
+		sc.addParsedPositionalValue(sc.Name)
+	}
+	if len(sc.ShortName) > 0 {
+		sc.addParsedPositionalValue(sc.ShortName)
+	}
 
 	// as subcommands are used, they become the context of the parser.  This helps
 	// us understand how to display help based on which subcommand is being used
@@ -670,7 +681,7 @@ func (sc *Subcommand) SetValueForKey(key string, value string) (bool, error) {
 	// debugPrint("Looking to set key", key, "to value", value)
 	// check for and assign flags that match the key
 	for _, f := range sc.Flags {
-		debugPrint("Evaluating string flag", f.ShortName, "==", key, "||", f.LongName, "==", key)
+		// debugPrint("Evaluating string flag", f.ShortName, "==", key, "||", f.LongName, "==", key)
 		if f.ShortName == key || f.LongName == key {
 			// debugPrint("Setting string value for", key, "to", value)
 			f.identifyAndAssignValue(value)

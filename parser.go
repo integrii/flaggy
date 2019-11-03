@@ -46,7 +46,8 @@ func (p *Parser) ParseArgs(args []string) error {
 		return errors.New("Parser.Parse() called twice on parser with name: " + " " + p.Name + " " + p.ShortName)
 	}
 	p.parsed = true
-	// debugPrint("Kicking off parsing with args:", args)
+
+	debugPrint("Kicking off parsing with args:", args)
 	err := p.parse(p, args, 0)
 	if err != nil {
 		return err
@@ -55,6 +56,7 @@ func (p *Parser) ParseArgs(args []string) error {
 	// if we are set to crash on unexpected args, look for those here TODO
 	if p.ShowHelpOnUnexpected {
 		parsedValues := p.findAllParsedValues()
+		debugPrint("parsedValues:", parsedValues)
 		argsNotParsed := findArgsNotInParsedValues(args, parsedValues)
 		if len(argsNotParsed) > 0 {
 			// flatten out unused args for our error message
@@ -74,13 +76,12 @@ func (p *Parser) ParseArgs(args []string) error {
 // include the invoked binary, which is normally the first thing in os.Args.
 func findArgsNotInParsedValues(args []string, parsedValues []parsedValue) []string {
 	var argsNotUsed []string
-
 	var skipNext bool
-	for _, arg := range args {
+	for _, a := range args {
 
 		// if the final argument (--) is seen, then we stop checking because all
 		// further values are trailing arguments.
-		if determineArgType(arg) == argIsFinal {
+		if determineArgType(a) == argIsFinal {
 			return argsNotUsed
 		}
 
@@ -90,6 +91,10 @@ func findArgsNotInParsedValues(args []string, parsedValues []parsedValue) []stri
 			continue
 		}
 
+		// strip flag slashes from incoming arguments so they match up with the
+		// keys from parsedValues.
+		arg := parseFlagToName(a)
+
 		// indicates that we found this arg used in one of the parsed values. Used
 		// to indicate which values should be added to argsNotUsed.
 		var foundArgUsed bool
@@ -97,7 +102,8 @@ func findArgsNotInParsedValues(args []string, parsedValues []parsedValue) []stri
 		// search all args for a corresponding parsed value
 		for _, pv := range parsedValues {
 			// this argumenet was a key
-			if pv.Key == arg {
+			// debugPrint(pv.Key, "==", arg)
+			if pv.Key == arg || (pv.IsPositional && pv.Value == arg) {
 				foundArgUsed = true // the arg was used in this parsedValues set
 				// if the value is not a positional value and the parsed value had a
 				// value that was not blank, we skip the next value in the argument list

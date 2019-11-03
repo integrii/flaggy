@@ -569,7 +569,7 @@ func TestSCInputParsing(t *testing.T) {
 	var maskSliceFlagExpected = []net.IPMask{net.IPMask([]byte{255, 255, 255, 255}), net.IPMask([]byte{255, 255, 255, 0})}
 
 	// display help with all flags used
-	flaggy.ShowHelp("Showing help from TestInputParsing test.")
+	flaggy.ShowHelp("Showing help from TestSCInputParsing test.")
 
 	// Parse arguments
 	flaggy.ParseArgs(inputArgs)
