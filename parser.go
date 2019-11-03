@@ -77,6 +77,13 @@ func findArgsNotInParsedValues(args []string, parsedValues []parsedValue) []stri
 
 	var skipNext bool
 	for _, arg := range args {
+
+		// if the final argument (--) is seen, then we stop checking because all
+		// further values are trailing arguments.
+		if determineArgType(arg) == argIsFinal {
+			return argsNotUsed
+		}
+
 		// allow for skipping the next arg when needed
 		if skipNext {
 			skipNext = false
