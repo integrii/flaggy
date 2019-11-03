@@ -69,7 +69,9 @@ func (p *Parser) ParseArgs(args []string) error {
 	return nil
 }
 
-// findArgsNotInParsedValues finds arguments not used in parsed values
+// findArgsNotInParsedValues finds arguments not used in parsed values.  The
+// incoming args should be in the order supplied by the user and should not
+// include the invoked binary, which is normally the first thing in os.Args.
 func findArgsNotInParsedValues(args []string, parsedValues []parsedValue) []string {
 	var argsNotUsed []string
 
@@ -89,7 +91,7 @@ func findArgsNotInParsedValues(args []string, parsedValues []parsedValue) []stri
 		for _, pv := range parsedValues {
 			// this argumenet was a key
 			if pv.Key == arg {
-				foundArgUsed = true
+				foundArgUsed = true // the arg was used in this parsedValues set
 				// if the value is not a positional value and the parsed value had a
 				// value that was not blank, we skip the next value in the argument list
 				if !pv.IsPositional && len(pv.Value) > 0 {
@@ -103,6 +105,9 @@ func findArgsNotInParsedValues(args []string, parsedValues []parsedValue) []stri
 				break
 			}
 		}
+
+		// if the arg was not used in any parsed values, then we add it to the slice
+		// of arguments not used
 		if !foundArgUsed {
 			argsNotUsed = append(argsNotUsed, arg)
 		}
