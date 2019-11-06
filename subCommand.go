@@ -49,7 +49,6 @@ func NewSubcommand(name string) *Subcommand {
 // requested, and any errors found during parsing
 func (sc *Subcommand) parseAllFlagsFromArgs(p *Parser, args []string) ([]string, bool, error) {
 
-	var err error
 	var positionalOnlyArguments []string
 	var helpRequested bool // indicates the user has supplied -h and we
 	// should render help if we are the last subcommand
@@ -130,7 +129,7 @@ func (sc *Subcommand) parseAllFlagsFromArgs(p *Parser, args []string) ([]string,
 			positionalOnlyArguments = append(positionalOnlyArguments, a)
 			// track this as a parsed value with the subcommand
 			sc.addParsedPositionalValue(a)
-		case argIsFlagWithSpace:
+		case argIsFlagWithSpace: // a flag with a space. ex) -k v or --key value
 			a = parseFlagToName(a)
 
 			// debugPrint("Arg", i, "is flag with space:", a)
@@ -140,7 +139,7 @@ func (sc *Subcommand) parseAllFlagsFromArgs(p *Parser, args []string) ([]string,
 			if flagIsBool(sc, p, a) {
 				debugPrint(sc.Name, "bool flag", a, "next var is:", nextArg)
 				// set the value in this subcommand and its root parser
-				_, err = setValueForParsers(a, "true", p, sc)
+				valueSet, err := setValueForParsers(a, "true", p, sc)
 
 				// if an error occurs, just return it and quit parsing
 				if err != nil {
@@ -149,7 +148,9 @@ func (sc *Subcommand) parseAllFlagsFromArgs(p *Parser, args []string) ([]string,
 
 				// log all values parsed by this subcommand.  We leave the value blank
 				// because the bool value had no explicit true or false supplied
-				sc.addParsedFlag(a, "")
+				if valueSet {
+					sc.addParsedFlag(a, "")
+				}
 
 				// we've found and set a standalone bool flag, so we move on to the next
 				// argument in the list of arguments
@@ -164,14 +165,16 @@ func (sc *Subcommand) parseAllFlagsFromArgs(p *Parser, args []string) ([]string,
 				p.ShowHelpWithMessage("Expected a following arg for flag " + a + ", but it did not exist.")
 				exitOrPanic(2)
 			}
-			_, err = setValueForParsers(a, nextArg, p, sc)
+			valueSet, err := setValueForParsers(a, nextArg, p, sc)
 			if err != nil {
 				return []string{}, false, err
 			}
 
 			// log all parsed values in the subcommand
-			sc.addParsedFlag(a, nextArg)
-		case argIsFlagWithValue:
+			if valueSet {
+				sc.addParsedFlag(a, nextArg)
+			}
+		case argIsFlagWithValue: // a flag with an equals sign. ex) -k=v or --key=value
 			// debugPrint("Arg", i, "is flag with value:", a)
 			a = parseFlagToName(a)
 
@@ -179,13 +182,15 @@ func (sc *Subcommand) parseAllFlagsFromArgs(p *Parser, args []string) ([]string,
 			key, val := parseArgWithValue(a)
 
 			// set the value in this subcommand and its root parser
-			_, err := setValueForParsers(key, val, p, sc)
+			valueSet, err := setValueForParsers(key, val, p, sc)
 			if err != nil {
 				return []string{}, false, err
 			}
 
 			// log all values parsed by the subcommand
-			sc.addParsedFlag(key, val)
+			if valueSet {
+				sc.addParsedFlag(a, val)
+			}
 		}
 	}
 

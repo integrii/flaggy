@@ -4,12 +4,14 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strconv"
 
 	"text/template"
 )
 
-// Parser represents the set of vars and subcommands we are expecting
-// from our input args, and the parser than handles them all.
+// Parser represents the set of flags and subcommands we are expecting
+// from our input arguments.  Parser is the top level struct responsible for
+// parsing an entire set of subcommands and flags.
 type Parser struct {
 	Subcommand
 	Version                    string             // the optional version of the parser.
@@ -60,11 +62,11 @@ func (p *Parser) ParseArgs(args []string) error {
 		argsNotParsed := findArgsNotInParsedValues(args, parsedValues)
 		if len(argsNotParsed) > 0 {
 			// flatten out unused args for our error message
-			var argsNotParedFlat string
+			var argsNotParsedFlat string
 			for _, a := range argsNotParsed {
-				argsNotParedFlat = argsNotParedFlat + " " + a
+				argsNotParsedFlat = argsNotParsedFlat + " " + a
 			}
-			p.ShowHelpAndExit("Unknown arguments supplied: " + argsNotParedFlat)
+			p.ShowHelpAndExit("Unknown arguments supplied: " + argsNotParsedFlat)
 		}
 	}
 
@@ -103,7 +105,9 @@ func findArgsNotInParsedValues(args []string, parsedValues []parsedValue) []stri
 		for _, pv := range parsedValues {
 			// this argumenet was a key
 			// debugPrint(pv.Key, "==", arg)
+			debugPrint(pv.Key + "==" + arg + " || (" + strconv.FormatBool(pv.IsPositional) + " && " + pv.Value + " == " + arg + ")")
 			if pv.Key == arg || (pv.IsPositional && pv.Value == arg) {
+				debugPrint("Found matching parsed arg for " + pv.Key)
 				foundArgUsed = true // the arg was used in this parsedValues set
 				// if the value is not a positional value and the parsed value had a
 				// value that was not blank, we skip the next value in the argument list

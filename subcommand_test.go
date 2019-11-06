@@ -63,6 +63,8 @@ func TestExitOnUnknownFlag(t *testing.T) {
 // is supplied and the ShowHelpOnUnexpected value is set, an error is thrown on
 // the unknown flags.
 func TestExitOnUnknownFlagWithValue(t *testing.T) {
+	flaggy.ResetParser()
+	flaggy.ShowHelpOnUnexpectedEnable()
 	defer func() {
 		r := recover()
 		if r == nil {
