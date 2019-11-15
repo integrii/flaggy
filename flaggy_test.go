@@ -31,6 +31,9 @@ func TestTrailingArguments(t *testing.T) {
 // positional values intermixed with eachother.
 func TestComplexNesting(t *testing.T) {
 
+	flaggy.DebugMode = true
+	defer debugOff()
+
 	flaggy.ResetParser()
 
 	var testA string
@@ -47,11 +50,12 @@ func TestComplexNesting(t *testing.T) {
 
 	flaggy.Bool(&testF, "f", "testF", "")
 
+	flaggy.AttachSubcommand(scA, 1)
+
 	scA.AddPositionalValue(&testA, "testA", 1, false, "")
 	scA.AddPositionalValue(&testB, "testB", 2, false, "")
 	scA.AddPositionalValue(&testC, "testC", 3, false, "")
 	scA.AttachSubcommand(scB, 4)
-	flaggy.AttachSubcommand(scA, 1)
 
 	scB.AddPositionalValue(&testD, "testD", 1, false, "")
 	scB.AttachSubcommand(scC, 2)
@@ -60,7 +64,9 @@ func TestComplexNesting(t *testing.T) {
 
 	scD.AddPositionalValue(&testE, "testE", 1, true, "")
 
-	flaggy.ParseArgs([]string{"scA", "-f", "A", "B", "C", "scB", "D", "scC", "scD", "E"})
+	args := []string{"scA", "-f", "A", "B", "C", "scB", "D", "scC", "scD", "E"}
+	t.Log(args)
+	flaggy.ParseArgs(args)
 
 	if !testF {
 		t.Log("testF", testF)
@@ -108,6 +114,8 @@ func TestComplexNesting(t *testing.T) {
 func TestParsePositionalsA(t *testing.T) {
 	inputLine := []string{"-t", "-i=3", "subcommand", "-n", "testN", "-j=testJ", "positionalA", "positionalB", "--testK=testK", "--", "trailingA", "trailingB"}
 
+	flaggy.DebugMode = true
+
 	var boolT bool
 	var intT int
 	var testN string
@@ -151,14 +159,8 @@ func TestParsePositionalsA(t *testing.T) {
 	if boolT != true {
 		t.Fatal("Global bool flag -t was incorrect:", boolT)
 	}
-	if testK != "testK" {
-		t.Fatal("Subcommand flag testK was incorrect:", testK)
-	}
 	if testN != "testN" {
 		t.Fatal("Subcommand flag testN was incorrect:", testN)
-	}
-	if testJ != "testJ" {
-		t.Fatal("Subcommand flag testJ was incorrect:", testJ)
 	}
 	if positionalA != "positionalA" {
 		t.Fatal("Positional A was incorrect:", positionalA)

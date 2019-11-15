@@ -40,6 +40,47 @@ func TestFlagExists(t *testing.T) {
 
 }
 
+// TestExitOnUnknownFlag tests that when an unknown flag is supplied and the
+// ShowHelpOnUnexpected value is set, an error is thrown on unknown flags.
+func TestExitOnUnknownFlag(t *testing.T) {
+	defer func() {
+		r := recover()
+		if r == nil {
+			t.Fatal("Expected crash on unknown flag")
+		}
+	}()
+	flaggy.DebugMode = true
+	defer debugOff()
+	var expectedFlag string
+	var expectedPositional string
+	flaggy.ResetParser()
+	flaggy.String(&expectedFlag, "f", "flag", "an expected positonal flag")
+	flaggy.AddPositionalValue(&expectedPositional, "positionalTest", 1, true, "A test positional value")
+	flaggy.ParseArgs([]string{"positionalHere", "-f", "flagHere", "unexpectedValue"})
+}
+
+// TestExitOnUnknownFlagWithValue tests that when an unknown flag with a value
+// is supplied and the ShowHelpOnUnexpected value is set, an error is thrown on
+// the unknown flags.
+func TestExitOnUnknownFlagWithValue(t *testing.T) {
+	flaggy.ResetParser()
+	flaggy.ShowHelpOnUnexpectedEnable()
+	defer func() {
+		r := recover()
+		if r == nil {
+			t.Fatal("Expected crash on unknown flag with value")
+		}
+	}()
+	flaggy.DebugMode = true
+	defer debugOff()
+	var expectedFlag string
+	var expectedPositional string
+	flaggy.ResetParser()
+	flaggy.String(&expectedFlag, "f", "flag", "an expected positonal flag")
+	flaggy.AddPositionalValue(&expectedPositional, "positionalTest", 1, true, "A test positional value")
+	flaggy.ParseArgs([]string{"positionalHere", "-f", "flagHere", "--unexpectedValue=true"})
+}
+
 // TestDoublePositional tests errors when two positionals are
 // specified at the same time
 func TestDoublePositional(t *testing.T) {
@@ -75,7 +116,7 @@ func TestSubcommandHidden(t *testing.T) {
 	defer func() {
 		r := recover()
 		if r == nil {
-			t.Fatal("Expected crash instead of exit.  Subcommand id was wrong")
+			t.Fatal("Expected crash instead of exit.  Subcommand id was set to a blank")
 		}
 	}()
 	flaggy.ResetParser()
@@ -530,7 +571,7 @@ func TestSCInputParsing(t *testing.T) {
 	var maskSliceFlagExpected = []net.IPMask{net.IPMask([]byte{255, 255, 255, 255}), net.IPMask([]byte{255, 255, 255, 0})}
 
 	// display help with all flags used
-	flaggy.ShowHelp("Showing help from TestInputParsing test.")
+	flaggy.ShowHelp("Showing help from TestSCInputParsing test.")
 
 	// Parse arguments
 	flaggy.ParseArgs(inputArgs)

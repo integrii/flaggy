@@ -8,9 +8,14 @@ import (
 	"time"
 )
 
-// debugOff makes defers easier
+// debugOff makes defers easier and turns off debug mode
 func debugOff() {
 	DebugMode = false
+}
+
+// debugOn turns on debug mode
+func debugOn() {
+	DebugMode = true
 }
 
 func TestGlobs(t *testing.T) {
@@ -285,7 +290,7 @@ func TestInputParsing(t *testing.T) {
 	var maskSliceFlagExpected = []net.IPMask{net.IPMask([]byte{255, 255, 255, 255}), net.IPMask([]byte{255, 255, 255, 0})}
 
 	// display help with all flags used
-	ShowHelp("Showing help from TestInputParsing test.")
+	ShowHelp("Showing help for test: " + t.Name())
 
 	// Parse arguments
 	ParseArgs(inputArgs)

@@ -4,6 +4,7 @@ import "testing"
 
 func TestDoubleParse(t *testing.T) {
 	ResetParser()
+	DefaultParser.ShowHelpOnUnexpected = false
 
 	err := DefaultParser.Parse()
 	if err != nil {
