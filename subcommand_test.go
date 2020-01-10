@@ -768,3 +768,39 @@ func TestSCInputParsing(t *testing.T) {
 		}
 	}
 }
+
+// TestSCBoolFlag tests bool flags on subcommands
+func TestSCBoolFlag(t *testing.T) {
+	p := flaggy.NewParser("TestSubcommandBoolParse")
+	newSC := flaggy.NewSubcommand("testSubcommand")
+
+	var boolFlag bool
+	newSC.Bool(&boolFlag, "f", "flag", "test bool flag on subcommand")
+
+	p.AttachSubcommand(newSC, 1)
+
+	os.Args = []string{"binaryName", "testSubcommand", "--flag"}
+	err := p.Parse()
+	if err != nil {
+		t.Fatal("Error parsing args: " + err.Error())
+	}
+}
+
+// TestNestedSCBoolFlag tests bool flags on nested subcommands
+func TestNestedSCBoolFlag(t *testing.T) {
+	p := flaggy.NewParser("TestSubcommandBoolParse")
+	newSC := flaggy.NewSubcommand("mainSubcommand")
+	subSC := flaggy.NewSubcommand("subSubCommand")
+
+	var boolFlag bool
+	subSC.Bool(&boolFlag, "f", "flag", "test bool flag on subcommand")
+
+	newSC.AttachSubcommand(subSC, 1)
+	p.AttachSubcommand(newSC, 1)
+
+	os.Args = []string{"binaryName", "mainSubcommand", "subSubCommand", "--flag"}
+	err := p.Parse()
+	if err != nil {
+		t.Fatal("Error parsing args: " + err.Error())
+	}
+}

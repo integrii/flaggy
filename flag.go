@@ -407,10 +407,21 @@ func parseFlagToName(arg string) string {
 	return arg
 }
 
+// collectAllNestedFlags recurses through the command tree to get all
+//     flags specified on a subcommand and its descending subcommands
+func collectAllNestedFlags(sc *Subcommand) []*Flag {
+	fullList := sc.Flags
+	for _, sc := range sc.Subcommands {
+		fullList = append(fullList, sc.Flags...)
+		fullList = append(fullList, collectAllNestedFlags(sc)...)
+	}
+	return fullList
+}
+
 // flagIsBool determines if the flag is a bool within the specified parser
 // and subcommand's context
 func flagIsBool(sc *Subcommand, p *Parser, key string) bool {
-	for _, f := range append(sc.Flags, p.Flags...) {
+	for _, f := range append(collectAllNestedFlags(sc), p.Flags...) {
 		if f.HasName(key) {
 			_, isBool := f.AssignmentVar.(*bool)
 			_, isBoolSlice := f.AssignmentVar.(*[]bool)
