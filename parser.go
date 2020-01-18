@@ -78,15 +78,14 @@ func (p *Parser) ParseArgs(args []string) error {
 // incoming args should be in the order supplied by the user and should not
 // include the invoked binary, which is normally the first thing in os.Args.
 func findArgsNotInParsedValues(args []string, parsedValues []parsedValue) []string {
+	// DebugMode = true
+	// defer func() {
+	// 	DebugMode = false
+	// }()
+
 	var argsNotUsed []string
 	var skipNext bool
 	for _, a := range args {
-
-		// skip args that start with 'test.' because they are injected with go test
-		if strings.HasPrefix(a, "test.") {
-			debugPrint("skipping test. prefixed arg:", a)
-			continue
-		}
 
 		// if the final argument (--) is seen, then we stop checking because all
 		// further values are trailing arguments.
@@ -103,6 +102,14 @@ func findArgsNotInParsedValues(args []string, parsedValues []parsedValue) []stri
 		// strip flag slashes from incoming arguments so they match up with the
 		// keys from parsedValues.
 		arg := parseFlagToName(a)
+
+		// skip args that start with 'test.' because they are injected with go test
+		debugPrint("flagsNotParsed: checking arg:", arg)
+		if strings.HasPrefix(a, "test.") {
+			debugPrint("skipping test. prefixed arg named:", arg)
+			continue
+		}
+		debugPrint("flagsNotParsed: flag is unused:", arg)
 
 		// indicates that we found this arg used in one of the parsed values. Used
 		// to indicate which values should be added to argsNotUsed.
