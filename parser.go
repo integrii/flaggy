@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 
 	"text/template"
 )
@@ -80,6 +81,11 @@ func findArgsNotInParsedValues(args []string, parsedValues []parsedValue) []stri
 	var argsNotUsed []string
 	var skipNext bool
 	for _, a := range args {
+
+		// skip args that start with 'test.' because they are injected with go test
+		if strings.HasPrefix(a, "test.") {
+			continue
+		}
 
 		// if the final argument (--) is seen, then we stop checking because all
 		// further values are trailing arguments.
