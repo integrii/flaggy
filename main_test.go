@@ -9,6 +9,7 @@ import (
 
 func TestMain(m *testing.M) {
 	flaggy.PanicInsteadOfExit = true
+	// flaggy.DebugMode = true
 	os.Exit(m.Run())
 }
 

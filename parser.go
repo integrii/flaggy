@@ -84,6 +84,7 @@ func findArgsNotInParsedValues(args []string, parsedValues []parsedValue) []stri
 
 		// skip args that start with 'test.' because they are injected with go test
 		if strings.HasPrefix(a, "test.") {
+			debugPrint("skipping test. prefixed arg:", a)
 			continue
 		}
 
