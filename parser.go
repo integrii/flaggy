@@ -105,11 +105,11 @@ func findArgsNotInParsedValues(args []string, parsedValues []parsedValue) []stri
 
 		// skip args that start with 'test.' because they are injected with go test
 		debugPrint("flagsNotParsed: checking arg for test prefix:", arg)
-		if strings.HasPrefix(a, "test.") {
+		if strings.HasPrefix(arg, "test.") {
 			debugPrint("skipping test. prefixed arg has test prefix:", arg)
 			continue
 		}
-		debugPrint("flagsNotParsed: flag is not a .test flag:", arg)
+		debugPrint("flagsNotParsed: flag is not a test. flag:", arg)
 
 		// indicates that we found this arg used in one of the parsed values. Used
 		// to indicate which values should be added to argsNotUsed.
