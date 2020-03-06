@@ -345,6 +345,11 @@ func AddPositionalValue(assignmentVar *string, name string, relativePosition int
 	DefaultParser.AddPositionalValue(assignmentVar, name, relativePosition, required, description)
 }
 
+// Positional is shortcut for AddPositionalValue.
+func Positional(assignmentVar *string, name string, relativePosition int, required bool, description string)  {
+	AddPositionalValue(assignmentVar, name, relativePosition, required, description)
+}
+
 // debugPrint prints if debugging is enabled
 func debugPrint(i ...interface{}) {
 	if DebugMode {
