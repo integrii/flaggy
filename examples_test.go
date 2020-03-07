@@ -43,9 +43,9 @@ func ExampleSubcommand_AddPositionalValue() {
 	// Output: Positional flag set to subcommandBPositionalValue
 }
 
-// ExamplePositionalValue shows how to add positional variables at the
+// ExamplePositionalString shows how to add positional variables at the
 // global level.
-func ExamplePositionalValue() {
+func ExamplePositionalString() {
 
 	// Simulate some input from the CLI.  Don't do this in your program.
 	flaggy.ResetParser()
@@ -57,7 +57,7 @@ func ExamplePositionalValue() {
 
 	// add a bool flag at the global level
 	var stringVar string
-	flaggy.AddPositionalValue(&stringVar, "positionalVar", 1, false, "A test positional flag")
+	flaggy.PositionalString(&stringVar, "positionalVar", 1, false, "A test positional flag")
 
 	// Parse the input arguments from the OS (os.Args)
 	flaggy.Parse()

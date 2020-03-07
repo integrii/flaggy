@@ -649,9 +649,9 @@ func (sc *Subcommand) IPMaskSlice(assignmentVar *[]net.IPMask, shortName string,
 	sc.add(assignmentVar, shortName, longName, description)
 }
 
-// AddPositionalValue adds a positional value to the subcommand.  the
+// Positional adds a string-typed positional value to the subcommand.  the
 // relativePosition starts at 1 and is relative to the subcommand it belongs to
-func (sc *Subcommand) AddPositionalValue(assignmentVar *string, name string, relativePosition int, required bool, description string) {
+func (sc *Subcommand) PositionalString(assignmentVar *string, name string, relativePosition int, required bool, description string) {
 
 	// ensure no other positionals are at this depth
 	for _, other := range sc.PositionalFlags {
@@ -676,6 +676,13 @@ func (sc *Subcommand) AddPositionalValue(assignmentVar *string, name string, rel
 		defaultValue:  *assignmentVar,
 	}
 	sc.PositionalFlags = append(sc.PositionalFlags, &newPositionalValue)
+}
+
+// AddPositionalValue adds a positional value to the subcommand.
+// The relativePosition starts at 1 and is relative to the subcommand it belongs to.
+// This method is backward compatibility shortcut to the PositionalString().
+func (sc *Subcommand) AddPositionalValue(assignmentVar *string, name string, relativePosition int, required bool, description string) {
+	sc.PositionalString(assignmentVar, name, relativePosition, required, description)
 }
 
 // SetValueForKey sets the value for the specified key. If setting a bool
