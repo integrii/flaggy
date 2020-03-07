@@ -339,15 +339,25 @@ func ShowHelpOnUnexpectedDisable() {
 	DefaultParser.ShowHelpOnUnexpected = false
 }
 
-// PositionalString adds the string-typed positional argument to the main parser at the global context.
-// This is exactly copy of AddPositionalValue behavior.
-func PositionalString(assignmentVar *string, name string, relativePosition int, required bool, description string)  {
-	DefaultParser.PositionalString(assignmentVar, name, relativePosition, required, description)
-}
-
 // AddPositionalValue adds a positional value to the main parser at the global context.
 func AddPositionalValue(assignmentVar *string, name string, relativePosition int, required bool, description string) {
 	DefaultParser.AddPositionalValue(assignmentVar, name, relativePosition, required, description)
+}
+
+// PositionalString adds the string-typed positional argument to the main parser at the global context.
+// This is exactly copy of AddPositionalValue behavior.
+func PositionalString(assignmentVar *string, name string, relativePosition int, required bool, description string) {
+	DefaultParser.PositionalString(assignmentVar, name, relativePosition, required, description)
+}
+
+// PositionalInt adds the string-typed positional argument to the main parser at the global context.
+func PositionalBool(assignmentVar *bool, name string, relativePosition int, required bool, description string) {
+	DefaultParser.PositionalBool(assignmentVar, name, relativePosition, required, description)
+}
+
+// PositionalInt adds the string-typed positional argument to the main parser at the global context.
+func PositionalInt(assignmentVar *int, name string, relativePosition int, required bool, description string) {
+	DefaultParser.PositionalInt(assignmentVar, name, relativePosition, required, description)
 }
 
 // debugPrint prints if debugging is enabled

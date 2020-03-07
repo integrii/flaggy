@@ -22,7 +22,7 @@ func main() {
 	p.AdditionalHelpAppend = "This command has no warranty."
 
 	// add a positional value at position 1
-	p.AddPositionalValue(&positionalValue, "testPositional", 1, true, "This is a test positional value that is required")
+	p.PositionalString(&positionalValue, "testPositional", 1, true, "This is a test positional value that is required")
 
 	// create a subcommand at position 2
 	// you don't have to finish the subcommand before adding it to the parser

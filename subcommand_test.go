@@ -239,7 +239,7 @@ func TestSubcommandParse(t *testing.T) {
 	p.AttachSubcommand(newSC, 1)
 
 	// add a positional arg onto the subcommand at relative position 1
-	newSC.AddPositionalValue(&positionA, "positionalA", 1, false, "This is a test positional value")
+	newSC.PositionalString(&positionA, "positionalA", 1, false, "This is a test positional value")
 
 	// override os args and parse them
 	os.Args = []string{"binaryName", "testSubcommand", "testPositional"}
@@ -277,7 +277,7 @@ func TestBadPositional(t *testing.T) {
 	// add a positional arg into the subcommand
 	var positionA string
 	var err error
-	p.AddPositionalValue(&positionA, "positionalA", 1, false, "This is a test positional value")
+	p.PositionalString(&positionA, "positionalA", 1, false, "This is a test positional value")
 
 	//  test what happens if you add a bad subcommand
 	os.Args = []string{"test", "badPositional"}
@@ -333,7 +333,7 @@ func BenchmarkSubcommandParse(b *testing.B) {
 		p.AttachSubcommand(newSC, 1)
 
 		// add a positional arg onto the subcommand at relative position 1
-		newSC.AddPositionalValue(&positionA, "positionalA", 1, false, "This is a test positional value")
+		newSC.PositionalString(&positionA, "positionalA", 1, false, "This is a test positional value")
 
 		// override os args and parse them
 		os.Args = []string{"binaryName", "testSubcommand", "testPositional"}

@@ -48,8 +48,8 @@ func TestHelpOutput(t *testing.T) {
 	var posB string
 	p.AttachSubcommand(scA, 1)
 	scA.AttachSubcommand(scB, 1)
-	scA.AddPositionalValue(&posA, "testPositionalA", 2, false, "Test positional A does some things with a positional value.")
-	scB.AddPositionalValue(&posB, "hiddenPositional", 1, false, "Hidden test positional B does some less than serious things with a positional value.")
+	scA.PositionalString(&posA, "testPositionalA", 2, false, "Test positional A does some things with a positional value.")
+	scB.PositionalString(&posB, "hiddenPositional", 1, false, "Hidden test positional B does some less than serious things with a positional value.")
 	scB.PositionalFlags[0].Hidden = true
 	var stringFlag = "defaultStringHere"
 	var intFlag int

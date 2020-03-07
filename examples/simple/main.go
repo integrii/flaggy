@@ -1,17 +1,21 @@
 package main
 
-import "github.com/integrii/flaggy"
+import (
+	"fmt"
+	"github.com/integrii/flaggy"
+)
 
 func main() {
-	// Declare variables and their defaults
-	var stringFlag = "defaultValue"
+	var stringValue = "abcdef"
+	var boolValue = false
+	var intValue = 123456
 
-	// Add a flag
-	flaggy.String(&stringFlag, "f", "flag", "A test string flag")
-
-	// Parse the flag
+	flaggy.PositionalString(&stringValue, "str", 1, true, "String value")
+	flaggy.PositionalBool(&boolValue, "bool", 2, true, "Boolean value")
+	flaggy.PositionalInt(&intValue, "int", 3, true, "Integer value")
 	flaggy.Parse()
 
-	// Use the flag
-	print(stringFlag)
+	fmt.Printf("%T: %v\n", stringValue, stringValue)
+	fmt.Printf("%T: %v\n", boolValue, boolValue)
+	fmt.Printf("%T: %v\n", intValue, intValue)
 }

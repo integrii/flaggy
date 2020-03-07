@@ -37,8 +37,8 @@ func TestComplexNesting(t *testing.T) {
 	flaggy.ResetParser()
 
 	var testA string
-	var testB string
-	var testC string
+	var testB bool
+	var testC int
 	var testD string
 	var testE string
 	var testF bool
@@ -52,19 +52,19 @@ func TestComplexNesting(t *testing.T) {
 
 	flaggy.AttachSubcommand(scA, 1)
 
-	scA.AddPositionalValue(&testA, "testA", 1, false, "")
-	scA.AddPositionalValue(&testB, "testB", 2, false, "")
-	scA.AddPositionalValue(&testC, "testC", 3, false, "")
+	scA.PositionalString(&testA, "testA", 1, false, "")
+	scA.PositionalBool(&testB, "testB", 2, false, "")
+	scA.PositionalInt(&testC, "testC", 3, false, "")
 	scA.AttachSubcommand(scB, 4)
 
-	scB.AddPositionalValue(&testD, "testD", 1, false, "")
+	scB.PositionalString(&testD, "testD", 1, false, "")
 	scB.AttachSubcommand(scC, 2)
 
 	scC.AttachSubcommand(scD, 1)
 
-	scD.AddPositionalValue(&testE, "testE", 1, true, "")
+	scD.PositionalString(&testE, "testE", 1, true, "")
 
-	args := []string{"scA", "-f", "A", "B", "C", "scB", "D", "scC", "scD", "E"}
+	args := []string{"scA", "-f", "A", "true", "123", "scB", "D", "scC", "scD", "E"}
 	t.Log(args)
 	flaggy.ParseArgs(args)
 
@@ -92,11 +92,11 @@ func TestComplexNesting(t *testing.T) {
 		t.Log("testA", testA)
 		t.FailNow()
 	}
-	if testB != "B" {
+	if testB != true {
 		t.Log("testB", testB)
 		t.FailNow()
 	}
-	if testC != "C" {
+	if testC != 123 {
 		t.Log("testC", testC)
 		t.FailNow()
 	}
@@ -143,8 +143,8 @@ func TestParsePositionalsA(t *testing.T) {
 	subCommand.String(&testK, "k", "testK", "test full length flag with attached arg")
 
 	// add positionals to subcommand
-	subCommand.AddPositionalValue(&positionalA, "PositionalA", 1, false, "PositionalA test value")
-	subCommand.AddPositionalValue(&positionalB, "PositionalB", 2, false, "PositionalB test value")
+	subCommand.PositionalString(&positionalA, "PositionalA", 1, false, "PositionalA test value")
+	subCommand.PositionalString(&positionalB, "PositionalB", 2, false, "PositionalB test value")
 
 	// parse input
 	err = parser.ParseArgs(inputLine)

@@ -7,9 +7,9 @@ import (
 	"github.com/integrii/flaggy"
 )
 
-// ExampleSubcommand_AddPositionalValue adds two levels of subcommands with a
+// ExampleSubcommand_PositionalString adds two levels of subcommands with a
 // positional value on the second level one
-func ExampleSubcommand_AddPositionalValue() {
+func ExampleSubcommand_PositionalString() {
 
 	// Simulate some input from the CLI.  Don't do this in your program.
 	flaggy.ResetParser()
@@ -33,7 +33,7 @@ func ExampleSubcommand_AddPositionalValue() {
 	// position 1
 	subcommandA.AttachSubcommand(subcommandB, 1)
 	// add a positional to the second subcommand with a relative position of 1
-	subcommandB.AddPositionalValue(&subcommandBPositional, "subcommandTestPositonalValue", 1, false, "A test positional input variable")
+	subcommandB.PositionalString(&subcommandBPositional, "subcommandTestPositonalValue", 1, false, "A test positional input variable")
 
 	// Parse the input arguments from the OS (os.Args) using the default parser
 	flaggy.Parse()
@@ -45,28 +45,42 @@ func ExampleSubcommand_AddPositionalValue() {
 
 // ExamplePositionalString shows how to add positional variables at the
 // global level.
-func ExamplePositionalString() {
+func ExamplePositionalTypes() {
 
 	// Simulate some input from the CLI.  Don't do this in your program.
 	flaggy.ResetParser()
-	os.Args = []string{"binaryName", "positionalValue"}
+	os.Args = []string{"binaryName", "string123", "true", "123"}
 
 	// Imagine the following program usage:
 	//
 	// ./binaryName positionalValue
 
-	// add a bool flag at the global level
-	var stringVar string
-	flaggy.PositionalString(&stringVar, "positionalVar", 1, false, "A test positional flag")
+	var stringValue string
+	var boolValue bool
+	var intValue int
+
+	// Define typed positional arguments.
+	flaggy.PositionalString(&stringValue, "str", 1, false, "String value")
+	flaggy.PositionalBool(&boolValue, "bool", 2, false, "Boolean value")
+	flaggy.PositionalInt(&intValue, "int", 3, false, "Integer value")
 
 	// Parse the input arguments from the OS (os.Args)
 	flaggy.Parse()
 
-	// see if our flag was set properly
-	if stringVar == "positionalValue" {
-		fmt.Println("Flag set to", stringVar)
+	// see if our flags was set properly
+	if stringValue == "string123" {
+		fmt.Println("Flag set to", stringValue)
 	}
-	// Output: Flag set to positionalValue
+	if boolValue == true {
+		fmt.Println("Flag set to", boolValue)
+	}
+	if intValue == 123 {
+		fmt.Println("Flag set to", intValue)
+	}
+	// Output:
+	// Flag set to string123
+	// Flag set to true
+	// Flag set to 123
 }
 
 // ExampleBoolFlag shows how to global bool flags in your program.
@@ -178,7 +192,7 @@ func ExampleSubcommand() {
 	newSC.String(&subcommandVariable, "v", "variable", "A test variable.")
 
 	var subcommandPositional string
-	newSC.AddPositionalValue(&subcommandPositional, "testPositionalVar", 1, false, "A test positional variable to a subcommand.")
+	newSC.PositionalString(&subcommandPositional, "testPositionalVar", 1, false, "A test positional variable to a subcommand.")
 
 	// Attach the subcommand to the parser. This will panic if another
 	// positional value or subcommand is already present at the depth supplied.

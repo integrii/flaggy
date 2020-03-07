@@ -52,7 +52,7 @@ This is a prepend for help
   Usage:
     testCommand [subcommandA|subcommandB|subcommandC] [testPositionalA] [testPositionalB]
 
-  Positional Variables:
+  Positionals:
     testPositionalA   Test positional A does some things with a positional value. (Required)
     testPositionalB   Test positional B does some less than serious things with a positional value.
 

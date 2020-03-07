@@ -11,12 +11,13 @@ const helpTemplate = `{{.CommandName}}{{if .Description}} - {{.Description}}{{en
   Usage:
     {{.UsageString}}{{end}}{{if .Positionals}}
 
-  Positional Variables: {{range .Positionals}}
+  Positionals: {{range .Positionals}}
     {{.Name}}  {{.Spacer}}{{if .Description}} {{.Description}}{{end}}{{if .DefaultValue}} (default: {{.DefaultValue}}){{else}}{{if .Required}} (Required){{end}}{{end}}{{end}}{{end}}{{if .Subcommands}}
 
   Subcommands: {{range .Subcommands}}
     {{.LongName}}{{if .ShortName}} ({{.ShortName}}){{end}}{{if .Position}}{{if gt .Position 1}}  (position {{.Position}}){{end}}{{end}}{{if .Description}}   {{.Spacer}}{{.Description}}{{end}}{{end}}
 {{end}}{{if (gt (len .Flags) 0)}}
+
   Flags: {{if .Flags}}{{range .Flags}}
     {{if .ShortName}}-{{.ShortName}} {{else}}   {{end}}{{if .LongName}}--{{.LongName}}{{end}}{{if .Description}}   {{.Spacer}}{{.Description}}{{if .DefaultValue}} (default: {{.DefaultValue}}){{end}}{{end}}{{end}}{{end}}
 {{end}}{{if .AppendMessage}}{{.AppendMessage}}

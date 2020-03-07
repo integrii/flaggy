@@ -287,12 +287,11 @@ func (sc *Subcommand) parse(p *Parser, args []string, depth int) error {
 			if relativeDepth == val.Position {
 				debugPrint("Found a positional value at relativePos:", relativeDepth, "value:", v)
 
-				// set original value for help output
-				val.defaultValue = *val.AssignmentVar
+				err := val.identifyAndAssignValue(v)
+				if err != nil {
+					return err
+				}
 
-				// defrerence the struct pointer, then set the pointer property within it
-				*val.AssignmentVar = v
-				// debugPrint("set positional to value", *val.AssignmentVar)
 				foundPositional = true
 				val.Found = true
 				break
@@ -439,6 +438,36 @@ func (sc *Subcommand) add(assignmentVar interface{}, shortName string, longName 
 		Description:   description,
 	}
 	sc.Flags = append(sc.Flags, &newFlag)
+}
+
+// addPositional is a "generic" to add positional values of any supported type.
+func (sc *Subcommand) addPositional(assignmentVar interface{}, name string, relativePosition int, required bool, description string) {
+	// ensure no other positionals are at this depth
+	for _, other := range sc.PositionalFlags {
+		if relativePosition == other.Position {
+			log.Panicln("Unable to add positional value because one already exists at position: " + strconv.Itoa(relativePosition))
+		}
+	}
+
+	// ensure no subcommands at this depth
+	for _, other := range sc.Subcommands {
+		if relativePosition == other.Position {
+			log.Panicln("Unable to add positional value a subcommand already exists at position: " + strconv.Itoa(relativePosition))
+		}
+	}
+
+	newPositional := PositionalValue{
+		Name:          name,
+		Description:   description,
+		AssignmentVar: assignmentVar,
+		Position:      relativePosition,
+		Required:      required,
+	}
+
+	// Parse the default value as a string and remember it for help output.
+	newPositional.defaultValue, _ = newPositional.returnAssignmentVarValueAsString()
+
+	sc.PositionalFlags = append(sc.PositionalFlags, &newPositional)
 }
 
 // String adds a new string flag
@@ -649,40 +678,29 @@ func (sc *Subcommand) IPMaskSlice(assignmentVar *[]net.IPMask, shortName string,
 	sc.add(assignmentVar, shortName, longName, description)
 }
 
-// Positional adds a string-typed positional value to the subcommand.  the
-// relativePosition starts at 1 and is relative to the subcommand it belongs to
-func (sc *Subcommand) PositionalString(assignmentVar *string, name string, relativePosition int, required bool, description string) {
-
-	// ensure no other positionals are at this depth
-	for _, other := range sc.PositionalFlags {
-		if relativePosition == other.Position {
-			log.Panicln("Unable to add positional value because one already exists at position: " + strconv.Itoa(relativePosition))
-		}
-	}
-
-	// ensure no subcommands at this depth
-	for _, other := range sc.Subcommands {
-		if relativePosition == other.Position {
-			log.Panicln("Unable to add positional value a subcommand already exists at position: " + strconv.Itoa(relativePosition))
-		}
-	}
-
-	newPositionalValue := PositionalValue{
-		Name:          name,
-		Position:      relativePosition,
-		AssignmentVar: assignmentVar,
-		Required:      required,
-		Description:   description,
-		defaultValue:  *assignmentVar,
-	}
-	sc.PositionalFlags = append(sc.PositionalFlags, &newPositionalValue)
-}
-
 // AddPositionalValue adds a positional value to the subcommand.
 // The relativePosition starts at 1 and is relative to the subcommand it belongs to.
 // This method is backward compatibility shortcut to the PositionalString().
 func (sc *Subcommand) AddPositionalValue(assignmentVar *string, name string, relativePosition int, required bool, description string) {
-	sc.PositionalString(assignmentVar, name, relativePosition, required, description)
+	sc.addPositional(assignmentVar, name, relativePosition, required, description)
+}
+
+// PositionalString adds a string-typed positional value to the subcommand.
+// The relativePosition starts at 1 and is relative to the subcommand it belongs to.
+func (sc *Subcommand) PositionalString(assignmentVar *string, name string, relativePosition int, required bool, description string) {
+	sc.addPositional(assignmentVar, name, relativePosition, required, description)
+}
+
+// PositionalBool adds a string-typed positional value to the subcommand.
+// The relativePosition starts at 1 and is relative to the subcommand it belongs to.
+func (sc *Subcommand) PositionalBool(assignmentVar *bool, name string, relativePosition int, required bool, description string) {
+	sc.addPositional(assignmentVar, name, relativePosition, required, description)
+}
+
+// PositionalInt adds a string-typed positional value to the subcommand.
+// The relativePosition starts at 1 and is relative to the subcommand it belongs to.
+func (sc *Subcommand) PositionalInt(assignmentVar *int, name string, relativePosition int, required bool, description string) {
+	sc.addPositional(assignmentVar, name, relativePosition, required, description)
 }
 
 // SetValueForKey sets the value for the specified key. If setting a bool
