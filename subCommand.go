@@ -689,7 +689,10 @@ func (sc *Subcommand) SetValueForKey(key string, value string) (bool, error) {
 		// debugPrint("Evaluating string flag", f.ShortName, "==", key, "||", f.LongName, "==", key)
 		if f.ShortName == key || f.LongName == key {
 			// debugPrint("Setting string value for", key, "to", value)
-			f.identifyAndAssignValue(value)
+			err := f.identifyAndAssignValue(value)
+			if err != nil {
+				return false, err
+			}
 			return true, nil
 		}
 	}

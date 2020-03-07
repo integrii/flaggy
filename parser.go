@@ -53,7 +53,7 @@ func (p *Parser) ParseArgs(args []string) error {
 	debugPrint("Kicking off parsing with args:", args)
 	err := p.parse(p, args, 0)
 	if err != nil {
-		return err
+		p.ShowHelpAndExit("Parse error: " + err.Error())
 	}
 
 	// if we are set to crash on unexpected args, look for those here TODO
