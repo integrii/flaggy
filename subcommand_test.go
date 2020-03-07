@@ -55,7 +55,7 @@ func TestExitOnUnknownFlag(t *testing.T) {
 	var expectedPositional string
 	flaggy.ResetParser()
 	flaggy.String(&expectedFlag, "f", "flag", "an expected positonal flag")
-	flaggy.AddPositionalValue(&expectedPositional, "positionalTest", 1, true, "A test positional value")
+	flaggy.PositionalString(&expectedPositional, "positionalTest", 1, true, "A test positional value")
 	flaggy.ParseArgs([]string{"positionalHere", "-f", "flagHere", "unexpectedValue"})
 }
 
@@ -77,7 +77,7 @@ func TestExitOnUnknownFlagWithValue(t *testing.T) {
 	var expectedPositional string
 	flaggy.ResetParser()
 	flaggy.String(&expectedFlag, "f", "flag", "an expected positonal flag")
-	flaggy.AddPositionalValue(&expectedPositional, "positionalTest", 1, true, "A test positional value")
+	flaggy.PositionalString(&expectedPositional, "positionalTest", 1, true, "A test positional value")
 	flaggy.ParseArgs([]string{"positionalHere", "-f", "flagHere", "--unexpectedValue=true"})
 }
 
@@ -94,8 +94,8 @@ func TestDoublePositional(t *testing.T) {
 	defer debugOff()
 	var posTest string
 	flaggy.ResetParser()
-	flaggy.AddPositionalValue(&posTest, "posTest", 1, true, "First test positional")
-	flaggy.AddPositionalValue(&posTest, "posTest2", 1, true, "Second test positional")
+	flaggy.PositionalString(&posTest, "posTest", 1, true, "First test positional")
+	flaggy.PositionalString(&posTest, "posTest2", 1, true, "Second test positional")
 }
 
 func TestNextArgDoesNotExist(t *testing.T) {
@@ -138,7 +138,7 @@ func TestRequiredPositional(t *testing.T) {
 	// flaggy.DebugMode = true
 	defer debugOff()
 	var posTest string
-	flaggy.AddPositionalValue(&posTest, "posTest", 1, true, "First test positional")
+	flaggy.PositionalString(&posTest, "posTest", 1, true, "First test positional")
 	flaggy.Parse()
 }
 
