@@ -167,13 +167,7 @@ func (p *Parser) SetHelpTemplate(tmpl string) error {
 
 // Parse calculates all flags and subcommands
 func (p *Parser) Parse() error {
-
-	err := p.ParseArgs(os.Args[1:])
-	if err != nil {
-		return err
-	}
-	return nil
-
+	return p.ParseArgs(os.Args[1:])
 }
 
 // ShowHelp shows Help without an error message
