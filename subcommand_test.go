@@ -155,7 +155,9 @@ func TestTypoSubcommand(t *testing.T) {
 	newSCB := flaggy.NewSubcommand("TestTypoSubcommandB")
 	p.AttachSubcommand(newSCA, 1)
 	p.AttachSubcommand(newSCB, 1)
-	p.ParseArgs(args)
+	if err := p.ParseArgs(args); err != nil {
+		t.Fatalf("got: %s; want: no error", err)
+	}
 }
 
 // TestIgnoreUnexpected tests what happens when an invalid subcommand is passed but should be ignored
@@ -165,7 +167,9 @@ func TestIgnoreUnexpected(t *testing.T) {
 	args := []string{"unexpectedArg"}
 	newSCA := flaggy.NewSubcommand("TestTypoSubcommandA")
 	p.AttachSubcommand(newSCA, 1)
-	p.ParseArgs(args)
+	if err := p.ParseArgs(args); err != nil {
+		t.Fatalf("got: %s; want: no error", err)
+	}
 }
 
 // TestSubcommandHelp tests displaying of help on unspecified commands
@@ -179,7 +183,9 @@ func TestSubcommandHelp(t *testing.T) {
 	p := flaggy.NewParser("TestSubcommandHelp")
 	p.ShowHelpOnUnexpected = true
 	args := []string{"unexpectedArg"}
-	p.ParseArgs(args)
+	if err := p.ParseArgs(args); err != nil {
+		t.Fatalf("got: %s; want: no error", err)
+	}
 }
 
 func TestHelpWithHFlagA(t *testing.T) {
@@ -192,7 +198,9 @@ func TestHelpWithHFlagA(t *testing.T) {
 	p := flaggy.NewParser("TestHelpWithHFlag")
 	p.ShowHelpWithHFlag = true
 	args := []string{"-h"}
-	p.ParseArgs(args)
+	if err := p.ParseArgs(args); err != nil {
+		t.Fatalf("got: %s; want: no error", err)
+	}
 }
 
 func TestHelpWithHFlagB(t *testing.T) {
@@ -205,7 +213,9 @@ func TestHelpWithHFlagB(t *testing.T) {
 	p := flaggy.NewParser("TestHelpWithHFlag")
 	p.ShowHelpWithHFlag = true
 	args := []string{"--help"}
-	p.ParseArgs(args)
+	if err := p.ParseArgs(args); err != nil {
+		t.Fatalf("got: %s; want: no error", err)
+	}
 }
 
 func TestVersionWithVFlagB(t *testing.T) {
@@ -219,7 +229,9 @@ func TestVersionWithVFlagB(t *testing.T) {
 	p.ShowVersionWithVersionFlag = true
 	p.Version = "TestVersionWithVFlagB 0.0.0a"
 	args := []string{"--version"}
-	p.ParseArgs(args)
+	if err := p.ParseArgs(args); err != nil {
+		t.Fatalf("got: %s; want: no error", err)
+	}
 }
 
 // TestSubcommandParse tests paring of a single subcommand
@@ -241,7 +253,9 @@ func TestSubcommandParse(t *testing.T) {
 
 	// override os args and parse them
 	os.Args = []string{"binaryName", "testSubcommand", "testPositional"}
-	p.Parse()
+	if err := p.Parse(); err != nil {
+		t.Fatalf("got: %s; want: no error", err)
+	}
 
 	// ensure subcommand and positional used
 	if !newSC.Used {
@@ -262,7 +276,9 @@ func TestBadSubcommand(t *testing.T) {
 
 	//  test what happens if you add a bad subcommand
 	os.Args = []string{"test"}
-	p.Parse()
+	if err := p.Parse(); err != nil {
+		t.Fatalf("got: %s; want: no error", err)
+	}
 }
 
 func TestBadPositional(t *testing.T) {
