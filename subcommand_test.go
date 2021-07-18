@@ -21,7 +21,6 @@ func TestSCNameExists(t *testing.T) {
 	scB := flaggy.NewSubcommand("test")
 	flaggy.AttachSubcommand(scA, 1)
 	flaggy.AttachSubcommand(scB, 1)
-
 }
 
 func TestFlagExists(t *testing.T) {
@@ -37,7 +36,6 @@ func TestFlagExists(t *testing.T) {
 	if e == false {
 		t.Fatal("Flag does not exist on a subcommand that should")
 	}
-
 }
 
 // TestExitOnUnknownFlag tests that when an unknown flag is supplied and the
@@ -255,7 +253,6 @@ func TestSubcommandParse(t *testing.T) {
 }
 
 func TestBadSubcommand(t *testing.T) {
-
 	// create the argument parser
 	p := flaggy.NewParser("TestBadSubcommand")
 
@@ -269,7 +266,6 @@ func TestBadSubcommand(t *testing.T) {
 }
 
 func TestBadPositional(t *testing.T) {
-
 	// create the argument parser
 	p := flaggy.NewParser("TestBadPositional")
 
@@ -310,7 +306,6 @@ func debugOff() {
 // BenchmarkSubcommandParse benchmarks the creation and parsing of
 // a basic subcommand
 func BenchmarkSubcommandParse(b *testing.B) {
-
 	// catch errors that may occur
 	defer func(b *testing.B) {
 		err := recover()
@@ -342,7 +337,6 @@ func BenchmarkSubcommandParse(b *testing.B) {
 			b.Fatal("Error parsing args: " + err.Error())
 		}
 	}
-
 }
 
 // TestSCInputParsing tests all flag types on subcommands
