@@ -656,14 +656,14 @@ func (sc *Subcommand) AddPositionalValue(assignmentVar *string, name string, rel
 	// ensure no other positionals are at this depth
 	for _, other := range sc.PositionalFlags {
 		if relativePosition == other.Position {
-			log.Panicln("Unable to add positional value because one already exists at position: " + strconv.Itoa(relativePosition))
+			log.Panicln("Unable to add positional value " + name + " because " + other.Name + " already exists at position: " + strconv.Itoa(relativePosition))
 		}
 	}
 
 	// ensure no subcommands at this depth
 	for _, other := range sc.Subcommands {
 		if relativePosition == other.Position {
-			log.Panicln("Unable to add positional value a subcommand already exists at position: " + strconv.Itoa(relativePosition))
+			log.Panicln("Unable to add positional value " + name + "because a subcommand, " + other.Name + ", already exists at position: " + strconv.Itoa(relativePosition))
 		}
 	}
 
