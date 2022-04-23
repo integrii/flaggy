@@ -52,7 +52,6 @@ type HelpFlag struct {
 // parser. The parser is required in order to detect default flag settings
 // for help and version output.
 func (h *Help) ExtractValues(p *Parser, message string) {
-
 	// accept message string for output
 	h.Message = message
 
@@ -187,13 +186,11 @@ func (h *Help) ExtractValues(p *Parser, message string) {
 	}
 
 	h.UsageString = usageString
-
 }
 
 // parseFlagsToHelpFlags parses the specified slice of flags into
 // help flags on the the calling help command
 func (h *Help) parseFlagsToHelpFlags(flags []*Flag, maxLength int) {
-
 	for _, f := range flags {
 		if f.Hidden {
 			continue
@@ -218,7 +215,7 @@ func (h *Help) parseFlagsToHelpFlags(flags []*Flag, maxLength int) {
 		_, isBool := f.AssignmentVar.(*bool)
 		if isBool {
 			b := f.AssignmentVar.(*bool)
-			if *b == false {
+			if !*b {
 				defaultValue = ""
 			}
 		}

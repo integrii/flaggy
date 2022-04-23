@@ -45,7 +45,7 @@ func TestFindArgsNotInParsedValues(t *testing.T) {
 
 	// ensure regular values are not skipped
 	parsedValues = []parsedValue{
-		parsedValue{
+		{
 			Key:   "flaggy",
 			Value: "testing",
 		},
