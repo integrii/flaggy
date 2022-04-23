@@ -108,7 +108,7 @@ func TestComplexNesting(t *testing.T) {
 		t.Log("testE", testE)
 		t.FailNow()
 	}
-	if subcommandName := flaggy.DefaultParser.TerminalSubcommand().Name; subcommandName != "scD" {
+	if subcommandName := flaggy.DefaultParser.TrailingSubcommand().Name; subcommandName != "scD" {
 		t.Fatal("Used subcommand was incorrect:", subcommandName)
 	}
 
@@ -180,7 +180,7 @@ func TestParsePositionalsA(t *testing.T) {
 	if parser.TrailingArguments[1] != "trailingB" {
 		t.Fatal("Trailing argumentB was incorrect:", parser.TrailingArguments[1])
 	}
-	if subcommandName := parser.TerminalSubcommand().Name; subcommandName != "subcommand" {
+	if subcommandName := parser.TrailingSubcommand().Name; subcommandName != "subcommand" {
 		t.Fatal("Used subcommand was incorrect:", subcommandName)
 	}
 
