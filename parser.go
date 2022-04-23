@@ -26,6 +26,11 @@ type Parser struct {
 	subcommandContext          *Subcommand        // points to the most specific subcommand being used
 }
 
+TrailingSubcommand returns the last and most specific subcommand invoked.
+func (p *Parser) TrailingSubcommand() *Subcommand {
+	return p.subcommandContext
+}
+
 // NewParser creates a new ArgumentParser ready to parse inputs
 func NewParser(name string) *Parser {
 	// this can not be done inline because of struct embedding
