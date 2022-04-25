@@ -26,7 +26,7 @@ type Parser struct {
 	subcommandContext          *Subcommand        // points to the most specific subcommand being used
 }
 
-TrailingSubcommand returns the last and most specific subcommand invoked.
+// TrailingSubcommand returns the last and most specific subcommand invoked.
 func (p *Parser) TrailingSubcommand() *Subcommand {
 	return p.subcommandContext
 }
