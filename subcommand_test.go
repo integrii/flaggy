@@ -814,3 +814,18 @@ func TestNestedSCBoolFlag(t *testing.T) {
 		t.Fatal("Error parsing args: " + err.Error())
 	}
 }
+
+func TestParseErrorsAreReportedRegression(t *testing.T) {
+	defer func() {
+		r := recover()
+		if r == nil {
+			t.Fatal("Expected crash on invalid syntax")
+		}
+	}()
+
+	flaggy.ResetParser()
+	intFlag := 42
+	flaggy.Int(&intFlag, "i", "int", "dummy")
+	os.Args = []string{"prog", "--int", "abc"}
+	flaggy.Parse()
+}
