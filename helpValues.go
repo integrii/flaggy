@@ -218,7 +218,7 @@ func (h *Help) parseFlagsToHelpFlags(flags []*Flag, maxLength int) {
 		_, isBool := f.AssignmentVar.(*bool)
 		if isBool {
 			b := f.AssignmentVar.(*bool)
-			if *b == false {
+			if !*b {
 				defaultValue = ""
 			}
 		}
