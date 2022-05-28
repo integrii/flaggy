@@ -57,7 +57,11 @@ func TestHelpWithMissingSCName(t *testing.T) {
 		}
 	}()
 	flaggy.ResetParser()
-	flaggy.NewSubcommand("")
+	flaggy.PanicInsteadOfExit = true
+	sc := flaggy.NewSubcommand("")
+	sc.ShortName = "sn"
+	flaggy.AttachSubcommand(sc, 1)
+	flaggy.ParseArgs([]string{"x"})
 }
 
 // TestHelpOutput tests the dislay of help with -h

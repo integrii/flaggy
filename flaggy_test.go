@@ -7,10 +7,11 @@ import (
 	"github.com/integrii/flaggy"
 )
 
-// TestTrailingArguments tests trailing argument parsing
-func TestTrailingArguments(t *testing.T) {
+// TestTrailingArgumentsDashes tests trailing argument parsing when --- is used
+func TestTrailingArgumentsDashes(t *testing.T) {
+
 	flaggy.ResetParser()
-	args := []string{"./flaggy.text", "--", "one", "two"}
+	args := []string{"./flaggy.test", "--", "one", "two"}
 	os.Args = args
 	flaggy.Parse()
 	if len(flaggy.TrailingArguments) != 2 {
@@ -24,7 +25,35 @@ func TestTrailingArguments(t *testing.T) {
 	if flaggy.TrailingArguments[1] != "two" {
 		t.Fatal("incorrect argument parsed.  Got", flaggy.TrailingArguments[1], "but expected two")
 	}
+}
 
+// TestTrailingArgumentsNoDashes tests trailing argument parsing without using ---
+func TestTrailingArgumentsNoDashes(t *testing.T) {
+
+	flaggy.ResetParser()
+	var positionalValue string
+	args := []string{"./flaggy.test", "positional", "one", "two"}
+	os.Args = args
+
+	flaggy.ShowHelpOnUnexpectedDisable()
+	flaggy.AddPositionalValue(&positionalValue, "testPositional", 1, false, "a test positional")
+
+	flaggy.Parse()
+	if len(flaggy.TrailingArguments) != 2 {
+		t.Fatal("incorrect argument count parsed.  Got", len(flaggy.TrailingArguments), "but expected", 2)
+	}
+
+	if flaggy.TrailingArguments[0] != "one" {
+		t.Fatal("incorrect argument parsed.  Got", flaggy.TrailingArguments[0], "but expected one")
+	}
+
+	if flaggy.TrailingArguments[1] != "two" {
+		t.Fatal("incorrect argument parsed.  Got", flaggy.TrailingArguments[1], "but expected two")
+	}
+
+	if positionalValue != "positional" {
+		t.Fatal("expected positional value was not found set to the string 'positional'")
+	}
 }
 
 // TestComplexNesting tests various levels of nested subcommands and
