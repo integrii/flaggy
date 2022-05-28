@@ -57,7 +57,8 @@ func ResetParser() {
 	}
 }
 
-// Parse parses flags as requested in the default package parser
+// Parse parses flags as requested in the default package parser.  All trailing arguments
+// that result from parsing are placed in the global TrailingArguments variable.
 func Parse() {
 	err := DefaultParser.Parse()
 	TrailingArguments = DefaultParser.TrailingArguments
@@ -67,7 +68,8 @@ func Parse() {
 }
 
 // ParseArgs parses the passed args as if they were the arguments to the
-// running binary.  Targets the default main parser for the package.
+// running binary.  Targets the default main parser for the package.  All trailing
+// arguments are set in the global TrailingArguments variable.
 func ParseArgs(args []string) {
 	err := DefaultParser.ParseArgs(args)
 	TrailingArguments = DefaultParser.TrailingArguments

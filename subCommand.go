@@ -115,7 +115,7 @@ func (sc *Subcommand) parseAllFlagsFromArgs(p *Parser, args []string) ([]string,
 		argType := determineArgType(a)
 
 		// strip flags from arg
-		// debugPrint("Parsing flag named", a, "of type", argType)
+		debugPrint("Parsing flag named", a, "of type", argType)
 
 		// depending on the flag type, parse the key and value out, then apply it
 		switch argType {
@@ -301,39 +301,49 @@ func (sc *Subcommand) parse(p *Parser, args []string, depth int) error {
 
 		// if there aren't any positional flags but there are subcommands that
 		// were not used, display a useful message with subcommand options.
-		if !foundPositional && p.ShowHelpOnUnexpected {
-			debugPrint("No positional at position", relativeDepth)
-			var foundSubcommandAtDepth bool
-			for _, cmd := range sc.Subcommands {
-				if cmd.Position == relativeDepth {
-					foundSubcommandAtDepth = true
-				}
-			}
-
-			// if there is a subcommand here but it was not specified, display them all
-			// as a suggestion to the user before exiting.
-			if foundSubcommandAtDepth {
-				// determine which name to use in upcoming help output
-				fmt.Fprintln(os.Stderr, sc.Name+":", "No subcommand or positional value found at position", strconv.Itoa(relativeDepth)+".")
-				var output string
+		if !foundPositional {
+			if p.ShowHelpOnUnexpected {
+				debugPrint("No positional at position", relativeDepth)
+				var foundSubcommandAtDepth bool
 				for _, cmd := range sc.Subcommands {
-					if cmd.Hidden {
-						continue
+					if cmd.Position == relativeDepth {
+						foundSubcommandAtDepth = true
 					}
-					output = output + " " + cmd.Name
 				}
-				// if there are available subcommands, let the user know
-				if len(output) > 0 {
-					output = strings.TrimLeft(output, " ")
-					fmt.Println("Available subcommands:", output)
-				}
-				exitOrPanic(2)
-			}
 
-			// if there were not any flags or subcommands at this position at all, then
-			// throw an error (display Help if necessary)
-			p.ShowHelpWithMessage("Unexpected argument: " + v)
-			exitOrPanic(2)
+				// if there is a subcommand here but it was not specified, display them all
+				// as a suggestion to the user before exiting.
+				if foundSubcommandAtDepth {
+					// determine which name to use in upcoming help output
+					fmt.Fprintln(os.Stderr, sc.Name+":", "No subcommand or positional value found at position", strconv.Itoa(relativeDepth)+".")
+					var output string
+					for _, cmd := range sc.Subcommands {
+						if cmd.Hidden {
+							continue
+						}
+						output = output + " " + cmd.Name
+					}
+					// if there are available subcommands, let the user know
+					if len(output) > 0 {
+						output = strings.TrimLeft(output, " ")
+						fmt.Println("Available subcommands:", output)
+					}
+					exitOrPanic(2)
+				}
+
+				// if there were not any flags or subcommands at this position at all, then
+				// throw an error (display Help if necessary)
+				p.ShowHelpWithMessage("Unexpected argument: " + v)
+				exitOrPanic(2)
+			} else {
+				// if no positional value was registered at this position, but the parser is not
+				// configured to show help when any unexpected command is found, add this positional
+				// to the list of trailing arguments.  This allows for any number of unspecified
+				// values to be added at the end of the arguments list without using the ---
+				// trailing arguments separator.
+				p.TrailingArguments = append(p.TrailingArguments, v)
+
+			}
 		}
 	}
 

@@ -20,6 +20,7 @@ func TestHelpWithMissingSCName(t *testing.T) {
 		}
 	}()
 	flaggy.ResetParser()
+	flaggy.PanicInsteadOfExit = true
 	sc := flaggy.NewSubcommand("")
 	sc.ShortName = "sn"
 	flaggy.AttachSubcommand(sc, 1)
