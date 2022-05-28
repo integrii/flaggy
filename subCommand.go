@@ -666,14 +666,14 @@ func (sc *Subcommand) AddPositionalValue(assignmentVar *string, name string, rel
 	// ensure no other positionals are at this depth
 	for _, other := range sc.PositionalFlags {
 		if relativePosition == other.Position {
-			log.Panicln("Unable to add positional value because one already exists at position: " + strconv.Itoa(relativePosition))
+			log.Panicln("Unable to add positional value " + name + " because " + other.Name + " already exists at position: " + strconv.Itoa(relativePosition))
 		}
 	}
 
 	// ensure no subcommands at this depth
 	for _, other := range sc.Subcommands {
 		if relativePosition == other.Position {
-			log.Panicln("Unable to add positional value a subcommand already exists at position: " + strconv.Itoa(relativePosition))
+			log.Panicln("Unable to add positional value " + name + "because a subcommand, " + other.Name + ", already exists at position: " + strconv.Itoa(relativePosition))
 		}
 	}
 
@@ -699,7 +699,9 @@ func (sc *Subcommand) SetValueForKey(key string, value string) (bool, error) {
 		// debugPrint("Evaluating string flag", f.ShortName, "==", key, "||", f.LongName, "==", key)
 		if f.ShortName == key || f.LongName == key {
 			// debugPrint("Setting string value for", key, "to", value)
-			f.identifyAndAssignValue(value)
+			if err := f.identifyAndAssignValue(value); err != nil {
+				return false, err
+			}
 			return true, nil
 		}
 	}
