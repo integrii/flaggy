@@ -6,7 +6,6 @@ import (
 	"os"
 	"strconv"
 	"strings"
-
 	"text/template"
 )
 
@@ -94,7 +93,8 @@ func findArgsNotInParsedValues(args []string, parsedValues []parsedValue) []stri
 
 		// if the final argument (--) is seen, then we stop checking because all
 		// further values are trailing arguments.
-		if determineArgType(a) == argIsFinal {
+		argType := determineArgType(a)
+		if argType == argIsFinal {
 			return argsNotUsed
 		}
 
@@ -122,10 +122,10 @@ func findArgsNotInParsedValues(args []string, parsedValues []parsedValue) []stri
 
 		// search all args for a corresponding parsed value
 		for _, pv := range parsedValues {
-			// this argumenet was a key
+			// this argument was a key
 			// debugPrint(pv.Key, "==", arg)
 			debugPrint(pv.Key + "==" + arg + " || (" + strconv.FormatBool(pv.IsPositional) + " && " + pv.Value + " == " + arg + ")")
-			if pv.Key == arg || (pv.IsPositional && pv.Value == arg) {
+			if pv.Key == arg || (argType == argIsPositional && pv.IsPositional && pv.Value == arg) {
 				debugPrint("Found matching parsed arg for " + pv.Key)
 				foundArgUsed = true // the arg was used in this parsedValues set
 				// if the value is not a positional value and the parsed value had a
