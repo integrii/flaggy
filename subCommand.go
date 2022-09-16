@@ -162,7 +162,7 @@ func (sc *Subcommand) parseAllFlagsFromArgs(p *Parser, args []string) ([]string,
 
 			// if the next arg was not found, then show a Help message
 			if !nextArgExists {
-				p.ShowHelpWithMessage("Expected a following arg for flag " + a + ", but it did not exist.")
+				p.ShowHelpWithMessage("Expected a following arg for flag " + args[i] + ", but it did not exist.")
 				exitOrPanic(2)
 			}
 			valueSet, err := setValueForParsers(a, nextArg, p, sc)

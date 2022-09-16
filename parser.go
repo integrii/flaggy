@@ -145,7 +145,7 @@ func findArgsNotInParsedValues(args []string, parsedValues []parsedValue) []stri
 		// if the arg was not used in any parsed values, then we add it to the slice
 		// of arguments not used
 		if !foundArgUsed {
-			argsNotUsed = append(argsNotUsed, arg)
+			argsNotUsed = append(argsNotUsed, a)
 		}
 	}
 
