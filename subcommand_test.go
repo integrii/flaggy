@@ -385,6 +385,11 @@ func TestSCInputParsing(t *testing.T) {
 	inputArgs = append(inputArgs, "-sscf", "one,two")
 	var stringSliceCommaFlagExpected = []string{"one", "two"}
 
+	var stringSlicePipeFlag []string
+	sc.StringSlice(&stringSlicePipeFlag, "sspf", "stringSlice1", "string slice flag", `|`)
+	inputArgs = append(inputArgs, "-sspf", "one|two|three")
+	var stringSlicePipeFlagExpected = []string{"one", "two", "three"}
+
 	var boolFlag bool
 	sc.Bool(&boolFlag, "bf", "bool", "bool flag")
 	inputArgs = append(inputArgs, "-bf")
@@ -599,6 +604,11 @@ func TestSCInputParsing(t *testing.T) {
 	for i, f := range stringSliceCommaFlagExpected {
 		if stringSliceCommaFlag[i] != f {
 			t.Fatal("stringSlice value incorrect", stringSliceCommaFlag[i], f)
+		}
+	}
+	for i, f := range stringSlicePipeFlagExpected {
+		if stringSlicePipeFlag[i] != f {
+			t.Fatal("stringSlice value incorrect", stringSlicePipeFlag[i], f)
 		}
 	}
 

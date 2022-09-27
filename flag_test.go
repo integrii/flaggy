@@ -94,6 +94,11 @@ func TestInputParsing(t *testing.T) {
 	inputArgs = append(inputArgs, "-ssf", "one", "-ssf", "two")
 	var stringSliceFlagExpected = []string{"one", "two"}
 
+	var stringSlicePipeFlag []string
+	StringSlice(&stringSlicePipeFlag, "sspf", "stringSlice1", "string slice flag", `|`)
+	inputArgs = append(inputArgs, "-sspf", "one|two|three")
+	var stringSlicePipeFlagExpected = []string{"one", "two", "three"}
+
 	var boolFlag bool
 	Bool(&boolFlag, "bf", "bool", "bool flag")
 	inputArgs = append(inputArgs, "-bf")
@@ -303,6 +308,12 @@ func TestInputParsing(t *testing.T) {
 	for i, f := range stringSliceFlagExpected {
 		if stringSliceFlag[i] != f {
 			t.Fatal("stringSlice value incorrect", stringSliceFlag[i], f)
+		}
+	}
+
+	for i, f := range stringSlicePipeFlagExpected {
+		if stringSlicePipeFlag[i] != f {
+			t.Fatal("stringSlice value incorrect", stringSlicePipeFlag[i], f)
 		}
 	}
 
