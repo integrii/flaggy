@@ -7,6 +7,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"text/template"
 	"time"
 )
 
@@ -16,18 +17,22 @@ import (
 // position.  Once a matching subcommand is found, the next set
 // of parsing occurs within that matched subcommand.
 type Subcommand struct {
-	Name                  string
-	ShortName             string
-	Description           string
-	Position              int // the position of this subcommand, not including flags
-	Subcommands           []*Subcommand
-	Flags                 []*Flag
-	PositionalFlags       []*PositionalValue
-	ParsedValues          []parsedValue // a list of values and positionals parsed
-	AdditionalHelpPrepend string        // additional prepended message when Help is displayed
-	AdditionalHelpAppend  string        // additional appended message when Help is displayed
-	Used                  bool          // indicates this subcommand was found and parsed
-	Hidden                bool          // indicates this subcommand should be hidden from help
+	Name                       string
+	ShortName                  string
+	Description                string
+	Position                   int // the position of this subcommand, not including flags
+	Subcommands                []*Subcommand
+	Flags                      []*Flag
+	PositionalFlags            []*PositionalValue
+	ParsedValues               []parsedValue      // a list of values and positionals parsed
+	AdditionalHelpPrepend      string             // additional prepended message when Help is displayed
+	AdditionalHelpAppend       string             // additional appended message when Help is displayed
+	Used                       bool               // indicates this subcommand was found and parsed
+	Hidden                     bool               // indicates this subcommand should be hidden from help
+	HelpTemplate               *template.Template // template for Help output
+	ShowHelpWithHFlag          bool               // display help when -h or --help passed
+	ShowVersionWithVersionFlag bool               // display the version when --version passed
+	parentCommand              *Subcommand        // points to the parent subcommand so help can reach for global flags
 }
 
 // NewSubcommand creates a new subcommand that can have flags or PositionalFlags
@@ -40,6 +45,7 @@ func NewSubcommand(name string) *Subcommand {
 	newSC := &Subcommand{
 		Name: name,
 	}
+	newSC.SetHelpTemplate(DefaultHelpTemplate)
 	return newSC
 }
 
@@ -229,10 +235,6 @@ func (sc *Subcommand) parse(p *Parser, args []string, depth int) error {
 		sc.addParsedPositionalValue(sc.ShortName)
 	}
 
-	// as subcommands are used, they become the context of the parser.  This helps
-	// us understand how to display help based on which subcommand is being used
-	p.subcommandContext = sc
-
 	// ensure that help and version flags are not used if the parser has the
 	// built-in help and version flags enabled
 	if p.ShowHelpWithHFlag {
@@ -397,6 +399,8 @@ func (sc *Subcommand) FlagExists(name string) bool {
 
 // AttachSubcommand adds a possible subcommand to the Parser.
 func (sc *Subcommand) AttachSubcommand(newSC *Subcommand, relativePosition int) {
+	// set parent so help can reach for global flags
+	newSC.parentCommand = sc
 
 	// assign the depth of the subcommand when its attached
 	newSC.Position = relativePosition
@@ -764,4 +768,50 @@ You must either change the flag's name, or disable flaggy's internal help
 flag with 'flaggy.DefaultParser.ShowHelpWithHFlag = false'.  If you are using
 a custom parser, you must instead set '.ShowHelpWithHFlag = false' on it.`)
 	exitOrPanic(1)
+}
+
+// ShowHelpWithMessage shows the Help for this parser with an optional string error
+// message as a header.  The supplied subcommand will be the context of Help
+// displayed to the user.
+func (sc *Subcommand) ShowHelpWithMessage(message string) {
+
+	// create a new Help values template and extract values into it
+	help := Help{}
+	help.ExtractValues(sc, message)
+	err := sc.HelpTemplate.Execute(os.Stderr, help)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "Error rendering Help template:", err)
+	}
+}
+
+// ShowHelp shows Help without an error message
+func (sc *Subcommand) ShowHelp() {
+	sc.ShowHelpWithMessage("")
+}
+
+// ShowHelpAndExit shows parser help and exits with status code 2
+func (sc *Subcommand) ShowHelpAndExit(message string) {
+	sc.ShowHelpWithMessage(message)
+	exitOrPanic(2)
+}
+
+// SetHelpTemplate sets the go template this parser will use when rendering
+// Help.
+func (sc *Subcommand) SetHelpTemplate(tmpl string) error {
+	var err error
+	sc.HelpTemplate = template.New(helpFlagLongName)
+	sc.HelpTemplate, err = sc.HelpTemplate.Parse(tmpl)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// Collect all flags and recurses up the parents, so help on a subcommand
+// shows allways all 'global' flags
+func (sc *Subcommand) collectFlagsForHelp(flags []*Flag) []*Flag {
+	if sc.parentCommand != nil {
+		flags = sc.parentCommand.collectFlagsForHelp(flags)
+	}
+	return append(flags, sc.Flags...)
 }

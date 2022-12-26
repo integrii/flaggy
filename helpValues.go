@@ -51,24 +51,24 @@ type HelpFlag struct {
 // ExtractValues extracts Help template values from a subcommand and its parent
 // parser. The parser is required in order to detect default flag settings
 // for help and version output.
-func (h *Help) ExtractValues(p *Parser, message string) {
+func (h *Help) ExtractValues(sc *Subcommand, message string) {
 	// accept message string for output
 	h.Message = message
 
 	// extract Help values from the current subcommand in context
 	// prependMessage string
-	h.PrependMessage = p.subcommandContext.AdditionalHelpPrepend
+	h.PrependMessage = sc.AdditionalHelpPrepend
 	// appendMessage  string
-	h.AppendMessage = p.subcommandContext.AdditionalHelpAppend
+	h.AppendMessage = sc.AdditionalHelpAppend
 	// command name
-	h.CommandName = p.subcommandContext.Name
+	h.CommandName = sc.Name
 	// description
-	h.Description = p.subcommandContext.Description
+	h.Description = sc.Description
 
-	maxLength := getLongestNameLength(p.subcommandContext.Subcommands, 0)
+	maxLength := getLongestNameLength(sc.Subcommands, 0)
 
 	// subcommands    []HelpSubcommand
-	for _, cmd := range p.subcommandContext.Subcommands {
+	for _, cmd := range sc.Subcommands {
 		if cmd.Hidden {
 			continue
 		}
@@ -82,10 +82,10 @@ func (h *Help) ExtractValues(p *Parser, message string) {
 		h.Subcommands = append(h.Subcommands, newHelpSubcommand)
 	}
 
-	maxLength = getLongestNameLength(p.subcommandContext.PositionalFlags, 0)
+	maxLength = getLongestNameLength(sc.PositionalFlags, 0)
 
 	// parse positional flags into help output structs
-	for _, pos := range p.subcommandContext.PositionalFlags {
+	for _, pos := range sc.PositionalFlags {
 		if pos.Hidden {
 			continue
 		}
@@ -104,11 +104,10 @@ func (h *Help) ExtractValues(p *Parser, message string) {
 	if len(helpFlagLongName) > maxLength {
 		maxLength = len(helpFlagLongName)
 	}
-	maxLength = getLongestNameLength(p.subcommandContext.Flags, maxLength)
-	maxLength = getLongestNameLength(p.Flags, maxLength)
+	maxLength = getLongestNameLength(sc.Flags, maxLength)
 
 	// if the built-in version flag is enabled, then add it as a help flag
-	if p.ShowVersionWithVersionFlag {
+	if sc.ShowVersionWithVersionFlag {
 		defaultVersionFlag := HelpFlag{
 			ShortName:    "",
 			LongName:     versionFlagLongName,
@@ -120,7 +119,7 @@ func (h *Help) ExtractValues(p *Parser, message string) {
 	}
 
 	// if the built-in help flag exists, then add it as a help flag
-	if p.ShowHelpWithHFlag {
+	if sc.ShowHelpWithHFlag {
 		defaultHelpFlag := HelpFlag{
 			ShortName:    helpFlagShortName,
 			LongName:     helpFlagLongName,
@@ -131,16 +130,19 @@ func (h *Help) ExtractValues(p *Parser, message string) {
 		h.Flags = append(h.Flags, defaultHelpFlag)
 	}
 
-	// go through every flag in the subcommand and add it to help output
-	h.parseFlagsToHelpFlags(p.subcommandContext.Flags, maxLength)
+	// go up the parent chain to collect all global flags
+	var allFlags []*Flag
 
-	// go through every flag in the parent parser and add it to help output
-	h.parseFlagsToHelpFlags(p.Flags, maxLength)
+	allFlags = sc.collectFlagsForHelp(allFlags)
+
+	// go through every flag in the subcommand and add it to help output
+
+	h.parseFlagsToHelpFlags(allFlags, maxLength)
 
 	// formulate the usage string
 	// first, we capture all the command and positional names by position
 	commandsByPosition := make(map[int]string)
-	for _, pos := range p.subcommandContext.PositionalFlags {
+	for _, pos := range sc.PositionalFlags {
 		if pos.Hidden {
 			continue
 		}
@@ -150,7 +152,7 @@ func (h *Help) ExtractValues(p *Parser, message string) {
 			commandsByPosition[pos.Position] = pos.Name
 		}
 	}
-	for _, cmd := range p.subcommandContext.Subcommands {
+	for _, cmd := range sc.Subcommands {
 		if cmd.Hidden {
 			continue
 		}
@@ -173,7 +175,7 @@ func (h *Help) ExtractValues(p *Parser, message string) {
 	var usageString string
 	if highestPosition > 0 {
 		// find each positional value and make our final string
-		usageString = p.subcommandContext.Name
+		usageString = sc.Name
 		for i := 1; i <= highestPosition; i++ {
 			if len(commandsByPosition[i]) > 0 {
 				usageString = usageString + " [" + commandsByPosition[i] + "]"
