@@ -33,6 +33,7 @@ type Subcommand struct {
 	ShowHelpWithHFlag          bool               // display help when -h or --help passed
 	ShowVersionWithVersionFlag bool               // display the version when --version passed
 	parentCommand              *Subcommand        // points to the parent subcommand so help can reach for global flags
+	subcommandContext          *Subcommand        // points to the most specific subcommand being used
 }
 
 // NewSubcommand creates a new subcommand that can have flags or PositionalFlags
@@ -235,6 +236,7 @@ func (sc *Subcommand) parse(p *Parser, args []string, depth int) error {
 		sc.addParsedPositionalValue(sc.ShortName)
 	}
 
+	p.subcommandContext = sc
 	// ensure that help and version flags are not used if the parser has the
 	// built-in help and version flags enabled
 	if p.ShowHelpWithHFlag {
@@ -777,7 +779,13 @@ func (sc *Subcommand) ShowHelpWithMessage(message string) {
 
 	// create a new Help values template and extract values into it
 	help := Help{}
-	help.ExtractValues(sc, message)
+	var c *Subcommand
+	if sc.subcommandContext != nil {
+		c = sc.subcommandContext
+	} else {
+		c = sc
+	}
+	help.ExtractValues(c, message)
 	err := sc.HelpTemplate.Execute(os.Stderr, help)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Error rendering Help template:", err)
