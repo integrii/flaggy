@@ -85,8 +85,8 @@ func String(assignmentVar *string, shortName string, longName string, descriptio
 
 // StringSlice adds a new slice of strings flag
 // Specify the flag multiple times to fill the slice
-func StringSlice(assignmentVar *[]string, shortName string, longName string, description string) {
-	DefaultParser.add(assignmentVar, shortName, longName, description)
+func StringSlice(assignmentVar *[]string, shortName, longName, description string, separator ...string) {
+	DefaultParser.add(assignmentVar, shortName, longName, description, separator...)
 }
 
 // Bool adds a new bool flag

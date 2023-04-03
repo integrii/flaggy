@@ -162,7 +162,7 @@ func (sc *Subcommand) parseAllFlagsFromArgs(p *Parser, args []string) ([]string,
 
 			// if the next arg was not found, then show a Help message
 			if !nextArgExists {
-				p.ShowHelpWithMessage("Expected a following arg for flag " + a + ", but it did not exist.")
+				p.ShowHelpWithMessage("Expected a following arg for flag " + args[i] + ", but it did not exist.")
 				exitOrPanic(2)
 			}
 			valueSet, err := setValueForParsers(a, nextArg, p, sc)
@@ -430,7 +430,7 @@ func (sc *Subcommand) AttachSubcommand(newSC *Subcommand, relativePosition int) 
 // add is a "generic" to add flags of any type. Checks the supplied parent
 // parser to ensure that the user isn't setting version or help flags that
 // conflict with the built-in help and version flag behavior.
-func (sc *Subcommand) add(assignmentVar interface{}, shortName string, longName string, description string) {
+func (sc *Subcommand) add(assignmentVar interface{}, shortName, longName, description string, separator ...string) {
 
 	// if the flag is already used, throw an error
 	for _, existingFlag := range sc.Flags {
@@ -448,6 +448,9 @@ func (sc *Subcommand) add(assignmentVar interface{}, shortName string, longName 
 		LongName:      longName,
 		Description:   description,
 	}
+	if len(separator) > 0 {
+		newFlag.ValueSeparator = separator[0]
+	}
 	sc.Flags = append(sc.Flags, &newFlag)
 }
 
@@ -458,8 +461,8 @@ func (sc *Subcommand) String(assignmentVar *string, shortName string, longName s
 
 // StringSlice adds a new slice of strings flag
 // Specify the flag multiple times to fill the slice
-func (sc *Subcommand) StringSlice(assignmentVar *[]string, shortName string, longName string, description string) {
-	sc.add(assignmentVar, shortName, longName, description)
+func (sc *Subcommand) StringSlice(assignmentVar *[]string, shortName, longName, description string, separator ...string) {
+	sc.add(assignmentVar, shortName, longName, description, separator...)
 }
 
 // Bool adds a new bool flag

@@ -12,14 +12,15 @@ import (
 
 // Flag holds the base methods for all flag types
 type Flag struct {
-	ShortName     string
-	LongName      string
-	Description   string
-	rawValue      string // the value as a string before being parsed
-	Hidden        bool   // indicates this flag should be hidden from help and suggestions
-	AssignmentVar interface{}
-	defaultValue  string // the value (as a string), that was set by default before any parsing and assignment
-	parsed        bool   // indicates that this flag has already been parsed
+	ShortName      string
+	LongName       string
+	Description    string
+	rawValue       string // the value as a string before being parsed
+	Hidden         bool   // indicates this flag should be hidden from help and suggestions
+	AssignmentVar  interface{}
+	ValueSeparator string
+	defaultValue   string // the value (as a string), that was set by default before any parsing and assignment
+	parsed         bool   // indicates that this flag has already been parsed
 }
 
 // HasName indicates that this flag's short or long name matches the
@@ -62,7 +63,11 @@ func (f *Flag) identifyAndAssignValue(value string) error {
 		*v = value
 	case *[]string:
 		v := f.AssignmentVar.(*[]string)
-		splitString := strings.Split(value, ",")
+		sep := `,`
+		if f.ValueSeparator != `` {
+			sep = f.ValueSeparator
+		}
+		splitString := strings.Split(value, sep)
 		new := append(*v, splitString...)
 		*v = new
 	case *bool:
