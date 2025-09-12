@@ -57,7 +57,7 @@ func TestTrailingArgumentsNoDashes(t *testing.T) {
 }
 
 // TestComplexNesting tests various levels of nested subcommands and
-// positional values intermixed with eachother.
+// positional values intermixed with each other.
 func TestComplexNesting(t *testing.T) {
 
 	flaggy.DebugMode = true

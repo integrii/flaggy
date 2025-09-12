@@ -64,7 +64,7 @@ func TestHelpWithMissingSCName(t *testing.T) {
 	flaggy.ParseArgs([]string{"x"})
 }
 
-// TestHelpOutput tests the dislay of help with -h
+// TestHelpOutput tests the display of help with -h
 func TestHelpOutput(t *testing.T) {
 	flaggy.ResetParser()
 	// flaggy.DebugMode = true

@@ -4,7 +4,7 @@ import "github.com/integrii/flaggy"
 
 // The custom help message template.
 // For rendering text/template will be used: https://godoc.org/text/template
-// Object propperties can be looked up here: https://github.com/integrii/flaggy/blob/master/helpValues.go
+// Object properties can be looked up here: https://github.com/integrii/flaggy/blob/master/helpValues.go
 const helpTemplate = `{{.CommandName}}{{if .Description}} - {{.Description}}{{end}}{{if .PrependMessage}}
 {{.PrependMessage}}{{end}}
 {{if .UsageString}}
