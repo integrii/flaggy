@@ -4,19 +4,14 @@ import (
 	"strings"
 )
 
-// EnableCompletion attaches a built-in 'completion' subcommand that outputs
-// shell completion scripts for bash or zsh.
-func (p *Parser) EnableCompletion() {
-	sc := NewSubcommand("completion")
-	sc.Description = "generate shell completion script"
-	sc.AddPositionalValue(&p.completionShell, "shell", 1, true, "shell type (bash or zsh)")
-	p.AttachSubcommand(sc, 1)
-	p.completionCommand = sc
+// EnableCompletion enables shell autocomplete outputs to be generated.
+func EnableCompletion() {
+	DefaultParser.completionEnabled = true
 }
 
-// EnableCompletion attaches the completion subcommand to the default parser.
-func EnableCompletion() {
-	DefaultParser.EnableCompletion()
+// EnableCompletion disallows shell autocomplete outputs to be generated.
+func DisableCompletion() {
+	DefaultParser.completionEnabled = false
 }
 
 // GenerateBashCompletion returns a bash completion script for the parser.

@@ -206,9 +206,6 @@ func TestInputParsing(t *testing.T) {
 
 	var int64SliceFlag []int64
 	Int64Slice(&int64SliceFlag, "i64s", "int64Slice", "int64 slice flag")
-	if err != nil {
-		t.Fatal(err)
-	}
 	inputArgs = append(inputArgs, "-i64s", "40", "-i64s", "50")
 	var int64SliceFlagExpected = []int64{40, 50}
 
@@ -224,9 +221,6 @@ func TestInputParsing(t *testing.T) {
 
 	var int16Flag int16
 	Int16(&int16Flag, "i16", "int16", "int16 flag")
-	if err != nil {
-		t.Fatal(err)
-	}
 	inputArgs = append(inputArgs, "-i16", "5566")
 	var int16FlagExpected int16 = 5566
 
