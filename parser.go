@@ -24,7 +24,7 @@ type Parser struct {
 	trailingArgumentsExtracted bool               // indicates that trailing args have been parsed and should not be appended again
 	parsed                     bool               // indicates this parser has parsed
 	subcommandContext          *Subcommand        // points to the most specific subcommand being used
-	completionEnabled          bool               // indicates that bash and zsh completion output is possible
+	CompletionEnabled          bool               // indicates that bash and zsh completion output is possible
 }
 
 // TrailingSubcommand returns the last and most specific subcommand invoked.
@@ -41,7 +41,7 @@ func NewParser(name string) *Parser {
 	p.ShowHelpOnUnexpected = true
 	p.ShowHelpWithHFlag = true
 	p.ShowVersionWithVersionFlag = true
-	p.completionEnabled = true
+	p.CompletionEnabled = true
 	p.SetHelpTemplate(DefaultHelpTemplate)
 	p.subcommandContext = &Subcommand{}
 	return p
@@ -63,7 +63,19 @@ func (p *Parser) ParseArgs(args []string) error {
 		return err
 	}
 
-	// if we are set to crash on unexpected args, look for those here TODO
+	// check if completion is enabled on the parser
+	if p.CompletionEnabled {
+		// detect that the first argument is 'completion' and ensure that a
+		// second shell type is passed as an argument
+		if len(args) == 2 && strings.EqualFold(args[0], "completion") {
+			p.Completion(args[1])
+
+			// exit out gracefully any time completion is passed
+			exitOrPanic(0)
+		}
+	}
+
+	// if we are set to exit on unexpected args, look for those here
 	if p.ShowHelpOnUnexpected {
 		parsedValues := p.findAllParsedValues()
 		debugPrint("parsedValues:", parsedValues)
@@ -76,19 +88,6 @@ func (p *Parser) ParseArgs(args []string) error {
 			}
 			p.ShowHelpAndExit("Unknown arguments supplied: " + argsNotParsedFlat)
 		}
-	}
-
-	// if completion is enabled on the parser, then parse for completion
-	if p.completionEnabled {
-		// detect that the first argument is 'completion' and ensure that a
-		// second shell type is passed as an argument
-		if len(args) == 2 && strings.EqualFold(args[0], "completion") {
-			p.Completion(args[1])
-
-			// exit out gracefully any time completion is passed
-			exitOrPanic(0)
-		}
-
 	}
 
 	return nil
