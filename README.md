@@ -42,6 +42,7 @@ Check out the [go doc](http://pkg.go.dev/github.com/integrii/flaggy), [examples 
 - Optional but default version output with `--version`
 - Optional but default help output with `-h` or `--help`
 - Optional but default help output when any invalid or unknown parameter is passed
+- Optional bash and zsh shell completion generation
 - It's _fast_. All flag and subcommand parsing takes less than `1ms` in most programs.
 
 # Example Help Output
@@ -171,6 +172,26 @@ Other more specific types can also be used as flag types.  They will be automati
 - []net.IPMask
 - time.Duration
 - []time.Duration
+
+# Shell Completion
+
+Flaggy generates Bash and zsh completion scripts from your parser's flags,
+positional arguments, and subcommands. Enable the built-in `completion`
+subcommand after parser initialization:
+
+```go
+flaggy.EnableCompletion() // or parser.EnableCompletion() if you use a custom parser
+```
+
+Users can then run your application to output a completion script:
+
+```bash
+./app completion bash > /usr/local/etc/bash_completion.d/app
+source /usr/local/etc/bash_completion.d/app
+```
+
+Replace `bash` with `zsh` to generate a zsh shell script. No external
+dependencies are required.
 
 # An Example Program
 
