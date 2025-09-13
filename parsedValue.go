@@ -1,6 +1,6 @@
 package flaggy
 
-// parsedValue represents a flag or subcommand that was parsed.  Primairily used
+// parsedValue represents a flag or subcommand that was parsed.  Primarily used
 // to account for all parsed values in order to determine if unknown values were
 // passed to the root parser after all subcommands have been parsed.
 type parsedValue struct {
@@ -13,7 +13,7 @@ type parsedValue struct {
 // supplied values set
 func newParsedValue(key string, value string, isPositional bool) parsedValue {
 	if len(key) == 0 && len(value) == 0 {
-		panic("cant add parsed value with no key or value")
+		panic("can't add parsed value with no key or value")
 	}
 	return parsedValue{
 		Key:          key,

@@ -29,7 +29,7 @@ func main() {
 	// Parse the subcommand and all flags
 	flaggy.Parse()
 
-	// here you will see all arguments passsed after the first positional 'testPositional' string is parsed
+	// here you will see all arguments passed after the first positional 'testPositional' string is parsed
 	fmt.Println(flaggy.TrailingArguments)
 	// Input:
 	// ./trailingArguments one two three

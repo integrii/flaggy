@@ -52,7 +52,7 @@ func TestExitOnUnknownFlag(t *testing.T) {
 	var expectedFlag string
 	var expectedPositional string
 	flaggy.ResetParser()
-	flaggy.String(&expectedFlag, "f", "flag", "an expected positonal flag")
+	flaggy.String(&expectedFlag, "f", "flag", "an expected positional flag")
 	flaggy.AddPositionalValue(&expectedPositional, "positionalTest", 1, true, "A test positional value")
 	flaggy.ParseArgs([]string{"positionalHere", "-f", "flagHere", "unexpectedValue"})
 }
@@ -74,7 +74,7 @@ func TestExitOnUnknownFlagWithValue(t *testing.T) {
 	var expectedFlag string
 	var expectedPositional string
 	flaggy.ResetParser()
-	flaggy.String(&expectedFlag, "f", "flag", "an expected positonal flag")
+	flaggy.String(&expectedFlag, "f", "flag", "an expected positional flag")
 	flaggy.AddPositionalValue(&expectedPositional, "positionalTest", 1, true, "A test positional value")
 	flaggy.ParseArgs([]string{"positionalHere", "-f", "flagHere", "--unexpectedValue=true"})
 }
@@ -100,7 +100,7 @@ func TestNextArgDoesNotExist(t *testing.T) {
 	defer func() {
 		r := recover()
 		if r == nil {
-			t.Fatal("Expected crash when next arg not specifid")
+			t.Fatal("Expected crash when next arg not specified")
 		}
 	}()
 	flaggy.ResetParser()

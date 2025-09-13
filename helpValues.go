@@ -250,7 +250,7 @@ func getLongestNameLength(slice interface{}, min int) int {
 
 	s := reflect.ValueOf(slice)
 	if s.Kind() != reflect.Slice {
-		log.Panicf("Paremeter given to getLongestNameLength() is of type %s. Expected slice", s.Kind())
+		log.Panicf("Parameter given to getLongestNameLength() is of type %s. Expected slice", s.Kind())
 	}
 
 	for i := 0; i < s.Len(); i++ {

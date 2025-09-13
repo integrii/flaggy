@@ -276,7 +276,7 @@ func (sc *Subcommand) parse(p *Parser, args []string, depth int) error {
 		for _, cmd := range sc.Subcommands {
 			// debugPrint("Subcommand being compared", relativeDepth, "==", cmd.Position, "and", v, "==", cmd.Name, "==", cmd.ShortName)
 			if relativeDepth == cmd.Position && (v == cmd.Name || v == cmd.ShortName) {
-				debugPrint("Decending into positional subcommand", cmd.Name, "at relativeDepth", relativeDepth, "and absolute depth", depth+1)
+				debugPrint("Descending into positional subcommand", cmd.Name, "at relativeDepth", relativeDepth, "and absolute depth", depth+1)
 				return cmd.parse(p, args, depth+parsedArgCount) // continue recursive positional parsing
 			}
 		}
