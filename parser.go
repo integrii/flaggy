@@ -24,6 +24,8 @@ type Parser struct {
 	trailingArgumentsExtracted bool               // indicates that trailing args have been parsed and should not be appended again
 	parsed                     bool               // indicates this parser has parsed
 	subcommandContext          *Subcommand        // points to the most specific subcommand being used
+	completionCommand          *Subcommand        // optional completion generation subcommand
+	completionShell            string             // shell type requested for completion
 }
 
 // TrailingSubcommand returns the last and most specific subcommand invoked.
@@ -74,6 +76,18 @@ func (p *Parser) ParseArgs(args []string) error {
 			}
 			p.ShowHelpAndExit("Unknown arguments supplied: " + argsNotParsedFlat)
 		}
+	}
+
+	if p.completionCommand != nil && p.completionCommand.Used {
+		switch p.completionShell {
+		case "bash":
+			fmt.Print(GenerateBashCompletion(p))
+		case "zsh":
+			fmt.Print(GenerateZshCompletion(p))
+		default:
+			fmt.Fprintf(os.Stderr, "Unsupported shell for completion: %s\n", p.completionShell)
+		}
+		exitOrPanic(0)
 	}
 
 	return nil
