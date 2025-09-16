@@ -52,28 +52,28 @@ func NewParser(name string) *Parser {
 // is a low level issue converting flags to their proper type.  No error
 // is returned for invalid arguments or missing require subcommands.
 func (p *Parser) ParseArgs(args []string) error {
-	if p.parsed {
-		return errors.New("Parser.Parse() called twice on parser with name: " + " " + p.Name + " " + p.ShortName)
-	}
-	p.parsed = true
+    if p.parsed {
+        return errors.New("Parser.Parse() called twice on parser with name: " + " " + p.Name + " " + p.ShortName)
+    }
+    p.parsed = true
 
-	debugPrint("Kicking off parsing with args:", args)
-	err := p.parse(p, args, 0)
-	if err != nil {
-		return err
-	}
+    // Handle shell completion before any parsing to avoid unknown-argument exits.
+    if p.ShowCompletion {
+        // detect that the first argument is 'completion' and ensure that a
+        // second shell type is passed as an argument
+        if len(args) == 2 && strings.EqualFold(args[0], "completion") {
+            p.Completion(args[1])
 
-	// check if completion is enabled on the parser
-	if p.ShowCompletion {
-		// detect that the first argument is 'completion' and ensure that a
-		// second shell type is passed as an argument
-		if len(args) == 2 && strings.EqualFold(args[0], "completion") {
-			p.Completion(args[1])
+            // exit out gracefully any time completion is passed
+            exitOrPanic(0)
+        }
+    }
 
-			// exit out gracefully any time completion is passed
-			exitOrPanic(0)
-		}
-	}
+    debugPrint("Kicking off parsing with args:", args)
+    err := p.parse(p, args, 0)
+    if err != nil {
+        return err
+    }
 
 	// if we are set to exit on unexpected args, look for those here
 	if p.ShowHelpOnUnexpected {
