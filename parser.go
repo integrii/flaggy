@@ -14,17 +14,19 @@ import (
 // from our input arguments.  Parser is the top level struct responsible for
 // parsing an entire set of subcommands and flags.
 type Parser struct {
-	Subcommand
-	Version                    string             // the optional version of the parser.
-	ShowHelpWithHFlag          bool               // display help when -h or --help passed
-	ShowVersionWithVersionFlag bool               // display the version when --version passed
-	ShowHelpOnUnexpected       bool               // display help when an unexpected flag or subcommand is passed
-	TrailingArguments          []string           // everything after a -- is placed here
-	HelpTemplate               *template.Template // template for Help output
-	trailingArgumentsExtracted bool               // indicates that trailing args have been parsed and should not be appended again
-	parsed                     bool               // indicates this parser has parsed
-	subcommandContext          *Subcommand        // points to the most specific subcommand being used
-	ShowCompletion             bool               // indicates that bash and zsh completion output is possible
+    Subcommand
+    Version                    string             // the optional version of the parser.
+    ShowHelpWithHFlag          bool               // display help when -h or --help passed
+    ShowVersionWithVersionFlag bool               // display the version when --version passed
+    ShowHelpOnUnexpected       bool               // display help when an unexpected flag or subcommand is passed
+    TrailingArguments          []string           // everything after a -- is placed here
+    HelpTemplate               *template.Template // template for Help output
+    trailingArgumentsExtracted bool               // indicates that trailing args have been parsed and should not be appended again
+    parsed                     bool               // indicates this parser has parsed
+    subcommandContext          *Subcommand        // points to the most specific subcommand being used
+    ShowCompletion             bool               // indicates that bash and zsh completion output is possible
+    SortFlags                  bool               // when true, help output flags are sorted alphabetically
+    SortFlagsReverse           bool               // when true with SortFlags, sort order is reversed (Z..A)
 }
 
 // TrailingSubcommand returns the last and most specific subcommand invoked.
@@ -34,17 +36,33 @@ func (p *Parser) TrailingSubcommand() *Subcommand {
 
 // NewParser creates a new ArgumentParser ready to parse inputs
 func NewParser(name string) *Parser {
-	// this can not be done inline because of struct embedding
-	p := &Parser{}
-	p.Name = name
-	p.Version = defaultVersion
-	p.ShowHelpOnUnexpected = true
-	p.ShowHelpWithHFlag = true
-	p.ShowVersionWithVersionFlag = true
-	p.ShowCompletion = true
-	p.SetHelpTemplate(DefaultHelpTemplate)
-	p.subcommandContext = &Subcommand{}
-	return p
+    // this can not be done inline because of struct embedding
+    p := &Parser{}
+    p.Name = name
+    p.Version = defaultVersion
+    p.ShowHelpOnUnexpected = true
+    p.ShowHelpWithHFlag = true
+    p.ShowVersionWithVersionFlag = true
+    p.ShowCompletion = true
+    p.SortFlags = false
+    p.SortFlagsReverse = false
+    p.SetHelpTemplate(DefaultHelpTemplate)
+    p.subcommandContext = &Subcommand{}
+    return p
+}
+
+// SortFlagsByLongName enables alphabetical sorting by long flag name
+// (case-insensitive) for help output on this parser.
+func (p *Parser) SortFlagsByLongName() {
+    p.SortFlags = true
+    p.SortFlagsReverse = false
+}
+
+// SortFlagsByLongNameReversed enables reverse alphabetical sorting by
+// long flag name (case-insensitive) for help output on this parser.
+func (p *Parser) SortFlagsByLongNameReversed() {
+    p.SortFlags = true
+    p.SortFlagsReverse = true
 }
 
 // ParseArgs parses as if the passed args were the os.Args, but without the

@@ -38,7 +38,7 @@ Check out the [go doc](http://pkg.go.dev/github.com/integrii/flaggy), [examples 
 - Flags can use a single dash or double dash (`--flag`, `-flag`, `-f`, `--f`)
 - Flags can have `=` assignment operators, or use a space (`--flag=value`, `--flag value`)
 - Flags support single quote globs with spaces (`--flag 'this is all one value'`)
-- Flags of slice types can be passed multiple times (`-f one -f two -f three`). Comma-separated values are not split; `-f one,two` is treated as a single element.
+- Flags of slice types can be passed multiple times (`-f one -f two -f three`).
 - Optional but default version output with `--version`
 - Optional but default help output with `-h` or `--help`
 - Optional but default help output when any invalid or unknown parameter is passed

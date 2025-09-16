@@ -53,12 +53,24 @@ func init() {
 // ResetParser resets the default parser to a fresh instance.  Uses the
 // name of the binary executing as the program name by default.
 func ResetParser() {
-	if len(os.Args) > 0 {
-		chunks := strings.Split(os.Args[0], "/")
-		DefaultParser = NewParser(chunks[len(chunks)-1])
-	} else {
-		DefaultParser = NewParser("default")
-	}
+    if len(os.Args) > 0 {
+        chunks := strings.Split(os.Args[0], "/")
+        DefaultParser = NewParser(chunks[len(chunks)-1])
+    } else {
+        DefaultParser = NewParser("default")
+    }
+}
+
+// SortFlagsByLongName enables alphabetical sorting of flags by long name
+// in help output on the default parser.
+func SortFlagsByLongName() {
+    DefaultParser.SortFlagsByLongName()
+}
+
+// SortFlagsByLongNameReversed enables reverse alphabetical sorting of flags
+// by long name in help output on the default parser.
+func SortFlagsByLongNameReversed() {
+    DefaultParser.SortFlagsByLongNameReversed()
 }
 
 // Parse parses flags as requested in the default package parser.  All trailing arguments

@@ -1,10 +1,11 @@
 package flaggy
 
 import (
-	"log"
-	"reflect"
-	"strings"
-	"unicode/utf8"
+    "log"
+    "reflect"
+    "sort"
+    "strings"
+    "unicode/utf8"
 )
 
 // Help represents the values needed to render a Help page
@@ -157,8 +158,24 @@ func (h *Help) ExtractValues(p *Parser, message string) {
 	// go through every flag in the subcommand and add it to help output
 	h.parseFlagsToHelpFlags(p.subcommandContext.Flags, maxLength)
 
-	// go through every flag in the parent parser and add it to help output
-	h.parseFlagsToHelpFlags(p.Flags, maxLength)
+    // go through every flag in the parent parser and add it to help output
+    h.parseFlagsToHelpFlags(p.Flags, maxLength)
+
+    // Optionally sort flags alphabetically by long name (fallback to short name)
+    if p.SortFlags {
+        sort.SliceStable(h.Flags, func(i, j int) bool {
+            a := h.Flags[i]
+            b := h.Flags[j]
+            aName := strings.ToLower(strings.TrimSpace(a.LongName))
+            bName := strings.ToLower(strings.TrimSpace(b.LongName))
+            if aName == "" { aName = strings.ToLower(strings.TrimSpace(a.ShortName)) }
+            if bName == "" { bName = strings.ToLower(strings.TrimSpace(b.ShortName)) }
+            if p.SortFlagsReverse {
+                return aName > bName
+            }
+            return aName < bName
+        })
+    }
 
 	// formulate the usage string
 	// first, we capture all the command and positional names by position
@@ -184,7 +201,7 @@ func (h *Help) ExtractValues(p *Parser, message string) {
 		}
 	}
 
-	// find the highest position count in the map
+    // find the highest position count in the map
 	var highestPosition int
 	for i := range commandsByPosition {
 		if i > highestPosition {
