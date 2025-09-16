@@ -157,22 +157,23 @@ func findArgsNotInParsedValues(args []string, parsedValues []parsedValue) []stri
         // to indicate which values should be added to argsNotUsed.
         var foundArgUsed bool
 
+        // For flag tokens, only allow non-positional (flag) matches.
         if isFlagToken {
-            // Only allow non-positional (flag) matches for flag tokens.
             for _, pv := range parsedValues {
                 debugPrint(pv.Key + "==" + arg + " || (" + strconv.FormatBool(pv.IsPositional) + " && " + pv.Value + " == " + arg + ")")
                 if !pv.IsPositional && pv.Key == arg {
                     debugPrint("Found matching parsed flag for " + pv.Key)
                     foundArgUsed = true
-                    // Skip next only for space-separated flags that had a value.
                     if argType == argIsFlagWithSpace && len(pv.Value) > 0 {
                         skipNext = true
                     }
                     break
                 }
             }
-        } else {
-            // Prefer positional matches for non-flag tokens (like subcommands)
+        }
+
+        // For non-flag tokens, prefer positional matches first.
+        if !isFlagToken && !foundArgUsed {
             for _, pv := range parsedValues {
                 debugPrint(pv.Key + "==" + arg + " || (" + strconv.FormatBool(pv.IsPositional) + " && " + pv.Value + " == " + arg + ")")
                 if pv.IsPositional && pv.Value == arg {
@@ -181,18 +182,19 @@ func findArgsNotInParsedValues(args []string, parsedValues []parsedValue) []stri
                     break
                 }
             }
-            // Fallback: allow matching a non-positional flag by bare name (helps tests)
-            if !foundArgUsed {
-                for _, pv := range parsedValues {
-                    debugPrint(pv.Key + "==" + arg + " || (" + strconv.FormatBool(pv.IsPositional) + " && " + pv.Value + " == " + arg + ")")
-                    if !pv.IsPositional && pv.Key == arg {
-                        debugPrint("Found matching parsed flag for " + pv.Key)
-                        foundArgUsed = true
-                        if len(pv.Value) > 0 {
-                            skipNext = true
-                        }
-                        break
+        }
+
+        // Fallback for non-flag tokens: allow matching a non-positional flag by bare name.
+        if !isFlagToken && !foundArgUsed {
+            for _, pv := range parsedValues {
+                debugPrint(pv.Key + "==" + arg + " || (" + strconv.FormatBool(pv.IsPositional) + " && " + pv.Value + " == " + arg + ")")
+                if !pv.IsPositional && pv.Key == arg {
+                    debugPrint("Found matching parsed flag for " + pv.Key)
+                    foundArgUsed = true
+                    if len(pv.Value) > 0 {
+                        skipNext = true
                     }
+                    break
                 }
             }
         }
