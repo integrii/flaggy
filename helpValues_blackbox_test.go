@@ -1,13 +1,12 @@
 package flaggy_test
 
 import (
-	"os"
-	"strings"
-	"testing"
-	"time"
+    "os"
+    "strings"
+    "testing"
+    "time"
 
-	"github.com/google/go-cmp/cmp"
-	"github.com/integrii/flaggy"
+    "github.com/integrii/flaggy"
 )
 
 func TestMinimalHelpOutput(t *testing.T) {
@@ -47,9 +46,14 @@ func TestMinimalHelpOutput(t *testing.T) {
         "",
     }
 
-	if diff := cmp.Diff(want, got); diff != "" {
-		t.Errorf("help mismatch (-want +got):\n%s", diff)
-	}
+    if len(got) != len(want) {
+        t.Fatalf("help length mismatch: got %d lines, want %d lines\nGot:\n%q\nWant:\n%q", len(got), len(want), got, want)
+    }
+    for i := range want {
+        if got[i] != want[i] {
+            t.Fatalf("help line %d mismatch:\nGot:  %q\nWant: %q", i, got[i], want[i])
+        }
+    }
 }
 
 func TestHelpWithMissingSCName(t *testing.T) {
@@ -147,7 +151,12 @@ func TestHelpOutput(t *testing.T) {
         "",
     }
 
-	if diff := cmp.Diff(want, got); diff != "" {
-		t.Errorf("help mismatch (-want +got):\n%s", diff)
-	}
+    if len(got) != len(want) {
+        t.Fatalf("help length mismatch: got %d lines, want %d lines\nGot:\n%q\nWant:\n%q", len(got), len(want), got, want)
+    }
+    for i := range want {
+        if got[i] != want[i] {
+            t.Fatalf("help line %d mismatch:\nGot:  %q\nWant: %q", i, got[i], want[i])
+        }
+    }
 }

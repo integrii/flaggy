@@ -1,13 +1,17 @@
 package flaggy
 
 import (
-	"fmt"
-	"log"
-	"net"
-	"os"
-	"strconv"
-	"strings"
-	"time"
+    "fmt"
+    "log"
+    "math/big"
+    "net"
+    netip "net/netip"
+    "net/url"
+    "os"
+    "regexp"
+    "strconv"
+    "strings"
+    "time"
 )
 
 // Subcommand represents a subcommand which contains a set of child
@@ -476,7 +480,12 @@ func (sc *Subcommand) BoolSlice(assignmentVar *[]bool, shortName string, longNam
 // ByteSlice adds a new slice of bytes flag
 // Specify the flag multiple times to fill the slice.  Takes hex as input.
 func (sc *Subcommand) ByteSlice(assignmentVar *[]byte, shortName string, longName string, description string) {
-	sc.add(assignmentVar, shortName, longName, description)
+    sc.add(assignmentVar, shortName, longName, description)
+}
+
+// BytesBase64 adds a new []byte flag parsed from base64 input.
+func (sc *Subcommand) BytesBase64(assignmentVar *Base64Bytes, shortName string, longName string, description string) {
+    sc.add(assignmentVar, shortName, longName, description)
 }
 
 // Duration adds a new time.Duration flag.
@@ -656,7 +665,82 @@ func (sc *Subcommand) IPMask(assignmentVar *net.IPMask, shortName string, longNa
 // IPMaskSlice adds a new net.HardwareAddr slice flag. IPv4 only.
 // Specify the flag multiple times to fill the slice.
 func (sc *Subcommand) IPMaskSlice(assignmentVar *[]net.IPMask, shortName string, longName string, description string) {
-	sc.add(assignmentVar, shortName, longName, description)
+    sc.add(assignmentVar, shortName, longName, description)
+}
+
+// Time adds a new time.Time flag. Supports RFC3339/RFC3339Nano, RFC1123, and unix seconds.
+func (sc *Subcommand) Time(assignmentVar *time.Time, shortName string, longName string, description string) {
+    sc.add(assignmentVar, shortName, longName, description)
+}
+
+// URL adds a new url.URL flag.
+func (sc *Subcommand) URL(assignmentVar *url.URL, shortName string, longName string, description string) {
+    sc.add(assignmentVar, shortName, longName, description)
+}
+
+// IPNet adds a new net.IPNet flag parsed from CIDR.
+func (sc *Subcommand) IPNet(assignmentVar *net.IPNet, shortName string, longName string, description string) {
+    sc.add(assignmentVar, shortName, longName, description)
+}
+
+// TCPAddr adds a new net.TCPAddr flag parsed from host:port.
+func (sc *Subcommand) TCPAddr(assignmentVar *net.TCPAddr, shortName string, longName string, description string) {
+    sc.add(assignmentVar, shortName, longName, description)
+}
+
+// UDPAddr adds a new net.UDPAddr flag parsed from host:port.
+func (sc *Subcommand) UDPAddr(assignmentVar *net.UDPAddr, shortName string, longName string, description string) {
+    sc.add(assignmentVar, shortName, longName, description)
+}
+
+// FileMode adds a new os.FileMode flag parsed from octal/decimal (base auto-detected).
+func (sc *Subcommand) FileMode(assignmentVar *os.FileMode, shortName string, longName string, description string) {
+    sc.add(assignmentVar, shortName, longName, description)
+}
+
+// Regexp adds a new regexp.Regexp flag.
+func (sc *Subcommand) Regexp(assignmentVar *regexp.Regexp, shortName string, longName string, description string) {
+    sc.add(assignmentVar, shortName, longName, description)
+}
+
+// Location adds a new time.Location flag.
+func (sc *Subcommand) Location(assignmentVar *time.Location, shortName string, longName string, description string) {
+    sc.add(assignmentVar, shortName, longName, description)
+}
+
+// Month adds a new time.Month flag.
+func (sc *Subcommand) Month(assignmentVar *time.Month, shortName string, longName string, description string) {
+    sc.add(assignmentVar, shortName, longName, description)
+}
+
+// Weekday adds a new time.Weekday flag.
+func (sc *Subcommand) Weekday(assignmentVar *time.Weekday, shortName string, longName string, description string) {
+    sc.add(assignmentVar, shortName, longName, description)
+}
+
+// BigInt adds a new big.Int flag.
+func (sc *Subcommand) BigInt(assignmentVar *big.Int, shortName string, longName string, description string) {
+    sc.add(assignmentVar, shortName, longName, description)
+}
+
+// BigRat adds a new big.Rat flag.
+func (sc *Subcommand) BigRat(assignmentVar *big.Rat, shortName string, longName string, description string) {
+    sc.add(assignmentVar, shortName, longName, description)
+}
+
+// NetipAddr adds a new netip.Addr flag.
+func (sc *Subcommand) NetipAddr(assignmentVar *netip.Addr, shortName string, longName string, description string) {
+    sc.add(assignmentVar, shortName, longName, description)
+}
+
+// NetipPrefix adds a new netip.Prefix flag.
+func (sc *Subcommand) NetipPrefix(assignmentVar *netip.Prefix, shortName string, longName string, description string) {
+    sc.add(assignmentVar, shortName, longName, description)
+}
+
+// NetipAddrPort adds a new netip.AddrPort flag.
+func (sc *Subcommand) NetipAddrPort(assignmentVar *netip.AddrPort, shortName string, longName string, description string) {
+    sc.add(assignmentVar, shortName, longName, description)
 }
 
 // AddPositionalValue adds a positional value to the subcommand.  the
