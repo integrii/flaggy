@@ -6,12 +6,12 @@ import (
 
 // EnableCompletion enables shell autocomplete outputs to be generated.
 func EnableCompletion() {
-	DefaultParser.CompletionEnabled = true
+	DefaultParser.ShowCompletion = true
 }
 
 // EnableCompletion disallows shell autocomplete outputs to be generated.
 func DisableCompletion() {
-	DefaultParser.CompletionEnabled = false
+	DefaultParser.ShowCompletion = false
 }
 
 // GenerateBashCompletion returns a bash completion script for the parser.

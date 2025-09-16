@@ -16,6 +16,7 @@ type Help struct {
 	CommandName    string
 	PrependMessage string
 	AppendMessage  string
+	ShowCompletion bool
 	Message        string
 	Description    string
 }
@@ -64,23 +65,45 @@ func (h *Help) ExtractValues(p *Parser, message string) {
 	h.CommandName = p.subcommandContext.Name
 	// description
 	h.Description = p.subcommandContext.Description
+	// shell compltion
+	h.ShowCompletion = p.ShowCompletion
 
-	maxLength := getLongestNameLength(p.subcommandContext.Subcommands, 0)
+    // determine the max length of subcommand names for spacer calculation.
+    maxLength := getLongestNameLength(p.subcommandContext.Subcommands, 0)
+    // include the synthetic completion subcommand in spacer calculation
+    if p.ShowCompletion {
+        if l := len("completion"); l > maxLength {
+            maxLength = l
+        }
+    }
 
 	// subcommands    []HelpSubcommand
-	for _, cmd := range p.subcommandContext.Subcommands {
-		if cmd.Hidden {
-			continue
-		}
-		newHelpSubcommand := HelpSubcommand{
-			ShortName:   cmd.ShortName,
-			LongName:    cmd.Name,
-			Description: cmd.Description,
-			Position:    cmd.Position,
-			Spacer:      makeSpacer(cmd.Name, maxLength),
-		}
-		h.Subcommands = append(h.Subcommands, newHelpSubcommand)
-	}
+    for _, cmd := range p.subcommandContext.Subcommands {
+        if cmd.Hidden {
+            continue
+        }
+        newHelpSubcommand := HelpSubcommand{
+            ShortName:   cmd.ShortName,
+            LongName:    cmd.Name,
+            Description: cmd.Description,
+            Position:    cmd.Position,
+            Spacer:      makeSpacer(cmd.Name, maxLength),
+        }
+        h.Subcommands = append(h.Subcommands, newHelpSubcommand)
+    }
+
+    // Append a synthetic completion subcommand at the end when enabled.
+    // This shows users the correct invocation: "./appName completion [bash|zsh]".
+    if p.ShowCompletion {
+        completionHelp := HelpSubcommand{
+            ShortName:   "",
+            LongName:    "completion",
+            Description: "Generate shell completion script for bash or zsh.",
+            Position:    0,
+            Spacer:      makeSpacer("completion", maxLength),
+        }
+        h.Subcommands = append(h.Subcommands, completionHelp)
+    }
 
 	maxLength = getLongestNameLength(p.subcommandContext.PositionalFlags, 0)
 

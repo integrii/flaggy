@@ -32,15 +32,16 @@ func TestMinimalHelpOutput(t *testing.T) {
 		t.Fatalf("read: error: %s", err)
 	}
 	got := strings.Split(string(buf[:n]), "\n")
-	want := []string{
-		"",
-		"",
-		"  Flags: ",
-		"       --version   Displays the program version string.",
-		"    -h --help      Displays help with available flag, subcommand, and positional value parameters.",
-		"",
-		"",
-	}
+    want := []string{
+        "",
+        "",
+        "  Subcommands: ",
+        "    completion   Generate shell completion script for bash or zsh.",
+        "",
+        "  Flags: ",
+        "       --version   Displays the program version string.",
+        "    -h --help      Displays help with available flag, subcommand, and positional value parameters.",
+    }
 
 	if diff := cmp.Diff(want, got); diff != "" {
 		t.Errorf("help mismatch (-want +got):\n%s", diff)
@@ -122,20 +123,22 @@ func TestHelpOutput(t *testing.T) {
 		t.Fatalf("read: error: %s", err)
 	}
 	got := strings.Split(string(buf[:n]), "\n")
-	want := []string{
-		"subcommandB - Subcommand B is a command that does other stuff",
-		"",
-		"  Flags: ",
-		"       --version        Displays the program version string.",
-		"    -h --help           Displays help with available flag, subcommand, and positional value parameters.",
-		"    -s --stringFlag     This is a test string flag that does some stringy string stuff. (default: defaultStringHere)",
-		"    -i --intFlg         This is a test int flag that does some interesting int stuff. (default: 0)",
-		"    -b --boolFlag       This is a test bool flag that does some booly bool stuff.",
-		"    -d --durationFlag   This is a test duration flag that does some untimely stuff. (default: 0s)",
-		"",
-		"This is a help message on exit",
-		"",
-	}
+    want := []string{
+        "subcommandB - Subcommand B is a command that does other stuff",
+        "",
+        "  Subcommands: ",
+        "    completion   Generate shell completion script for bash or zsh.",
+        "",
+        "  Flags: ",
+        "       --version        Displays the program version string.",
+        "    -h --help           Displays help with available flag, subcommand, and positional value parameters.",
+        "    -s --stringFlag     This is a test string flag that does some stringy string stuff. (default: defaultStringHere)",
+        "    -i --intFlg         This is a test int flag that does some interesting int stuff. (default: 0)",
+        "    -b --boolFlag       This is a test bool flag that does some booly bool stuff.",
+        "    -d --durationFlag   This is a test duration flag that does some untimely stuff. (default: 0s)",
+        "",
+        "This is a help message on exit",
+    }
 
 	if diff := cmp.Diff(want, got); diff != "" {
 		t.Errorf("help mismatch (-want +got):\n%s", diff)

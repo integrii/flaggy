@@ -24,7 +24,7 @@ type Parser struct {
 	trailingArgumentsExtracted bool               // indicates that trailing args have been parsed and should not be appended again
 	parsed                     bool               // indicates this parser has parsed
 	subcommandContext          *Subcommand        // points to the most specific subcommand being used
-	CompletionEnabled          bool               // indicates that bash and zsh completion output is possible
+	ShowCompletion             bool               // indicates that bash and zsh completion output is possible
 }
 
 // TrailingSubcommand returns the last and most specific subcommand invoked.
@@ -41,7 +41,7 @@ func NewParser(name string) *Parser {
 	p.ShowHelpOnUnexpected = true
 	p.ShowHelpWithHFlag = true
 	p.ShowVersionWithVersionFlag = true
-	p.CompletionEnabled = true
+	p.ShowCompletion = true
 	p.SetHelpTemplate(DefaultHelpTemplate)
 	p.subcommandContext = &Subcommand{}
 	return p
@@ -64,7 +64,7 @@ func (p *Parser) ParseArgs(args []string) error {
 	}
 
 	// check if completion is enabled on the parser
-	if p.CompletionEnabled {
+	if p.ShowCompletion {
 		// detect that the first argument is 'completion' and ensure that a
 		// second shell type is passed as an argument
 		if len(args) == 2 && strings.EqualFold(args[0], "completion") {
