@@ -380,10 +380,10 @@ func TestSCInputParsing(t *testing.T) {
 	inputArgs = append(inputArgs, "-ssf", "one", "-ssf", "two")
 	var stringSliceFlagExpected = []string{"one", "two"}
 
-	var stringSliceCommaFlag []string
-	sc.StringSlice(&stringSliceCommaFlag, "sscf", "stringSliceComma", "string slice flag")
-	inputArgs = append(inputArgs, "-sscf", "one,two")
-	var stringSliceCommaFlagExpected = []string{"one", "two"}
+    var stringSliceCommaFlag []string
+    sc.StringSlice(&stringSliceCommaFlag, "sscf", "stringSliceComma", "string slice flag")
+    inputArgs = append(inputArgs, "-sscf", "one,two")
+    var stringSliceCommaFlagExpected = []string{"one,two"}
 
 	var boolFlag bool
 	sc.Bool(&boolFlag, "bf", "bool", "bool flag")
