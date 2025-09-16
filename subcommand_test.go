@@ -823,3 +823,23 @@ func TestParseErrorsAreReportedRegression(t *testing.T) {
 	os.Args = []string{"prog", "--int", "abc"}
 	flaggy.Parse()
 }
+
+// Regression test: when a subcommand and a flag share the same short name,
+// the flag should take precedence for a dash-prefixed token and not cause an error.
+func TestSubcommandAndFlagSameShortName(t *testing.T) {
+    flaggy.ResetParser()
+    flaggy.PanicInsteadOfExit = true
+    defer func() { flaggy.PanicInsteadOfExit = false }()
+
+    var test string
+    sc := flaggy.NewSubcommand("testSubCmd")
+    sc.ShortName = "t"
+    sc.String(&test, "t", "testFlag", "test flag")
+    flaggy.AttachSubcommand(sc, 1)
+
+    // Should set test to "hello" without unknown-argument errors.
+    flaggy.ParseArgs([]string{"t", "-t", "hello"})
+    if test != "hello" {
+        t.Fatalf("expected test to be 'hello', got %q", test)
+    }
+}

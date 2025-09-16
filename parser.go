@@ -140,9 +140,10 @@ func findArgsNotInParsedValues(args []string, parsedValues []parsedValue) []stri
 			continue
 		}
 
-		// strip flag slashes from incoming arguments so they match up with the
-		// keys from parsedValues.
-		arg := parseFlagToName(a)
+        // Determine token type and normalized key/value
+        argType := determineArgType(a)
+        arg := parseFlagToName(a)
+        isFlagToken := strings.HasPrefix(a, "-")
 
 		// skip args that start with 'test.' because they are injected with go test
 		debugPrint("flagsNotParsed: checking arg for test prefix:", arg)
@@ -152,31 +153,49 @@ func findArgsNotInParsedValues(args []string, parsedValues []parsedValue) []stri
 		}
 		debugPrint("flagsNotParsed: flag is not a test. flag:", arg)
 
-		// indicates that we found this arg used in one of the parsed values. Used
-		// to indicate which values should be added to argsNotUsed.
-		var foundArgUsed bool
+        // indicates that we found this arg used in one of the parsed values. Used
+        // to indicate which values should be added to argsNotUsed.
+        var foundArgUsed bool
 
-		// search all args for a corresponding parsed value
-		for _, pv := range parsedValues {
-			// this argumenet was a key
-			// debugPrint(pv.Key, "==", arg)
-			debugPrint(pv.Key + "==" + arg + " || (" + strconv.FormatBool(pv.IsPositional) + " && " + pv.Value + " == " + arg + ")")
-			if pv.Key == arg || (pv.IsPositional && pv.Value == arg) {
-				debugPrint("Found matching parsed arg for " + pv.Key)
-				foundArgUsed = true // the arg was used in this parsedValues set
-				// if the value is not a positional value and the parsed value had a
-				// value that was not blank, we skip the next value in the argument list
-				if !pv.IsPositional && len(pv.Value) > 0 {
-					skipNext = true
-					break
-				}
-			}
-			// this prevents excessive parsed values from being checked after we find
-			// the arg used for the first time
-			if foundArgUsed {
-				break
-			}
-		}
+        if isFlagToken {
+            // Only allow non-positional (flag) matches for flag tokens.
+            for _, pv := range parsedValues {
+                debugPrint(pv.Key + "==" + arg + " || (" + strconv.FormatBool(pv.IsPositional) + " && " + pv.Value + " == " + arg + ")")
+                if !pv.IsPositional && pv.Key == arg {
+                    debugPrint("Found matching parsed flag for " + pv.Key)
+                    foundArgUsed = true
+                    // Skip next only for space-separated flags that had a value.
+                    if argType == argIsFlagWithSpace && len(pv.Value) > 0 {
+                        skipNext = true
+                    }
+                    break
+                }
+            }
+        } else {
+            // Prefer positional matches for non-flag tokens (like subcommands)
+            for _, pv := range parsedValues {
+                debugPrint(pv.Key + "==" + arg + " || (" + strconv.FormatBool(pv.IsPositional) + " && " + pv.Value + " == " + arg + ")")
+                if pv.IsPositional && pv.Value == arg {
+                    debugPrint("Found matching parsed positional for " + pv.Value)
+                    foundArgUsed = true
+                    break
+                }
+            }
+            // Fallback: allow matching a non-positional flag by bare name (helps tests)
+            if !foundArgUsed {
+                for _, pv := range parsedValues {
+                    debugPrint(pv.Key + "==" + arg + " || (" + strconv.FormatBool(pv.IsPositional) + " && " + pv.Value + " == " + arg + ")")
+                    if !pv.IsPositional && pv.Key == arg {
+                        debugPrint("Found matching parsed flag for " + pv.Key)
+                        foundArgUsed = true
+                        if len(pv.Value) > 0 {
+                            skipNext = true
+                        }
+                        break
+                    }
+                }
+            }
+        }
 
 		// if the arg was not used in any parsed values, then we add it to the slice
 		// of arguments not used
