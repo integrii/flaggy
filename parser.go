@@ -59,13 +59,22 @@ func (p *Parser) ParseArgs(args []string) error {
 
     // Handle shell completion before any parsing to avoid unknown-argument exits.
     if p.ShowCompletion {
-        // detect that the first argument is 'completion' and ensure that a
-        // second shell type is passed as an argument
-        if len(args) == 2 && strings.EqualFold(args[0], "completion") {
-            p.Completion(args[1])
+        if len(args) >= 1 && strings.EqualFold(args[0], "completion") {
+            // no shell provided
+            if len(args) < 2 {
+                fmt.Fprintln(os.Stderr, "Please specify a shell for completion. Supported shells: bash zsh")
+                exitOrPanic(2)
+            }
 
-            // exit out gracefully any time completion is passed
-            exitOrPanic(0)
+            shell := strings.ToLower(args[1])
+            switch shell {
+            case "bash", "zsh":
+                p.Completion(shell)
+                exitOrPanic(0)
+            default:
+                fmt.Fprintf(os.Stderr, "Unsupported shell specified for completion: %s\nSupported shells: bash zsh\n", args[1])
+                exitOrPanic(2)
+            }
         }
     }
 
