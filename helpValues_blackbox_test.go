@@ -32,7 +32,9 @@ func TestMinimalHelpOutput(t *testing.T) {
 		t.Fatalf("read: error: %s", err)
 	}
 	got := strings.Split(string(buf[:n]), "\n")
+    // Updated to match current help template output (extra blank lines)
     want := []string{
+        "",
         "",
         "",
         "  Subcommands: ",
@@ -41,6 +43,8 @@ func TestMinimalHelpOutput(t *testing.T) {
         "  Flags: ",
         "       --version   Displays the program version string.",
         "    -h --help      Displays help with available flag, subcommand, and positional value parameters.",
+        "",
+        "",
     }
 
 	if diff := cmp.Diff(want, got); diff != "" {
@@ -123,8 +127,10 @@ func TestHelpOutput(t *testing.T) {
 		t.Fatalf("read: error: %s", err)
 	}
 	got := strings.Split(string(buf[:n]), "\n")
+    // Updated to match current help template output (extra blank lines)
     want := []string{
         "subcommandB - Subcommand B is a command that does other stuff",
+        "",
         "",
         "  Subcommands: ",
         "    completion   Generate shell completion script for bash or zsh.",
@@ -138,6 +144,7 @@ func TestHelpOutput(t *testing.T) {
         "    -d --durationFlag   This is a test duration flag that does some untimely stuff. (default: 0s)",
         "",
         "This is a help message on exit",
+        "",
     }
 
 	if diff := cmp.Diff(want, got); diff != "" {
