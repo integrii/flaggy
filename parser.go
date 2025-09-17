@@ -14,19 +14,20 @@ import (
 // from our input arguments.  Parser is the top level struct responsible for
 // parsing an entire set of subcommands and flags.
 type Parser struct {
-    Subcommand
-    Version                    string             // the optional version of the parser.
-    ShowHelpWithHFlag          bool               // display help when -h or --help passed
-    ShowVersionWithVersionFlag bool               // display the version when --version passed
-    ShowHelpOnUnexpected       bool               // display help when an unexpected flag or subcommand is passed
-    TrailingArguments          []string           // everything after a -- is placed here
-    HelpTemplate               *template.Template // template for Help output
-    trailingArgumentsExtracted bool               // indicates that trailing args have been parsed and should not be appended again
-    parsed                     bool               // indicates this parser has parsed
-    subcommandContext          *Subcommand        // points to the most specific subcommand being used
-    ShowCompletion             bool               // indicates that bash and zsh completion output is possible
-    SortFlags                  bool               // when true, help output flags are sorted alphabetically
-    SortFlagsReverse           bool               // when true with SortFlags, sort order is reversed (Z..A)
+	Subcommand
+	Version                    string             // the optional version of the parser.
+	ShowHelpWithHFlag          bool               // display help when -h or --help passed
+	ShowVersionWithVersionFlag bool               // display the version when --version passed
+	ShowHelpOnUnexpected       bool               // display help when an unexpected flag or subcommand is passed
+	TrailingArguments          []string           // everything after a -- is placed here
+	HelpTemplate               *template.Template // template for Help output
+	trailingArgumentsExtracted bool               // indicates that trailing args have been parsed and should not be appended again
+	parsed                     bool               // indicates this parser has parsed
+	subcommandContext          *Subcommand        // points to the most specific subcommand being used
+	initialSubcommandContext   *Subcommand        // points to the initial help context prior to parsing
+	ShowCompletion             bool               // indicates that bash and zsh completion output is possible
+	SortFlags                  bool               // when true, help output flags are sorted alphabetically
+	SortFlagsReverse           bool               // when true with SortFlags, sort order is reversed (Z..A)
 }
 
 // TrailingSubcommand returns the last and most specific subcommand invoked.
@@ -36,33 +37,50 @@ func (p *Parser) TrailingSubcommand() *Subcommand {
 
 // NewParser creates a new ArgumentParser ready to parse inputs
 func NewParser(name string) *Parser {
-    // this can not be done inline because of struct embedding
-    p := &Parser{}
-    p.Name = name
-    p.Version = defaultVersion
-    p.ShowHelpOnUnexpected = true
-    p.ShowHelpWithHFlag = true
-    p.ShowVersionWithVersionFlag = true
-    p.ShowCompletion = true
-    p.SortFlags = false
-    p.SortFlagsReverse = false
-    p.SetHelpTemplate(DefaultHelpTemplate)
-    p.subcommandContext = &Subcommand{}
-    return p
+	// this can not be done inline because of struct embedding
+	p := &Parser{}
+	p.Name = name
+	p.Version = defaultVersion
+	p.ShowHelpOnUnexpected = true
+	p.ShowHelpWithHFlag = true
+	p.ShowVersionWithVersionFlag = true
+	p.ShowCompletion = true
+	p.SortFlags = false
+	p.SortFlagsReverse = false
+	p.SetHelpTemplate(DefaultHelpTemplate)
+	initialContext := &Subcommand{}
+	p.subcommandContext = initialContext
+	p.initialSubcommandContext = initialContext
+	return p
+}
+
+// isTopLevelHelpContext returns true when help output should be shown for the top
+// level parser instead of a specific subcommand.
+func (p *Parser) isTopLevelHelpContext() bool {
+	if p.subcommandContext == nil {
+		return true
+	}
+	if p.subcommandContext == &p.Subcommand {
+		return true
+	}
+	if p.initialSubcommandContext != nil && p.subcommandContext == p.initialSubcommandContext {
+		return true
+	}
+	return false
 }
 
 // SortFlagsByLongName enables alphabetical sorting by long flag name
 // (case-insensitive) for help output on this parser.
 func (p *Parser) SortFlagsByLongName() {
-    p.SortFlags = true
-    p.SortFlagsReverse = false
+	p.SortFlags = true
+	p.SortFlagsReverse = false
 }
 
 // SortFlagsByLongNameReversed enables reverse alphabetical sorting by
 // long flag name (case-insensitive) for help output on this parser.
 func (p *Parser) SortFlagsByLongNameReversed() {
-    p.SortFlags = true
-    p.SortFlagsReverse = true
+	p.SortFlags = true
+	p.SortFlagsReverse = true
 }
 
 // ParseArgs parses as if the passed args were the os.Args, but without the
@@ -70,37 +88,37 @@ func (p *Parser) SortFlagsByLongNameReversed() {
 // is a low level issue converting flags to their proper type.  No error
 // is returned for invalid arguments or missing require subcommands.
 func (p *Parser) ParseArgs(args []string) error {
-    if p.parsed {
-        return errors.New("Parser.Parse() called twice on parser with name: " + " " + p.Name + " " + p.ShortName)
-    }
-    p.parsed = true
+	if p.parsed {
+		return errors.New("Parser.Parse() called twice on parser with name: " + " " + p.Name + " " + p.ShortName)
+	}
+	p.parsed = true
 
-    // Handle shell completion before any parsing to avoid unknown-argument exits.
-    if p.ShowCompletion {
-        if len(args) >= 1 && strings.EqualFold(args[0], "completion") {
-            // no shell provided
-            if len(args) < 2 {
-                fmt.Fprintln(os.Stderr, "Please specify a shell for completion. Supported shells: bash zsh")
-                exitOrPanic(2)
-            }
+	// Handle shell completion before any parsing to avoid unknown-argument exits.
+	if p.ShowCompletion {
+		if len(args) >= 1 && strings.EqualFold(args[0], "completion") {
+			// no shell provided
+			if len(args) < 2 {
+				fmt.Fprintln(os.Stderr, "Please specify a shell for completion. Supported shells: bash zsh")
+				exitOrPanic(2)
+			}
 
-            shell := strings.ToLower(args[1])
-            switch shell {
-            case "bash", "zsh":
-                p.Completion(shell)
-                exitOrPanic(0)
-            default:
-                fmt.Fprintf(os.Stderr, "Unsupported shell specified for completion: %s\nSupported shells: bash zsh\n", args[1])
-                exitOrPanic(2)
-            }
-        }
-    }
+			shell := strings.ToLower(args[1])
+			switch shell {
+			case "bash", "zsh":
+				p.Completion(shell)
+				exitOrPanic(0)
+			default:
+				fmt.Fprintf(os.Stderr, "Unsupported shell specified for completion: %s\nSupported shells: bash zsh\n", args[1])
+				exitOrPanic(2)
+			}
+		}
+	}
 
-    debugPrint("Kicking off parsing with args:", args)
-    err := p.parse(p, args, 0)
-    if err != nil {
-        return err
-    }
+	debugPrint("Kicking off parsing with args:", args)
+	err := p.parse(p, args, 0)
+	if err != nil {
+		return err
+	}
 
 	// if we are set to exit on unexpected args, look for those here
 	if p.ShowHelpOnUnexpected {
@@ -158,10 +176,10 @@ func findArgsNotInParsedValues(args []string, parsedValues []parsedValue) []stri
 			continue
 		}
 
-        // Determine token type and normalized key/value
-        argType := determineArgType(a)
-        arg := parseFlagToName(a)
-        isFlagToken := strings.HasPrefix(a, "-")
+		// Determine token type and normalized key/value
+		argType := determineArgType(a)
+		arg := parseFlagToName(a)
+		isFlagToken := strings.HasPrefix(a, "-")
 
 		// skip args that start with 'test.' because they are injected with go test
 		debugPrint("flagsNotParsed: checking arg for test prefix:", arg)
@@ -171,51 +189,51 @@ func findArgsNotInParsedValues(args []string, parsedValues []parsedValue) []stri
 		}
 		debugPrint("flagsNotParsed: flag is not a test. flag:", arg)
 
-        // indicates that we found this arg used in one of the parsed values. Used
-        // to indicate which values should be added to argsNotUsed.
-        var foundArgUsed bool
+		// indicates that we found this arg used in one of the parsed values. Used
+		// to indicate which values should be added to argsNotUsed.
+		var foundArgUsed bool
 
-        // For flag tokens, only allow non-positional (flag) matches.
-        if isFlagToken {
-            for _, pv := range parsedValues {
-                debugPrint(pv.Key + "==" + arg + " || (" + strconv.FormatBool(pv.IsPositional) + " && " + pv.Value + " == " + arg + ")")
-                if !pv.IsPositional && pv.Key == arg {
-                    debugPrint("Found matching parsed flag for " + pv.Key)
-                    foundArgUsed = true
-                    if argType == argIsFlagWithSpace && len(pv.Value) > 0 {
-                        skipNext = true
-                    }
-                    break
-                }
-            }
-        }
+		// For flag tokens, only allow non-positional (flag) matches.
+		if isFlagToken {
+			for _, pv := range parsedValues {
+				debugPrint(pv.Key + "==" + arg + " || (" + strconv.FormatBool(pv.IsPositional) + " && " + pv.Value + " == " + arg + ")")
+				if !pv.IsPositional && pv.Key == arg {
+					debugPrint("Found matching parsed flag for " + pv.Key)
+					foundArgUsed = true
+					if argType == argIsFlagWithSpace && len(pv.Value) > 0 {
+						skipNext = true
+					}
+					break
+				}
+			}
+		}
 
-        // For non-flag tokens, prefer positional matches first.
-        if !isFlagToken && !foundArgUsed {
-            for _, pv := range parsedValues {
-                debugPrint(pv.Key + "==" + arg + " || (" + strconv.FormatBool(pv.IsPositional) + " && " + pv.Value + " == " + arg + ")")
-                if pv.IsPositional && pv.Value == arg {
-                    debugPrint("Found matching parsed positional for " + pv.Value)
-                    foundArgUsed = true
-                    break
-                }
-            }
-        }
+		// For non-flag tokens, prefer positional matches first.
+		if !isFlagToken && !foundArgUsed {
+			for _, pv := range parsedValues {
+				debugPrint(pv.Key + "==" + arg + " || (" + strconv.FormatBool(pv.IsPositional) + " && " + pv.Value + " == " + arg + ")")
+				if pv.IsPositional && pv.Value == arg {
+					debugPrint("Found matching parsed positional for " + pv.Value)
+					foundArgUsed = true
+					break
+				}
+			}
+		}
 
-        // Fallback for non-flag tokens: allow matching a non-positional flag by bare name.
-        if !isFlagToken && !foundArgUsed {
-            for _, pv := range parsedValues {
-                debugPrint(pv.Key + "==" + arg + " || (" + strconv.FormatBool(pv.IsPositional) + " && " + pv.Value + " == " + arg + ")")
-                if !pv.IsPositional && pv.Key == arg {
-                    debugPrint("Found matching parsed flag for " + pv.Key)
-                    foundArgUsed = true
-                    if len(pv.Value) > 0 {
-                        skipNext = true
-                    }
-                    break
-                }
-            }
-        }
+		// Fallback for non-flag tokens: allow matching a non-positional flag by bare name.
+		if !isFlagToken && !foundArgUsed {
+			for _, pv := range parsedValues {
+				debugPrint(pv.Key + "==" + arg + " || (" + strconv.FormatBool(pv.IsPositional) + " && " + pv.Value + " == " + arg + ")")
+				if !pv.IsPositional && pv.Key == arg {
+					debugPrint("Found matching parsed flag for " + pv.Key)
+					foundArgUsed = true
+					if len(pv.Value) > 0 {
+						skipNext = true
+					}
+					break
+				}
+			}
+		}
 
 		// if the arg was not used in any parsed values, then we add it to the slice
 		// of arguments not used
