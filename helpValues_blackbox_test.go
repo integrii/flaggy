@@ -1,12 +1,12 @@
 package flaggy_test
 
 import (
-    "os"
-    "strings"
-    "testing"
-    "time"
+	"os"
+	"strings"
+	"testing"
+	"time"
 
-    "github.com/integrii/flaggy"
+	"github.com/integrii/flaggy"
 )
 
 func TestMinimalHelpOutput(t *testing.T) {
@@ -31,29 +31,29 @@ func TestMinimalHelpOutput(t *testing.T) {
 		t.Fatalf("read: error: %s", err)
 	}
 	got := strings.Split(string(buf[:n]), "\n")
-    // Updated to match current help template output (extra blank lines)
-    want := []string{
-        "",
-        "",
-        "",
-        "  Subcommands: ",
-        "    completion   Generate shell completion script for bash or zsh.",
-        "",
-        "  Flags: ",
-        "       --version   Displays the program version string.",
-        "    -h --help      Displays help with available flag, subcommand, and positional value parameters.",
-        "",
-        "",
-    }
+	// Updated to match current help template output (extra blank lines)
+	want := []string{
+		"",
+		"",
+		"",
+		"  Subcommands: ",
+		"    completion   Generate shell completion script for bash or zsh.",
+		"",
+		"  Flags: ",
+		"       --version   Displays the program version string.",
+		"    -h --help      Displays help with available flag, subcommand, and positional value parameters.",
+		"",
+		"",
+	}
 
-    if len(got) != len(want) {
-        t.Fatalf("help length mismatch: got %d lines, want %d lines\nGot:\n%q\nWant:\n%q", len(got), len(want), got, want)
-    }
-    for i := range want {
-        if got[i] != want[i] {
-            t.Fatalf("help line %d mismatch:\nGot:  %q\nWant: %q", i, got[i], want[i])
-        }
-    }
+	if len(got) != len(want) {
+		t.Fatalf("help length mismatch: got %d lines, want %d lines\nGot:\n%q\nWant:\n%q", len(got), len(want), got, want)
+	}
+	for i := range want {
+		if got[i] != want[i] {
+			t.Fatalf("help line %d mismatch:\nGot:  %q\nWant: %q", i, got[i], want[i])
+		}
+	}
 }
 
 func TestHelpWithMissingSCName(t *testing.T) {
@@ -131,32 +131,28 @@ func TestHelpOutput(t *testing.T) {
 		t.Fatalf("read: error: %s", err)
 	}
 	got := strings.Split(string(buf[:n]), "\n")
-    // Updated to match current help template output (extra blank lines)
-    want := []string{
-        "subcommandB - Subcommand B is a command that does other stuff",
-        "",
-        "",
-        "  Subcommands: ",
-        "    completion   Generate shell completion script for bash or zsh.",
-        "",
-        "  Flags: ",
-        "       --version        Displays the program version string.",
-        "    -h --help           Displays help with available flag, subcommand, and positional value parameters.",
-        "    -s --stringFlag     This is a test string flag that does some stringy string stuff. (default: defaultStringHere)",
-        "    -i --intFlg         This is a test int flag that does some interesting int stuff. (default: 0)",
-        "    -b --boolFlag       This is a test bool flag that does some booly bool stuff.",
-        "    -d --durationFlag   This is a test duration flag that does some untimely stuff. (default: 0s)",
-        "",
-        "This is a help message on exit",
-        "",
-    }
+	// Updated to match current help template output without completion subcommand on nested help.
+	want := []string{
+		"subcommandB - Subcommand B is a command that does other stuff",
+		"",
+		"  Flags: ",
+		"       --version        Displays the program version string.",
+		"    -h --help           Displays help with available flag, subcommand, and positional value parameters.",
+		"    -s --stringFlag     This is a test string flag that does some stringy string stuff. (default: defaultStringHere)",
+		"    -i --intFlg         This is a test int flag that does some interesting int stuff. (default: 0)",
+		"    -b --boolFlag       This is a test bool flag that does some booly bool stuff.",
+		"    -d --durationFlag   This is a test duration flag that does some untimely stuff. (default: 0s)",
+		"",
+		"This is a help message on exit",
+		"",
+	}
 
-    if len(got) != len(want) {
-        t.Fatalf("help length mismatch: got %d lines, want %d lines\nGot:\n%q\nWant:\n%q", len(got), len(want), got, want)
-    }
-    for i := range want {
-        if got[i] != want[i] {
-            t.Fatalf("help line %d mismatch:\nGot:  %q\nWant: %q", i, got[i], want[i])
-        }
-    }
+	if len(got) != len(want) {
+		t.Fatalf("help length mismatch: got %d lines, want %d lines\nGot:\n%q\nWant:\n%q", len(got), len(want), got, want)
+	}
+	for i := range want {
+		if got[i] != want[i] {
+			t.Fatalf("help line %d mismatch:\nGot:  %q\nWant: %q", i, got[i], want[i])
+		}
+	}
 }

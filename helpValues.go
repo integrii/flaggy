@@ -1,11 +1,11 @@
 package flaggy
 
 import (
-    "log"
-    "reflect"
-    "sort"
-    "strings"
-    "unicode/utf8"
+	"log"
+	"reflect"
+	"sort"
+	"strings"
+	"unicode/utf8"
 )
 
 // Help represents the values needed to render a Help page
@@ -66,45 +66,46 @@ func (h *Help) ExtractValues(p *Parser, message string) {
 	h.CommandName = p.subcommandContext.Name
 	// description
 	h.Description = p.subcommandContext.Description
-	// shell compltion
-	h.ShowCompletion = p.ShowCompletion
+	// shell completion
+	showCompletion := p.ShowCompletion && p.isTopLevelHelpContext()
+	h.ShowCompletion = showCompletion
 
-    // determine the max length of subcommand names for spacer calculation.
-    maxLength := getLongestNameLength(p.subcommandContext.Subcommands, 0)
-    // include the synthetic completion subcommand in spacer calculation
-    if p.ShowCompletion {
-        if l := len("completion"); l > maxLength {
-            maxLength = l
-        }
-    }
+	// determine the max length of subcommand names for spacer calculation.
+	maxLength := getLongestNameLength(p.subcommandContext.Subcommands, 0)
+	// include the synthetic completion subcommand in spacer calculation
+	if showCompletion {
+		if l := len("completion"); l > maxLength {
+			maxLength = l
+		}
+	}
 
 	// subcommands    []HelpSubcommand
-    for _, cmd := range p.subcommandContext.Subcommands {
-        if cmd.Hidden {
-            continue
-        }
-        newHelpSubcommand := HelpSubcommand{
-            ShortName:   cmd.ShortName,
-            LongName:    cmd.Name,
-            Description: cmd.Description,
-            Position:    cmd.Position,
-            Spacer:      makeSpacer(cmd.Name, maxLength),
-        }
-        h.Subcommands = append(h.Subcommands, newHelpSubcommand)
-    }
+	for _, cmd := range p.subcommandContext.Subcommands {
+		if cmd.Hidden {
+			continue
+		}
+		newHelpSubcommand := HelpSubcommand{
+			ShortName:   cmd.ShortName,
+			LongName:    cmd.Name,
+			Description: cmd.Description,
+			Position:    cmd.Position,
+			Spacer:      makeSpacer(cmd.Name, maxLength),
+		}
+		h.Subcommands = append(h.Subcommands, newHelpSubcommand)
+	}
 
-    // Append a synthetic completion subcommand at the end when enabled.
-    // This shows users the correct invocation: "./appName completion [bash|zsh]".
-    if p.ShowCompletion {
-        completionHelp := HelpSubcommand{
-            ShortName:   "",
-            LongName:    "completion",
-            Description: "Generate shell completion script for bash or zsh.",
-            Position:    0,
-            Spacer:      makeSpacer("completion", maxLength),
-        }
-        h.Subcommands = append(h.Subcommands, completionHelp)
-    }
+	// Append a synthetic completion subcommand at the end when enabled.
+	// This shows users the correct invocation: "./appName completion [bash|zsh]".
+	if showCompletion {
+		completionHelp := HelpSubcommand{
+			ShortName:   "",
+			LongName:    "completion",
+			Description: "Generate shell completion script for bash or zsh.",
+			Position:    0,
+			Spacer:      makeSpacer("completion", maxLength),
+		}
+		h.Subcommands = append(h.Subcommands, completionHelp)
+	}
 
 	maxLength = getLongestNameLength(p.subcommandContext.PositionalFlags, 0)
 
@@ -158,24 +159,28 @@ func (h *Help) ExtractValues(p *Parser, message string) {
 	// go through every flag in the subcommand and add it to help output
 	h.parseFlagsToHelpFlags(p.subcommandContext.Flags, maxLength)
 
-    // go through every flag in the parent parser and add it to help output
-    h.parseFlagsToHelpFlags(p.Flags, maxLength)
+	// go through every flag in the parent parser and add it to help output
+	h.parseFlagsToHelpFlags(p.Flags, maxLength)
 
-    // Optionally sort flags alphabetically by long name (fallback to short name)
-    if p.SortFlags {
-        sort.SliceStable(h.Flags, func(i, j int) bool {
-            a := h.Flags[i]
-            b := h.Flags[j]
-            aName := strings.ToLower(strings.TrimSpace(a.LongName))
-            bName := strings.ToLower(strings.TrimSpace(b.LongName))
-            if aName == "" { aName = strings.ToLower(strings.TrimSpace(a.ShortName)) }
-            if bName == "" { bName = strings.ToLower(strings.TrimSpace(b.ShortName)) }
-            if p.SortFlagsReverse {
-                return aName > bName
-            }
-            return aName < bName
-        })
-    }
+	// Optionally sort flags alphabetically by long name (fallback to short name)
+	if p.SortFlags {
+		sort.SliceStable(h.Flags, func(i, j int) bool {
+			a := h.Flags[i]
+			b := h.Flags[j]
+			aName := strings.ToLower(strings.TrimSpace(a.LongName))
+			bName := strings.ToLower(strings.TrimSpace(b.LongName))
+			if aName == "" {
+				aName = strings.ToLower(strings.TrimSpace(a.ShortName))
+			}
+			if bName == "" {
+				bName = strings.ToLower(strings.TrimSpace(b.ShortName))
+			}
+			if p.SortFlagsReverse {
+				return aName > bName
+			}
+			return aName < bName
+		})
+	}
 
 	// formulate the usage string
 	// first, we capture all the command and positional names by position
@@ -201,7 +206,7 @@ func (h *Help) ExtractValues(p *Parser, message string) {
 		}
 	}
 
-    // find the highest position count in the map
+	// find the highest position count in the map
 	var highestPosition int
 	for i := range commandsByPosition {
 		if i > highestPosition {
