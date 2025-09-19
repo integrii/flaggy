@@ -1,6 +1,6 @@
 <p align="center">
 
-<img src="https://raw.githubusercontent.com/integrii/flaggy/master/assets/flaggy-gopher.png" />
+<center><img width=240 src="https://raw.githubusercontent.com/integrii/flaggy/master/assets/flaggy-gopher.png" /></center>
 <br />
 <a href="https://goreportcard.com/report/github.com/integrii/flaggy"><img src="https://goreportcard.com/badge/github.com/integrii/flaggy"></a>
 <a href="https://travis-ci.org/integrii/flaggy"><img src="https://travis-ci.org/integrii/flaggy.svg?branch=master"></a> 
