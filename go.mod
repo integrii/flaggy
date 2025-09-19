@@ -1,3 +1,3 @@
 module github.com/integrii/flaggy
 
-go 1.20
+go 1.22
