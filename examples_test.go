@@ -210,3 +210,65 @@ func ExampleSubcommand() {
 	// Subcommand Positional: subcommandPositional
 	// Trailing variable 1: trailingVar
 }
+
+// ExampleTrailingArguments shows how to read values that appear after the
+// double-dash (--) separator. Any arguments after -- are stored as trailing
+// arguments so you can forward them to another command or treat them as raw
+// input.
+func ExampleTrailingArguments() {
+
+	// Reset the parser and provide some beginner-friendly help text so anyone
+	// running `./app --help` understands what this example demonstrates.
+	flaggy.ResetParser()
+	flaggy.DefaultParser.Description = "Collects file names that appear after -- as trailing arguments."
+	flaggy.DefaultParser.AdditionalHelpPrepend = "Usage: ./app -- <file> [<file> ...]"
+	flaggy.DefaultParser.AdditionalHelpAppend = "Example: ./app -- notes.txt todo.md"
+
+	// Pretend the CLI input looks like `./app -- notes.txt todo.md`.
+	os.Args = []string{"app", "--", "notes.txt", "todo.md"}
+
+	// Parse the input arguments from the OS (os.Args).
+	flaggy.Parse()
+
+	// Trailing arguments are available even if you did not define explicit
+	// positional values or flags for them.
+	fmt.Printf("Trailing arguments (%d):\n", len(flaggy.TrailingArguments))
+	for index, argument := range flaggy.TrailingArguments {
+		fmt.Printf("  %d. %s\n", index+1, argument)
+	}
+	// Output:
+	// Trailing arguments (2):
+	//   1. notes.txt
+	//   2. todo.md
+}
+
+// ExampleStringSlice shows how to gather repeated flag values into a slice of
+// strings. This example fulfills the "ExampleSliceString" request by showing
+// how repeated string flags build a slice of values.
+func ExampleStringSlice() {
+
+	// Reset the parser and describe the command so that --help output is clear
+	// for new users experimenting with the example.
+	flaggy.ResetParser()
+	flaggy.DefaultParser.Description = "Stores every -a/--add value in a slice."
+	flaggy.DefaultParser.AdditionalHelpPrepend = "Usage: ./app -a <value> [-a <value> ...]"
+	flaggy.DefaultParser.AdditionalHelpAppend = "Example: ./app -a test -a another -a again"
+
+	// Simulate invoking the binary as `./app -a test -a another -a again`.
+	os.Args = []string{"app", "-a", "test", "-a", "another", "-a", "again"}
+
+	var sliceFlag []string
+	flaggy.StringSlice(&sliceFlag, "a", "add", "Collect values for this slice")
+
+	flaggy.Parse()
+
+	fmt.Printf("String slice has %d items:\n", len(sliceFlag))
+	for index, value := range sliceFlag {
+		fmt.Printf("  %d. %s\n", index+1, value)
+	}
+	// Output:
+	// String slice has 3 items:
+	//   1. test
+	//   2. another
+	//   3. again
+}
