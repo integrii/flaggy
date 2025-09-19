@@ -115,7 +115,7 @@ func (p *Parser) ParseArgs(args []string) error {
 	}
 
 	debugPrint("Kicking off parsing with args:", args)
-	err := p.parse(p, args, 0)
+	err := p.parse(p, args)
 	if err != nil {
 		return err
 	}
@@ -162,7 +162,9 @@ func findArgsNotInParsedValues(args []string, parsedValues []parsedValue) []stri
 
 	var argsNotUsed []string
 	var skipNext bool
-	for _, a := range args {
+
+	for i := 0; i < len(args); i++ {
+		a := args[i]
 
 		// if the final argument (--) is seen, then we stop checking because all
 		// further values are trailing arguments.
@@ -177,7 +179,6 @@ func findArgsNotInParsedValues(args []string, parsedValues []parsedValue) []stri
 		}
 
 		// Determine token type and normalized key/value
-		argType := determineArgType(a)
 		arg := parseFlagToName(a)
 		isFlagToken := strings.HasPrefix(a, "-")
 
@@ -200,16 +201,21 @@ func findArgsNotInParsedValues(args []string, parsedValues []parsedValue) []stri
 				if !pv.IsPositional && pv.Key == arg {
 					debugPrint("Found matching parsed flag for " + pv.Key)
 					foundArgUsed = true
-					if argType == argIsFlagWithSpace && len(pv.Value) > 0 {
+					if pv.ConsumesNext {
+						skipNext = true
+					} else if i+1 < len(args) && pv.Value == args[i+1] {
 						skipNext = true
 					}
 					break
 				}
 			}
+			if foundArgUsed {
+				continue
+			}
 		}
 
 		// For non-flag tokens, prefer positional matches first.
-		if !isFlagToken && !foundArgUsed {
+		if !isFlagToken {
 			for _, pv := range parsedValues {
 				debugPrint(pv.Key + "==" + arg + " || (" + strconv.FormatBool(pv.IsPositional) + " && " + pv.Value + " == " + arg + ")")
 				if pv.IsPositional && pv.Value == arg {
@@ -218,20 +224,26 @@ func findArgsNotInParsedValues(args []string, parsedValues []parsedValue) []stri
 					break
 				}
 			}
-		}
+			if foundArgUsed {
+				continue
+			}
 
-		// Fallback for non-flag tokens: allow matching a non-positional flag by bare name.
-		if !isFlagToken && !foundArgUsed {
+			// Fallback for non-flag tokens: allow matching a non-positional flag by bare name.
 			for _, pv := range parsedValues {
 				debugPrint(pv.Key + "==" + arg + " || (" + strconv.FormatBool(pv.IsPositional) + " && " + pv.Value + " == " + arg + ")")
 				if !pv.IsPositional && pv.Key == arg {
 					debugPrint("Found matching parsed flag for " + pv.Key)
 					foundArgUsed = true
-					if len(pv.Value) > 0 {
+					if pv.ConsumesNext {
+						skipNext = true
+					} else if i+1 < len(args) && pv.Value == args[i+1] {
 						skipNext = true
 					}
 					break
 				}
+			}
+			if foundArgUsed {
+				continue
 			}
 		}
 

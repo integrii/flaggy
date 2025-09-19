@@ -7,17 +7,17 @@
 package flaggy // import "github.com/integrii/flaggy"
 
 import (
-    "fmt"
-    "log"
-    "math/big"
-    "net"
-    netip "net/netip"
-    "net/url"
-    "os"
-    "regexp"
-    "strconv"
-    "strings"
-    "time"
+	"fmt"
+	"log"
+	"math/big"
+	"net"
+	netip "net/netip"
+	"net/url"
+	"os"
+	"regexp"
+	"strconv"
+	"strings"
+	"time"
 )
 
 // strings used for builtin help and version flags both short and long
@@ -53,24 +53,24 @@ func init() {
 // ResetParser resets the default parser to a fresh instance.  Uses the
 // name of the binary executing as the program name by default.
 func ResetParser() {
-    if len(os.Args) > 0 {
-        chunks := strings.Split(os.Args[0], "/")
-        DefaultParser = NewParser(chunks[len(chunks)-1])
-    } else {
-        DefaultParser = NewParser("default")
-    }
+	if len(os.Args) > 0 {
+		chunks := strings.Split(os.Args[0], "/")
+		DefaultParser = NewParser(chunks[len(chunks)-1])
+		return
+	}
+	DefaultParser = NewParser("default")
 }
 
 // SortFlagsByLongName enables alphabetical sorting of flags by long name
 // in help output on the default parser.
 func SortFlagsByLongName() {
-    DefaultParser.SortFlagsByLongName()
+	DefaultParser.SortFlagsByLongName()
 }
 
 // SortFlagsByLongNameReversed enables reverse alphabetical sorting of flags
 // by long name in help output on the default parser.
 func SortFlagsByLongNameReversed() {
-    DefaultParser.SortFlagsByLongNameReversed()
+	DefaultParser.SortFlagsByLongNameReversed()
 }
 
 // Parse parses flags as requested in the default package parser.  All trailing arguments
@@ -119,19 +119,19 @@ func BoolSlice(assignmentVar *[]bool, shortName string, longName string, descrip
 // ByteSlice adds a new slice of bytes flag
 // Specify the flag multiple times to fill the slice.  Takes hex as input.
 func ByteSlice(assignmentVar *[]byte, shortName string, longName string, description string) {
-    DefaultParser.add(assignmentVar, shortName, longName, description)
+	DefaultParser.add(assignmentVar, shortName, longName, description)
 }
 
 // BytesBase64 adds a new []byte flag parsed from base64 input.
 func BytesBase64(assignmentVar *Base64Bytes, shortName string, longName string, description string) {
-    DefaultParser.add(assignmentVar, shortName, longName, description)
+	DefaultParser.add(assignmentVar, shortName, longName, description)
 }
 
 // Duration adds a new time.Duration flag.
 // Input format is described in time.ParseDuration().
 // Example values: 1h, 1h50m, 32s
 func Duration(assignmentVar *time.Duration, shortName string, longName string, description string) {
-    DefaultParser.add(assignmentVar, shortName, longName, description)
+	DefaultParser.add(assignmentVar, shortName, longName, description)
 }
 
 // DurationSlice adds a new time.Duration flag.
@@ -216,7 +216,7 @@ func UInt16(assignmentVar *uint16, shortName string, longName string, descriptio
 // UInt16Slice adds a new uint16 slice flag.
 // Specify the flag multiple times to fill the slice.
 func UInt16Slice(assignmentVar *[]uint16, shortName string, longName string, description string) {
-    DefaultParser.add(assignmentVar, shortName, longName, description)
+	DefaultParser.add(assignmentVar, shortName, longName, description)
 }
 
 // UInt8 adds a new uint8 flag
@@ -304,82 +304,82 @@ func IPMask(assignmentVar *net.IPMask, shortName string, longName string, descri
 // IPMaskSlice adds a new net.HardwareAddr slice flag. IPv4 only.
 // Specify the flag multiple times to fill the slice.
 func IPMaskSlice(assignmentVar *[]net.IPMask, shortName string, longName string, description string) {
-    DefaultParser.add(assignmentVar, shortName, longName, description)
+	DefaultParser.add(assignmentVar, shortName, longName, description)
 }
 
 // Time adds a new time.Time flag. Supports RFC3339/RFC3339Nano, RFC1123, and unix seconds.
 func Time(assignmentVar *time.Time, shortName string, longName string, description string) {
-    DefaultParser.add(assignmentVar, shortName, longName, description)
+	DefaultParser.add(assignmentVar, shortName, longName, description)
 }
 
 // URL adds a new url.URL flag.
 func URL(assignmentVar *url.URL, shortName string, longName string, description string) {
-    DefaultParser.add(assignmentVar, shortName, longName, description)
+	DefaultParser.add(assignmentVar, shortName, longName, description)
 }
 
 // IPNet adds a new net.IPNet flag parsed from CIDR.
 func IPNet(assignmentVar *net.IPNet, shortName string, longName string, description string) {
-    DefaultParser.add(assignmentVar, shortName, longName, description)
+	DefaultParser.add(assignmentVar, shortName, longName, description)
 }
 
 // TCPAddr adds a new net.TCPAddr flag parsed from host:port.
 func TCPAddr(assignmentVar *net.TCPAddr, shortName string, longName string, description string) {
-    DefaultParser.add(assignmentVar, shortName, longName, description)
+	DefaultParser.add(assignmentVar, shortName, longName, description)
 }
 
 // UDPAddr adds a new net.UDPAddr flag parsed from host:port.
 func UDPAddr(assignmentVar *net.UDPAddr, shortName string, longName string, description string) {
-    DefaultParser.add(assignmentVar, shortName, longName, description)
+	DefaultParser.add(assignmentVar, shortName, longName, description)
 }
 
 // FileMode adds a new os.FileMode flag parsed from octal/decimal (base auto-detected).
 func FileMode(assignmentVar *os.FileMode, shortName string, longName string, description string) {
-    DefaultParser.add(assignmentVar, shortName, longName, description)
+	DefaultParser.add(assignmentVar, shortName, longName, description)
 }
 
 // Regexp adds a new regexp.Regexp flag.
 func Regexp(assignmentVar *regexp.Regexp, shortName string, longName string, description string) {
-    DefaultParser.add(assignmentVar, shortName, longName, description)
+	DefaultParser.add(assignmentVar, shortName, longName, description)
 }
 
 // Location adds a new time.Location flag.
 func Location(assignmentVar *time.Location, shortName string, longName string, description string) {
-    DefaultParser.add(assignmentVar, shortName, longName, description)
+	DefaultParser.add(assignmentVar, shortName, longName, description)
 }
 
 // Month adds a new time.Month flag.
 func Month(assignmentVar *time.Month, shortName string, longName string, description string) {
-    DefaultParser.add(assignmentVar, shortName, longName, description)
+	DefaultParser.add(assignmentVar, shortName, longName, description)
 }
 
 // Weekday adds a new time.Weekday flag.
 func Weekday(assignmentVar *time.Weekday, shortName string, longName string, description string) {
-    DefaultParser.add(assignmentVar, shortName, longName, description)
+	DefaultParser.add(assignmentVar, shortName, longName, description)
 }
 
 // BigInt adds a new big.Int flag.
 func BigInt(assignmentVar *big.Int, shortName string, longName string, description string) {
-    DefaultParser.add(assignmentVar, shortName, longName, description)
+	DefaultParser.add(assignmentVar, shortName, longName, description)
 }
 
 // BigRat adds a new big.Rat flag.
 func BigRat(assignmentVar *big.Rat, shortName string, longName string, description string) {
-    DefaultParser.add(assignmentVar, shortName, longName, description)
+	DefaultParser.add(assignmentVar, shortName, longName, description)
 }
 
 // NetipAddr adds a new netip.Addr flag.
 func NetipAddr(assignmentVar *netip.Addr, shortName string, longName string, description string) {
-    DefaultParser.add(assignmentVar, shortName, longName, description)
+	DefaultParser.add(assignmentVar, shortName, longName, description)
 }
 
 // NetipPrefix adds a new netip.Prefix flag.
 func NetipPrefix(assignmentVar *netip.Prefix, shortName string, longName string, description string) {
-    DefaultParser.add(assignmentVar, shortName, longName, description)
+	DefaultParser.add(assignmentVar, shortName, longName, description)
 }
 
 // NetipAddrPort adds a new netip.AddrPort flag.
 func NetipAddrPort(assignmentVar *netip.AddrPort, shortName string, longName string, description string) {
-    DefaultParser.add(assignmentVar, shortName, longName, description)
+	DefaultParser.add(assignmentVar, shortName, longName, description)
 }
 
 // AttachSubcommand adds a subcommand for parsing
