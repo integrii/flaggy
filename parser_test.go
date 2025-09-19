@@ -46,11 +46,12 @@ func TestFindArgsNotInParsedValues(t *testing.T) {
 	// ensure regular values are not skipped
 	parsedValues = []parsedValue{
 		{
-			Key:   "flaggy",
-			Value: "testing",
+			Key:          "flaggy",
+			Value:        "testing",
+			ConsumesNext: true,
 		},
 	}
-	args = []string{"flaggy", "testing", "unusedFlag"}
+	args = []string{"--flaggy", "testing", "unusedFlag"}
 	unusedArgs = findArgsNotInParsedValues(args, parsedValues)
 	t.Log(unusedArgs)
 	if len(unusedArgs) == 0 {
@@ -58,5 +59,23 @@ func TestFindArgsNotInParsedValues(t *testing.T) {
 	}
 	if len(unusedArgs) != 1 {
 		t.Fatal("Invalid number of unused args found.  Expected 1 but found", len(unusedArgs))
+	}
+}
+
+func TestFindArgsNotInParsedValuesSkipsEmptyConsumedValues(t *testing.T) {
+	t.Parallel()
+
+	args := []string{"-log.file.dir", ""}
+	parsedValues := []parsedValue{
+		{
+			Key:          "log.file.dir",
+			Value:        "",
+			ConsumesNext: true,
+		},
+	}
+
+	unusedArgs := findArgsNotInParsedValues(args, parsedValues)
+	if len(unusedArgs) != 0 {
+		t.Fatalf("expected no unused args, found %v", unusedArgs)
 	}
 }

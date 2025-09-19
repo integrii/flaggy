@@ -1,15 +1,15 @@
 package flaggy
 
 import (
-    "fmt"
-    "math/big"
-    "net"
-    netip "net/netip"
-    "net/url"
-    "os"
-    "regexp"
-    "testing"
-    "time"
+	"fmt"
+	"math/big"
+	"net"
+	netip "net/netip"
+	"net/url"
+	"os"
+	"regexp"
+	"testing"
+	"time"
 )
 
 // debugOff makes defers easier and turns off debug mode
@@ -279,110 +279,110 @@ func TestInputParsing(t *testing.T) {
 	inputArgs = append(inputArgs, "-m", "255.255.255.255")
 	var maskFlagExpected = net.IPMask([]byte{255, 255, 255, 255})
 
-    var maskSliceFlag []net.IPMask
-    IPMaskSlice(&maskSliceFlag, "ms", "mFlagSlice", "mask slice flag")
-    if err != nil {
-        t.Fatal(err)
-    }
-    inputArgs = append(inputArgs, "-ms", "255.255.255.255", "-ms", "255.255.255.0")
-    var maskSliceFlagExpected = []net.IPMask{net.IPMask([]byte{255, 255, 255, 255}), net.IPMask([]byte{255, 255, 255, 0})}
+	var maskSliceFlag []net.IPMask
+	IPMaskSlice(&maskSliceFlag, "ms", "mFlagSlice", "mask slice flag")
+	if err != nil {
+		t.Fatal(err)
+	}
+	inputArgs = append(inputArgs, "-ms", "255.255.255.255", "-ms", "255.255.255.0")
+	var maskSliceFlagExpected = []net.IPMask{net.IPMask([]byte{255, 255, 255, 255}), net.IPMask([]byte{255, 255, 255, 0})}
 
-    // time.Time via unix seconds
-    var timeFlag time.Time
-    Time(&timeFlag, "ttm", "timeFlag", "time flag")
-    inputArgs = append(inputArgs, "-ttm", "1717171717")
-    var timeFlagExpected = time.Unix(1717171717, 0).UTC()
+	// time.Time via unix seconds
+	var timeFlag time.Time
+	Time(&timeFlag, "ttm", "timeFlag", "time flag")
+	inputArgs = append(inputArgs, "-ttm", "1717171717")
+	var timeFlagExpected = time.Unix(1717171717, 0).UTC()
 
-    // url.URL
-    var urlFlag url.URL
-    URL(&urlFlag, "urlf", "urlFlag", "url flag")
-    inputArgs = append(inputArgs, "-urlf", "https://example.com/x?y=1#z")
-    var urlFlagExpected = "https://example.com/x?y=1#z"
+	// url.URL
+	var urlFlag url.URL
+	URL(&urlFlag, "urlf", "urlFlag", "url flag")
+	inputArgs = append(inputArgs, "-urlf", "https://example.com/x?y=1#z")
+	var urlFlagExpected = "https://example.com/x?y=1#z"
 
-    // net.IPNet CIDR
-    var cidrFlag net.IPNet
-    IPNet(&cidrFlag, "cidrf", "cidrFlag", "cidr flag")
-    inputArgs = append(inputArgs, "-cidrf", "192.168.0.0/16")
-    var cidrFlagExpected = "192.168.0.0/16"
+	// net.IPNet CIDR
+	var cidrFlag net.IPNet
+	IPNet(&cidrFlag, "cidrf", "cidrFlag", "cidr flag")
+	inputArgs = append(inputArgs, "-cidrf", "192.168.0.0/16")
+	var cidrFlagExpected = "192.168.0.0/16"
 
-    // net.TCPAddr
-    var tcpAddr net.TCPAddr
-    TCPAddr(&tcpAddr, "tcpa", "tcpAddr", "tcp addr")
-    inputArgs = append(inputArgs, "-tcpa", "127.0.0.1:8080")
-    var tcpIPExpected = net.IPv4(127, 0, 0, 1)
-    var tcpPortExpected = 8080
+	// net.TCPAddr
+	var tcpAddr net.TCPAddr
+	TCPAddr(&tcpAddr, "tcpa", "tcpAddr", "tcp addr")
+	inputArgs = append(inputArgs, "-tcpa", "127.0.0.1:8080")
+	var tcpIPExpected = net.IPv4(127, 0, 0, 1)
+	var tcpPortExpected = 8080
 
-    // net.UDPAddr
-    var udpAddr net.UDPAddr
-    UDPAddr(&udpAddr, "udpa", "udpAddr", "udp addr")
-    inputArgs = append(inputArgs, "-udpa", "127.0.0.1:5353")
-    var udpIPExpected = net.IPv4(127, 0, 0, 1)
-    var udpPortExpected = 5353
+	// net.UDPAddr
+	var udpAddr net.UDPAddr
+	UDPAddr(&udpAddr, "udpa", "udpAddr", "udp addr")
+	inputArgs = append(inputArgs, "-udpa", "127.0.0.1:5353")
+	var udpIPExpected = net.IPv4(127, 0, 0, 1)
+	var udpPortExpected = 5353
 
-    // os.FileMode
-    var fileModeFlag os.FileMode
-    FileMode(&fileModeFlag, "fmode", "fileMode", "file mode flag")
-    inputArgs = append(inputArgs, "-fmode", "0755")
-    var fileModeExpected os.FileMode = 0o755
+	// os.FileMode
+	var fileModeFlag os.FileMode
+	FileMode(&fileModeFlag, "fmode", "fileMode", "file mode flag")
+	inputArgs = append(inputArgs, "-fmode", "0755")
+	var fileModeExpected os.FileMode = 0o755
 
-    // regexp.Regexp
-    var regexFlag regexp.Regexp
-    Regexp(&regexFlag, "re", "regexp", "regex flag")
-    inputArgs = append(inputArgs, "-re", "^ab+$")
+	// regexp.Regexp
+	var regexFlag regexp.Regexp
+	Regexp(&regexFlag, "re", "regexp", "regex flag")
+	inputArgs = append(inputArgs, "-re", "^ab+$")
 
-    // time.Location
-    var locFlag time.Location
-    Location(&locFlag, "tz", "timezone", "timezone flag")
-    inputArgs = append(inputArgs, "-tz", "+02:00")
-    var locFlagExpected = "UTC+02:00"
+	// time.Location
+	var locFlag time.Location
+	Location(&locFlag, "tz", "timezone", "timezone flag")
+	inputArgs = append(inputArgs, "-tz", "+02:00")
+	var locFlagExpected = "UTC+02:00"
 
-    // time.Month
-    var monthFlag time.Month
-    Month(&monthFlag, "mon", "month", "month flag")
-    inputArgs = append(inputArgs, "-mon", "February")
-    var monthFlagExpected = time.February
+	// time.Month
+	var monthFlag time.Month
+	Month(&monthFlag, "mon", "month", "month flag")
+	inputArgs = append(inputArgs, "-mon", "February")
+	var monthFlagExpected = time.February
 
-    // time.Weekday
-    var weekdayFlag time.Weekday
-    Weekday(&weekdayFlag, "wday", "weekday", "weekday flag")
-    inputArgs = append(inputArgs, "-wday", "Tuesday")
-    var weekdayFlagExpected = time.Tuesday
+	// time.Weekday
+	var weekdayFlag time.Weekday
+	Weekday(&weekdayFlag, "wday", "weekday", "weekday flag")
+	inputArgs = append(inputArgs, "-wday", "Tuesday")
+	var weekdayFlagExpected = time.Tuesday
 
-    // big.Int
-    var bigIntFlag big.Int
-    BigInt(&bigIntFlag, "bigi", "bigint", "big int flag")
-    inputArgs = append(inputArgs, "-bigi", "0xFF")
-    var bigIntExpected = big.NewInt(255)
+	// big.Int
+	var bigIntFlag big.Int
+	BigInt(&bigIntFlag, "bigi", "bigint", "big int flag")
+	inputArgs = append(inputArgs, "-bigi", "0xFF")
+	var bigIntExpected = big.NewInt(255)
 
-    // big.Rat
-    var bigRatFlag big.Rat
-    BigRat(&bigRatFlag, "bigr", "bigrat", "big rat flag")
-    inputArgs = append(inputArgs, "-bigr", "1/8")
-    var bigRatExpected = big.NewRat(1, 8)
+	// big.Rat
+	var bigRatFlag big.Rat
+	BigRat(&bigRatFlag, "bigr", "bigrat", "big rat flag")
+	inputArgs = append(inputArgs, "-bigr", "1/8")
+	var bigRatExpected = big.NewRat(1, 8)
 
-    // netip.Addr
-    var netipAddrFlag netip.Addr
-    NetipAddr(&netipAddrFlag, "nip", "netipaddr", "netip addr flag")
-    inputArgs = append(inputArgs, "-nip", "192.0.2.1")
-    var netipAddrExpected = netip.MustParseAddr("192.0.2.1")
+	// netip.Addr
+	var netipAddrFlag netip.Addr
+	NetipAddr(&netipAddrFlag, "nip", "netipaddr", "netip addr flag")
+	inputArgs = append(inputArgs, "-nip", "192.0.2.1")
+	var netipAddrExpected = netip.MustParseAddr("192.0.2.1")
 
-    // netip.Prefix
-    var netipPrefixFlag netip.Prefix
-    NetipPrefix(&netipPrefixFlag, "nipr", "netipprefix", "netip prefix flag")
-    inputArgs = append(inputArgs, "-nipr", "2001:db8::/32")
-    var netipPrefixExpected = netip.MustParsePrefix("2001:db8::/32")
+	// netip.Prefix
+	var netipPrefixFlag netip.Prefix
+	NetipPrefix(&netipPrefixFlag, "nipr", "netipprefix", "netip prefix flag")
+	inputArgs = append(inputArgs, "-nipr", "2001:db8::/32")
+	var netipPrefixExpected = netip.MustParsePrefix("2001:db8::/32")
 
-    // netip.AddrPort
-    var netipAddrPortFlag netip.AddrPort
-    NetipAddrPort(&netipAddrPortFlag, "niap", "netipaddrport", "netip addrport flag")
-    inputArgs = append(inputArgs, "-niap", "127.0.0.1:80")
-    var netipAddrPortExpected = netip.MustParseAddrPort("127.0.0.1:80")
+	// netip.AddrPort
+	var netipAddrPortFlag netip.AddrPort
+	NetipAddrPort(&netipAddrPortFlag, "niap", "netipaddrport", "netip addrport flag")
+	inputArgs = append(inputArgs, "-niap", "127.0.0.1:80")
+	var netipAddrPortExpected = netip.MustParseAddrPort("127.0.0.1:80")
 
-    // Base64 bytes
-    var b64Flag Base64Bytes
-    BytesBase64(&b64Flag, "b64", "base64", "base64 bytes flag")
-    inputArgs = append(inputArgs, "-b64", "SGVsbG8=")
-    var b64Expected = []byte("Hello")
+	// Base64 bytes
+	var b64Flag Base64Bytes
+	BytesBase64(&b64Flag, "b64", "base64", "base64 bytes flag")
+	inputArgs = append(inputArgs, "-b64", "SGVsbG8=")
+	var b64Expected = []byte("Hello")
 
 	// display help with all flags used
 	ShowHelp("Showing help for test: " + t.Name())
@@ -567,93 +567,93 @@ func TestInputParsing(t *testing.T) {
 		}
 	}
 
-    if maskFlag.String() != maskFlagExpected.String() {
-        t.Fatal("mask flag incorrect", maskFlag, maskFlagExpected)
-    }
+	if maskFlag.String() != maskFlagExpected.String() {
+		t.Fatal("mask flag incorrect", maskFlag, maskFlagExpected)
+	}
 
-    for i, f := range maskSliceFlagExpected {
-        if f.String() != maskSliceFlag[i].String() {
-            t.Fatal("mask flag slice value incorrect", maskSliceFlag[i].String(), f.String())
-        }
-    }
+	for i, f := range maskSliceFlagExpected {
+		if f.String() != maskSliceFlag[i].String() {
+			t.Fatal("mask flag slice value incorrect", maskSliceFlag[i].String(), f.String())
+		}
+	}
 
-    // time.Time
-    if !timeFlag.Equal(timeFlagExpected) {
-        t.Fatal("time flag incorrect", timeFlag, timeFlagExpected)
-    }
+	// time.Time
+	if !timeFlag.Equal(timeFlagExpected) {
+		t.Fatal("time flag incorrect", timeFlag, timeFlagExpected)
+	}
 
-    // url.URL
-    if urlFlag.String() != urlFlagExpected {
-        t.Fatal("url flag incorrect", urlFlag.String(), urlFlagExpected)
-    }
+	// url.URL
+	if urlFlag.String() != urlFlagExpected {
+		t.Fatal("url flag incorrect", urlFlag.String(), urlFlagExpected)
+	}
 
-    // CIDR
-    if cidrFlag.String() != cidrFlagExpected {
-        t.Fatal("cidr flag incorrect", cidrFlag.String(), cidrFlagExpected)
-    }
+	// CIDR
+	if cidrFlag.String() != cidrFlagExpected {
+		t.Fatal("cidr flag incorrect", cidrFlag.String(), cidrFlagExpected)
+	}
 
-    // TCP addr
-    if !tcpAddr.IP.Equal(tcpIPExpected) || tcpAddr.Port != tcpPortExpected {
-        t.Fatal("tcp addr incorrect", tcpAddr, tcpIPExpected, tcpPortExpected)
-    }
+	// TCP addr
+	if !tcpAddr.IP.Equal(tcpIPExpected) || tcpAddr.Port != tcpPortExpected {
+		t.Fatal("tcp addr incorrect", tcpAddr, tcpIPExpected, tcpPortExpected)
+	}
 
-    // UDP addr
-    if !udpAddr.IP.Equal(udpIPExpected) || udpAddr.Port != udpPortExpected {
-        t.Fatal("udp addr incorrect", udpAddr, udpIPExpected, udpPortExpected)
-    }
+	// UDP addr
+	if !udpAddr.IP.Equal(udpIPExpected) || udpAddr.Port != udpPortExpected {
+		t.Fatal("udp addr incorrect", udpAddr, udpIPExpected, udpPortExpected)
+	}
 
-    // File mode
-    if fileModeFlag != fileModeExpected {
-        t.Fatal("file mode incorrect", fileModeFlag, fileModeExpected)
-    }
+	// File mode
+	if fileModeFlag != fileModeExpected {
+		t.Fatal("file mode incorrect", fileModeFlag, fileModeExpected)
+	}
 
-    // Regexp
-    if !regexFlag.MatchString("abbb") || regexFlag.MatchString("ac") {
-        t.Fatal("regexp flag incorrect")
-    }
+	// Regexp
+	if !regexFlag.MatchString("abbb") || regexFlag.MatchString("ac") {
+		t.Fatal("regexp flag incorrect")
+	}
 
-    // Location
-    if locFlag.String() != locFlagExpected {
-        t.Fatal("location flag incorrect", locFlag.String(), locFlagExpected)
-    }
+	// Location
+	if locFlag.String() != locFlagExpected {
+		t.Fatal("location flag incorrect", locFlag.String(), locFlagExpected)
+	}
 
-    // Month
-    if monthFlag != monthFlagExpected {
-        t.Fatal("month flag incorrect", monthFlag, monthFlagExpected)
-    }
+	// Month
+	if monthFlag != monthFlagExpected {
+		t.Fatal("month flag incorrect", monthFlag, monthFlagExpected)
+	}
 
-    // Weekday
-    if weekdayFlag != weekdayFlagExpected {
-        t.Fatal("weekday flag incorrect", weekdayFlag, weekdayFlagExpected)
-    }
+	// Weekday
+	if weekdayFlag != weekdayFlagExpected {
+		t.Fatal("weekday flag incorrect", weekdayFlag, weekdayFlagExpected)
+	}
 
-    // big.Int
-    if bigIntFlag.Cmp(bigIntExpected) != 0 {
-        t.Fatal("bigint flag incorrect", bigIntFlag.String(), bigIntExpected.String())
-    }
+	// big.Int
+	if bigIntFlag.Cmp(bigIntExpected) != 0 {
+		t.Fatal("bigint flag incorrect", bigIntFlag.String(), bigIntExpected.String())
+	}
 
-    // big.Rat
-    if bigRatFlag.Cmp(bigRatExpected) != 0 {
-        t.Fatal("bigrat flag incorrect", bigRatFlag.RatString(), bigRatExpected.RatString())
-    }
+	// big.Rat
+	if bigRatFlag.Cmp(bigRatExpected) != 0 {
+		t.Fatal("bigrat flag incorrect", bigRatFlag.RatString(), bigRatExpected.RatString())
+	}
 
-    // netip.Addr
-    if netipAddrFlag != netipAddrExpected {
-        t.Fatal("netip addr incorrect", netipAddrFlag.String(), netipAddrExpected.String())
-    }
+	// netip.Addr
+	if netipAddrFlag != netipAddrExpected {
+		t.Fatal("netip addr incorrect", netipAddrFlag.String(), netipAddrExpected.String())
+	}
 
-    // netip.Prefix
-    if netipPrefixFlag.String() != netipPrefixExpected.String() {
-        t.Fatal("netip prefix incorrect", netipPrefixFlag.String(), netipPrefixExpected.String())
-    }
+	// netip.Prefix
+	if netipPrefixFlag.String() != netipPrefixExpected.String() {
+		t.Fatal("netip prefix incorrect", netipPrefixFlag.String(), netipPrefixExpected.String())
+	}
 
-    // netip.AddrPort
-    if netipAddrPortFlag.String() != netipAddrPortExpected.String() {
-        t.Fatal("netip addrport incorrect", netipAddrPortFlag.String(), netipAddrPortExpected.String())
-    }
+	// netip.AddrPort
+	if netipAddrPortFlag.String() != netipAddrPortExpected.String() {
+		t.Fatal("netip addrport incorrect", netipAddrPortFlag.String(), netipAddrPortExpected.String())
+	}
 
-    // Base64 bytes
-    if string([]byte(b64Flag)) != string(b64Expected) {
-        t.Fatal("base64 bytes flag incorrect", []byte(b64Flag), b64Expected)
-    }
+	// Base64 bytes
+	if string([]byte(b64Flag)) != string(b64Expected) {
+		t.Fatal("base64 bytes flag incorrect", []byte(b64Flag), b64Expected)
+	}
 }
