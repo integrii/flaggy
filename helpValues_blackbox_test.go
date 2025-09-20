@@ -1,6 +1,7 @@
 package flaggy_test
 
 import (
+	"io"
 	"os"
 	"strings"
 	"testing"
@@ -31,18 +32,17 @@ func TestMinimalHelpOutput(t *testing.T) {
 		t.Fatalf("read: error: %s", err)
 	}
 	got := strings.Split(string(buf[:n]), "\n")
-	// Updated to match current help template output (extra blank lines)
+	// Updated to match current help template output (single leading/trailing blank line)
 	want := []string{
 		"",
+		"TestMinimalHelpOutput",
 		"",
-		"",
-		"  Subcommands: ",
+		"  Subcommands:",
 		"    completion   Generate shell completion script for bash or zsh.",
 		"",
-		"  Flags: ",
-		"       --version   Displays the program version string.",
-		"    -h --help      Displays help with available flag, subcommand, and positional value parameters.",
-		"",
+		"  Flags:",
+		"        --version   Displays the program version string.",
+		"    -h  --help      Displays help with available flag, subcommand, and positional value parameters.",
 		"",
 	}
 
@@ -53,6 +53,43 @@ func TestMinimalHelpOutput(t *testing.T) {
 		if got[i] != want[i] {
 			t.Fatalf("help line %d mismatch:\nGot:  %q\nWant: %q", i, got[i], want[i])
 		}
+	}
+}
+
+func TestShowHelpBeforeParseIncludesSubcommands(t *testing.T) {
+	p := flaggy.NewParser("root-help")
+	alpha := flaggy.NewSubcommand("alpha")
+	alpha.ShortName = "a"
+	beta := flaggy.NewSubcommand("beta")
+	beta.ShortName = "b"
+	p.AttachSubcommand(alpha, 1)
+	p.AttachSubcommand(beta, 2)
+
+	rd, wr, err := os.Pipe()
+	if err != nil {
+		t.Fatalf("pipe: error: %s", err)
+	}
+	savedStderr := os.Stderr
+	os.Stderr = wr
+
+	p.ShowHelp()
+
+	if err := wr.Close(); err != nil {
+		t.Fatalf("close: error: %s", err)
+	}
+	os.Stderr = savedStderr
+
+	data, err := io.ReadAll(rd)
+	if err != nil {
+		t.Fatalf("read all: error: %s", err)
+	}
+	output := string(data)
+
+	if !strings.Contains(output, "alpha") {
+		t.Fatalf("expected alpha subcommand in help, got:\n%s", output)
+	}
+	if !strings.Contains(output, "beta") {
+		t.Fatalf("expected beta subcommand in help, got:\n%s", output)
 	}
 }
 
@@ -133,15 +170,16 @@ func TestHelpOutput(t *testing.T) {
 	got := strings.Split(string(buf[:n]), "\n")
 	// Updated to match current help template output without completion subcommand on nested help.
 	want := []string{
+		"",
 		"subcommandB - Subcommand B is a command that does other stuff",
 		"",
-		"  Flags: ",
-		"       --version        Displays the program version string.",
-		"    -h --help           Displays help with available flag, subcommand, and positional value parameters.",
-		"    -s --stringFlag     This is a test string flag that does some stringy string stuff. (default: defaultStringHere)",
-		"    -i --intFlg         This is a test int flag that does some interesting int stuff. (default: 0)",
-		"    -b --boolFlag       This is a test bool flag that does some booly bool stuff.",
-		"    -d --durationFlag   This is a test duration flag that does some untimely stuff. (default: 0s)",
+		"  Flags:",
+		"        --version        Displays the program version string.",
+		"    -h  --help           Displays help with available flag, subcommand, and positional value parameters.",
+		"    -s  --stringFlag     This is a test string flag that does some stringy string stuff. (default: defaultStringHere)",
+		"    -i  --intFlg         This is a test int flag that does some interesting int stuff. (default: 0)",
+		"    -b  --boolFlag       This is a test bool flag that does some booly bool stuff.",
+		"    -d  --durationFlag   This is a test duration flag that does some untimely stuff. (default: 0s)",
 		"",
 		"This is a help message on exit",
 		"",

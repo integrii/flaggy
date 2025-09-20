@@ -3,6 +3,7 @@ package flaggy_test
 import (
 	"net"
 	"os"
+	"strings"
 	"testing"
 	"time"
 
@@ -215,6 +216,44 @@ func TestHelpWithHFlagB(t *testing.T) {
 	args := []string{"--help"}
 	if err := p.ParseArgs(args); err != nil {
 		t.Fatalf("got: %s; want: no error", err)
+	}
+}
+
+func TestSubcommandHelpFlagVariants(t *testing.T) {
+	variants := []struct {
+		name string
+		flag string
+	}{
+		{"short", "-h"},
+		{"long", "--help"},
+		{"singleDashLong", "-help"},
+		{"doubleShort", "--h"},
+	}
+
+	for _, tc := range variants {
+		t.Run(tc.name, func(t *testing.T) {
+			defer func() {
+				r := recover()
+				if r == nil {
+					t.Fatalf("expected help panic for %s", tc.flag)
+				}
+				msg, ok := r.(string)
+				if !ok {
+					t.Fatalf("unexpected panic type: %T", r)
+				}
+				if !strings.Contains(msg, "code: 0") {
+					t.Fatalf("unexpected exit code for %s: %s", tc.flag, msg)
+				}
+			}()
+
+			p := flaggy.NewParser("subcommand-help")
+			syncCmd := flaggy.NewSubcommand("synchronize")
+			p.AttachSubcommand(syncCmd, 1)
+
+			if err := p.ParseArgs([]string{"synchronize", tc.flag}); err != nil {
+				t.Fatalf("ParseArgs error for %s: %v", tc.flag, err)
+			}
+		})
 	}
 }
 
