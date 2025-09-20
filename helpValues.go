@@ -14,6 +14,7 @@ type Help struct {
 	Subcommands    []HelpSubcommand
 	Positionals    []HelpPositional
 	Flags          []HelpFlag
+	GlobalFlags    []HelpFlag
 	UsageString    string
 	CommandName    string
 	PrependMessage string
@@ -64,6 +65,7 @@ func (h *Help) ExtractValues(p *Parser, message string) {
 	if ctx == nil || ctx == p.initialSubcommandContext {
 		ctx = &p.Subcommand
 	}
+	isRootContext := ctx == &p.Subcommand
 
 	// extract Help values from the current subcommand in context
 	// prependMessage string
@@ -133,7 +135,7 @@ func (h *Help) ExtractValues(p *Parser, message string) {
 		h.Positionals = append(h.Positionals, newHelpPositional)
 	}
 
-	// if the built-in version flag is enabled, then add it as a help flag
+	// if the built-in version flag is enabled, then add it to the appropriate help collection
 	if p.ShowVersionWithVersionFlag {
 		defaultVersionFlag := HelpFlag{
 			ShortName:    "",
@@ -141,7 +143,11 @@ func (h *Help) ExtractValues(p *Parser, message string) {
 			Description:  "Displays the program version string.",
 			DefaultValue: "",
 		}
-		h.Flags = append(h.Flags, defaultVersionFlag)
+		if isRootContext {
+			h.addFlagToSlice(&h.Flags, defaultVersionFlag)
+		} else {
+			h.addFlagToSlice(&h.GlobalFlags, defaultVersionFlag)
+		}
 	}
 
 	// if the built-in help flag exists, then add it as a help flag
@@ -152,20 +158,44 @@ func (h *Help) ExtractValues(p *Parser, message string) {
 			Description:  "Displays help with available flag, subcommand, and positional value parameters.",
 			DefaultValue: "",
 		}
-		h.Flags = append(h.Flags, defaultHelpFlag)
+		if isRootContext {
+			h.addFlagToSlice(&h.Flags, defaultHelpFlag)
+		} else {
+			h.addFlagToSlice(&h.GlobalFlags, defaultHelpFlag)
+		}
 	}
 
 	// go through every flag in the subcommand and add it to help output
-	h.parseFlagsToHelpFlags(ctx.Flags)
+	h.parseFlagsToHelpFlags(ctx.Flags, &h.Flags)
 
 	// go through every flag in the parent parser and add it to help output
-	h.parseFlagsToHelpFlags(p.Flags)
+	if isRootContext {
+		h.parseFlagsToHelpFlags(p.Flags, &h.Flags)
+	} else {
+		h.parseFlagsToHelpFlags(p.Flags, &h.GlobalFlags)
+	}
 
 	// Optionally sort flags alphabetically by long name (fallback to short name)
 	if p.SortFlags {
 		sort.SliceStable(h.Flags, func(i, j int) bool {
 			a := h.Flags[i]
 			b := h.Flags[j]
+			aName := strings.ToLower(strings.TrimSpace(a.LongName))
+			bName := strings.ToLower(strings.TrimSpace(b.LongName))
+			if aName == "" {
+				aName = strings.ToLower(strings.TrimSpace(a.ShortName))
+			}
+			if bName == "" {
+				bName = strings.ToLower(strings.TrimSpace(b.ShortName))
+			}
+			if p.SortFlagsReverse {
+				return aName > bName
+			}
+			return aName < bName
+		})
+		sort.SliceStable(h.GlobalFlags, func(i, j int) bool {
+			a := h.GlobalFlags[i]
+			b := h.GlobalFlags[j]
 			aName := strings.ToLower(strings.TrimSpace(a.LongName))
 			bName := strings.ToLower(strings.TrimSpace(b.LongName))
 			if aName == "" {
@@ -232,12 +262,13 @@ func (h *Help) ExtractValues(p *Parser, message string) {
 	h.UsageString = usageString
 
 	alignHelpFlags(h.Flags)
+	alignHelpFlags(h.GlobalFlags)
 	h.composeLines()
 }
 
 // parseFlagsToHelpFlags parses the specified slice of flags into
 // help flags on the the calling help command
-func (h *Help) parseFlagsToHelpFlags(flags []*Flag) {
+func (h *Help) parseFlagsToHelpFlags(flags []*Flag, dest *[]HelpFlag) {
 	for _, f := range flags {
 		if f.Hidden {
 			continue
@@ -273,13 +304,13 @@ func (h *Help) parseFlagsToHelpFlags(flags []*Flag) {
 			Description:  f.Description,
 			DefaultValue: defaultValue,
 		}
-		h.AddFlagToHelp(newHelpFlag)
+		h.addFlagToSlice(dest, newHelpFlag)
 	}
 }
 
-// AddFlagToHelp adds a flag to help output if it does not exist
-func (h *Help) AddFlagToHelp(f HelpFlag) {
-	for _, existingFlag := range h.Flags {
+// addFlagToSlice adds a flag to the provided slice if it does not exist already.
+func (h *Help) addFlagToSlice(dest *[]HelpFlag, f HelpFlag) {
+	for _, existingFlag := range *dest {
 		if len(existingFlag.ShortName) > 0 && existingFlag.ShortName == f.ShortName {
 			return
 		}
@@ -287,7 +318,7 @@ func (h *Help) AddFlagToHelp(f HelpFlag) {
 			return
 		}
 	}
-	h.Flags = append(h.Flags, f)
+	*dest = append(*dest, f)
 }
 
 // getLongestNameLength takes a slice of any supported flag and returns the length of the longest of their names
@@ -471,6 +502,27 @@ func (h *Help) composeLines() {
 	if len(h.Flags) > 0 {
 		section := []string{"  Flags:"}
 		for _, flag := range h.Flags {
+			line := "    " + flag.ShortDisplay + flag.LongDisplay
+			descAdded := false
+			if flag.Description != "" {
+				line += flag.Description
+				descAdded = true
+			}
+			if flag.DefaultValue != "" {
+				if descAdded {
+					line += " (default: " + flag.DefaultValue + ")"
+				} else {
+					line += "(default: " + flag.DefaultValue + ")"
+				}
+			}
+			section = append(section, line)
+		}
+		appendSection(section)
+	}
+
+	if len(h.GlobalFlags) > 0 {
+		section := []string{"  Global Flags:"}
+		for _, flag := range h.GlobalFlags {
 			line := "    " + flag.ShortDisplay + flag.LongDisplay
 			descAdded := false
 			if flag.Description != "" {

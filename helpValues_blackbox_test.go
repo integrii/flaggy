@@ -93,6 +93,51 @@ func TestShowHelpBeforeParseIncludesSubcommands(t *testing.T) {
 	}
 }
 
+func TestRootHelpDoesNotShowGlobalFlagsSection(t *testing.T) {
+	p := flaggy.NewParser("rootCmd")
+	p.Description = "Root description"
+
+	var rootString string
+	var rootBool bool
+	p.String(&rootString, "s", "string", "Root string flag")
+	p.Bool(&rootBool, "b", "bool", "Root bool flag")
+
+	sub := flaggy.NewSubcommand("child")
+	var subFlag string
+	sub.String(&subFlag, "", "sub-flag", "Subcommand flag")
+	p.AttachSubcommand(sub, 1)
+
+	rd, wr, err := os.Pipe()
+	if err != nil {
+		t.Fatalf("pipe: error: %s", err)
+	}
+	savedStderr := os.Stderr
+	os.Stderr = wr
+
+	p.ShowHelp()
+
+	if err := wr.Close(); err != nil {
+		t.Fatalf("close: error: %s", err)
+	}
+	os.Stderr = savedStderr
+
+	data, err := io.ReadAll(rd)
+	if err != nil {
+		t.Fatalf("read: error: %s", err)
+	}
+	output := string(data)
+
+	if strings.Contains(output, "Global Flags:") {
+		t.Fatalf("root help should not contain 'Global Flags:' section:\n%s", output)
+	}
+	if !strings.Contains(output, "  Flags:") {
+		t.Fatalf("expected root Flags section in help output:\n%s", output)
+	}
+	if !strings.Contains(output, "--string") || !strings.Contains(output, "--bool") {
+		t.Fatalf("expected root flags in output:\n%s", output)
+	}
+}
+
 func TestHelpWithMissingSCName(t *testing.T) {
 	defer func() {
 		r := recover()
@@ -143,6 +188,8 @@ func TestHelpOutput(t *testing.T) {
 	p.Int(&intFlag, "i", "intFlg", "This is a test int flag that does some interesting int stuff.")
 	p.Bool(&boolFlag, "b", "boolFlag", "This is a test bool flag that does some booly bool stuff.")
 	p.Duration(&durationFlag, "d", "durationFlag", "This is a test duration flag that does some untimely stuff.")
+	var subFlag string
+	scB.String(&subFlag, "", "subFlag", "This is a subcommand-specific flag.")
 	p.AdditionalHelpPrepend = "This is a prepend for help"
 	p.AdditionalHelpAppend = "This is an append for help"
 
@@ -174,6 +221,9 @@ func TestHelpOutput(t *testing.T) {
 		"subcommandB - Subcommand B is a command that does other stuff",
 		"",
 		"  Flags:",
+		"      --subFlag   This is a subcommand-specific flag.",
+		"",
+		"  Global Flags:",
 		"        --version        Displays the program version string.",
 		"    -h  --help           Displays help with available flag, subcommand, and positional value parameters.",
 		"    -s  --stringFlag     This is a test string flag that does some stringy string stuff. (default: defaultStringHere)",
