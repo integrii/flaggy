@@ -105,6 +105,20 @@ func (sc *Subcommand) parseAllFlagsFromArgs(p *Parser, args []string) (flagScanR
 			}
 		}
 		if matched != nil {
+			if matched.Position != positionalCount && hasPositionalAtDepth(sc, positionalCount) {
+				matched = nil
+			}
+		}
+		if matched != nil {
+			if len(result.Positionals) > 0 {
+				result.Positionals = result.Positionals[:len(result.Positionals)-1]
+			}
+			if len(sc.ParsedValues) > 0 {
+				lastIdx := len(sc.ParsedValues) - 1
+				if sc.ParsedValues[lastIdx].IsPositional {
+					sc.ParsedValues = sc.ParsedValues[:lastIdx]
+				}
+			}
 			result.Subcommand = &subcommandMatch{
 				Command:       matched,
 				Token:         token,
@@ -208,6 +222,15 @@ func shouldReserveNextArgForChild(sc *Subcommand, positionalCount int, nextArg s
 	}
 
 	return true
+}
+
+func hasPositionalAtDepth(sc *Subcommand, depth int) bool {
+	for _, pos := range sc.PositionalFlags {
+		if pos.Position == depth {
+			return true
+		}
+	}
+	return false
 }
 
 // parse causes the argument parser to parse based on the supplied []string.

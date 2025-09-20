@@ -431,6 +431,29 @@ func TestVersionWithVFlagB(t *testing.T) {
 	}
 }
 
+func TestSubcommandRespectsPositionalOrdering(t *testing.T) {
+	flaggy.PanicInsteadOfExit = true
+	defer func() { flaggy.PanicInsteadOfExit = false }()
+
+	parser := flaggy.NewParser("deployctl")
+	var environment string
+	parser.AddPositionalValue(&environment, "environment", 1, true, "")
+
+	deploy := flaggy.NewSubcommand("deploy")
+	parser.AttachSubcommand(deploy, 2)
+	var service string
+	deploy.AddPositionalValue(&service, "service", 1, true, "")
+
+	defer func() {
+		r := recover()
+		if r == nil {
+			t.Fatalf("expected panic due to missing required environment positional; got environment=%q service=%q", environment, service)
+		}
+	}()
+
+	parser.ParseArgs([]string{"deploy", "payments"})
+}
+
 // TestSubcommandParse tests paring of a single subcommand
 func TestSubcommandParse(t *testing.T) {
 
