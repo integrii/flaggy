@@ -84,51 +84,54 @@ func (sc *Subcommand) parseAllFlagsFromArgs(p *Parser, args []string) (flagScanR
 		debugPrint("Parsing flag named", a, "of type", argType)
 
 		switch argType {
-	case argIsPositional:
-		positionalCount++
-		token := positionalToken{Value: a, Index: i}
-		result.Positionals = append(result.Positionals, token)
-		sc.addParsedPositionalValue(a)
+		case argIsPositional:
+			positionalCount++
+			token := positionalToken{Value: a, Index: i}
+			result.Positionals = append(result.Positionals, token)
+			sc.addParsedPositionalValue(a)
 
-		// Detect subcommands early so we avoid parsing child flags at this level.
-		var matched *Subcommand
-		for _, cmd := range sc.Subcommands {
-			if a == cmd.Name || a == cmd.ShortName {
-				// Prefer an exact positional match when available.
-				if cmd.Position == positionalCount {
-					matched = cmd
-					break
-				}
-				if matched == nil {
-					matched = cmd
-				}
-			}
-		}
-		if matched != nil {
-			if matched.Position != positionalCount && hasPositionalAtDepth(sc, positionalCount) {
-				matched = nil
-			}
-		}
-		if matched != nil {
-			if len(result.Positionals) > 0 {
-				result.Positionals = result.Positionals[:len(result.Positionals)-1]
-			}
-			if len(sc.ParsedValues) > 0 {
-				lastIdx := len(sc.ParsedValues) - 1
-				if sc.ParsedValues[lastIdx].IsPositional {
-					sc.ParsedValues = sc.ParsedValues[:lastIdx]
+			// Detect subcommands early so we avoid parsing child flags at this level.
+			var matched *Subcommand
+			for _, cmd := range sc.Subcommands {
+				if a == cmd.Name || a == cmd.ShortName {
+					// Prefer an exact positional match when available.
+					if cmd.Position == positionalCount {
+						matched = cmd
+						break
+					}
+					if matched == nil {
+						matched = cmd
+					}
 				}
 			}
-			result.Subcommand = &subcommandMatch{
-				Command:       matched,
-				Token:         token,
-				RelativeDepth: matched.Position,
+			if matched != nil {
+				// Ignore the tentative match when a positional value is already defined at this depth.
+				if matched.Position != positionalCount && hasPositionalAtDepth(sc, positionalCount) {
+					matched = nil
+				}
 			}
-			// Stop scanning so the child can handle the remainder.
-			return result, nil
-		}
-	case argIsFlagWithSpace:
-		key := flagName
+			if matched != nil {
+				// Drop the provisional positional bookkeeping because the token actually belongs to the child.
+				if len(result.Positionals) > 0 {
+					result.Positionals = result.Positionals[:len(result.Positionals)-1]
+				}
+				if len(sc.ParsedValues) > 0 {
+					lastIdx := len(sc.ParsedValues) - 1
+					if sc.ParsedValues[lastIdx].IsPositional {
+						sc.ParsedValues = sc.ParsedValues[:lastIdx]
+					}
+				}
+				// Record which subcommand will own the remainder of the arguments.
+				result.Subcommand = &subcommandMatch{
+					Command:       matched,
+					Token:         token,
+					RelativeDepth: matched.Position,
+				}
+				// Stop scanning so the child can handle the remainder.
+				return result, nil
+			}
+		case argIsFlagWithSpace:
+			key := flagName
 
 			if flagIsBool(sc, p, key) {
 				valueSet, err := setValueForParsers(key, "true", p, sc)
