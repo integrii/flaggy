@@ -152,6 +152,35 @@ func TestBlankAndWhitespaceValues(t *testing.T) {
 	}
 }
 
+func TestIssue96EmptyStringShortFlagValue(t *testing.T) {
+	// Issue 96: ./app -log.file.dir "" -log.logstash.level INFO
+	// Expect: no parse error, log.file.dir stored as "", log.logstash.level stored as "INFO".
+	t.Parallel()
+
+	// Setup parser mirroring the issue-96 configuration with dotted short flag names.
+	p := NewParser("app")
+
+	var fileDir string
+	var logstashLevel string
+
+	// Register both flags using the same short/long names as the regression report.
+	p.String(&fileDir, "log.file.dir", "logFileDir", "Directory for log files (issue 96)")
+	p.String(&logstashLevel, "log.logstash.level", "logLogstashLevel", "Logstash level (issue 96)")
+
+	// Parse the exact CLI from the GitHub issue to guard against regression.
+	args := []string{"-log.file.dir", "", "-log.logstash.level", "INFO"}
+	if err := p.ParseArgs(args); err != nil {
+		t.Fatalf("parse failed for issue 96 reproduction: %v", err)
+	}
+
+	if fileDir != "" {
+		t.Fatalf("expected log.file.dir to remain an empty string, got %q", fileDir)
+	}
+	if logstashLevel != "INFO" {
+		t.Fatalf("expected log.logstash.level to be \"INFO\", got %q", logstashLevel)
+	}
+}
+
 func TestRootBoolAfterSubcommand(t *testing.T) {
 	// Command: ./app subcommandA --output
 	// Expect: subcommandA used; root --output bool flag set to true.
