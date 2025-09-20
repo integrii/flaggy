@@ -84,26 +84,37 @@ func (sc *Subcommand) parseAllFlagsFromArgs(p *Parser, args []string) (flagScanR
 		debugPrint("Parsing flag named", a, "of type", argType)
 
 		switch argType {
-		case argIsPositional:
-			positionalCount++
-			token := positionalToken{Value: a, Index: i}
-			result.Positionals = append(result.Positionals, token)
-			sc.addParsedPositionalValue(a)
+	case argIsPositional:
+		positionalCount++
+		token := positionalToken{Value: a, Index: i}
+		result.Positionals = append(result.Positionals, token)
+		sc.addParsedPositionalValue(a)
 
-			// Detect subcommands early so we avoid parsing child flags at this level.
-			for _, cmd := range sc.Subcommands {
-				if cmd.Position == positionalCount && (a == cmd.Name || a == cmd.ShortName) {
-					result.Subcommand = &subcommandMatch{
-						Command:       cmd,
-						Token:         token,
-						RelativeDepth: positionalCount,
-					}
-					// Stop scanning so the child can handle the remainder.
-					return result, nil
+		// Detect subcommands early so we avoid parsing child flags at this level.
+		var matched *Subcommand
+		for _, cmd := range sc.Subcommands {
+			if a == cmd.Name || a == cmd.ShortName {
+				// Prefer an exact positional match when available.
+				if cmd.Position == positionalCount {
+					matched = cmd
+					break
+				}
+				if matched == nil {
+					matched = cmd
 				}
 			}
-		case argIsFlagWithSpace:
-			key := flagName
+		}
+		if matched != nil {
+			result.Subcommand = &subcommandMatch{
+				Command:       matched,
+				Token:         token,
+				RelativeDepth: matched.Position,
+			}
+			// Stop scanning so the child can handle the remainder.
+			return result, nil
+		}
+	case argIsFlagWithSpace:
+		key := flagName
 
 			if flagIsBool(sc, p, key) {
 				valueSet, err := setValueForParsers(key, "true", p, sc)

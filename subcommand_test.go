@@ -1,6 +1,7 @@
 package flaggy_test
 
 import (
+	"fmt"
 	"net"
 	"os"
 	"strings"
@@ -255,6 +256,163 @@ func TestSubcommandHelpFlagVariants(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestMultipleRootSubcommandsAcrossPositions(t *testing.T) {
+	counts := []int{2, 3, 4}
+	for _, count := range counts {
+		for idx := 0; idx < count; idx++ {
+			name := fmt.Sprintf("count_%d_sub_%d", count, idx+1)
+			t.Run(name, func(t *testing.T) {
+				parser, subs := buildSequentialParser(count)
+				target := subs[idx]
+
+				if err := parser.ParseArgs([]string{target.Name}); err != nil {
+					t.Fatalf("ParseArgs(%s) error: %v", target.Name, err)
+				}
+
+				if !target.Used {
+					t.Fatalf("expected subcommand %s to be marked used", target.Name)
+				}
+				for otherIdx, sc := range subs {
+					if otherIdx == idx {
+						continue
+					}
+					if sc.Used {
+						t.Fatalf("subcommand %s unexpectedly marked used", sc.Name)
+					}
+				}
+			})
+		}
+	}
+}
+
+func TestMultipleRootSubcommandHelpVariants(t *testing.T) {
+	flaggy.PanicInsteadOfExit = true
+	defer func() { flaggy.PanicInsteadOfExit = false }()
+
+	counts := []int{2, 3, 4}
+	flags := []string{"-h", "--help", "-help", "--h"}
+
+	for _, count := range counts {
+		for idx := 0; idx < count; idx++ {
+			for _, helpFlag := range flags {
+				t.Run(fmt.Sprintf("help_count_%d_sub_%d_flag_%s", count, idx+1, helpFlag), func(t *testing.T) {
+					parser, subs := buildSequentialParser(count)
+					target := subs[idx]
+
+					defer func() {
+						r := recover()
+						if r == nil {
+							t.Fatalf("expected panic for help flag %s", helpFlag)
+						}
+						if msg, ok := r.(string); !ok || !strings.Contains(msg, "code: 0") {
+							t.Fatalf("unexpected panic value: %v", r)
+						}
+					}()
+
+					if err := parser.ParseArgs([]string{target.Name, helpFlag}); err != nil {
+						t.Fatalf("ParseArgs error: %v", err)
+					}
+				})
+			}
+		}
+	}
+}
+
+func TestNestedSubcommandDispatchAndHelp(t *testing.T) {
+	flaggy.PanicInsteadOfExit = true
+	defer func() { flaggy.PanicInsteadOfExit = false }()
+
+	rootCounts := []int{2, 3, 4}
+	childCount := 3
+	flags := []string{"-h", "--help", "-help", "--h"}
+
+	for _, rootCount := range rootCounts {
+		for rootIdx := 0; rootIdx < rootCount; rootIdx++ {
+			for childIdx := 0; childIdx < childCount; childIdx++ {
+				parseName := fmt.Sprintf("dispatch_root_%d_child_%d_count_%d", rootIdx+1, childIdx+1, rootCount)
+				t.Run(parseName, func(t *testing.T) {
+					parser, roots := buildNestedParser(rootCount, childCount)
+					root := roots[rootIdx]
+					child := root.Subcommands[childIdx]
+
+					if err := parser.ParseArgs([]string{root.Name, child.Name}); err != nil {
+						t.Fatalf("ParseArgs error for %s %s: %v", root.Name, child.Name, err)
+					}
+					if !root.Used {
+						t.Fatalf("expected root %s to be marked used", root.Name)
+					}
+					if !child.Used {
+						t.Fatalf("expected child %s to be marked used", child.Name)
+					}
+					// Ensure unrelated siblings remain unused.
+					for i, sibling := range roots {
+						if i == rootIdx {
+							continue
+						}
+						if sibling.Used {
+							t.Fatalf("unexpected root sibling %s marked used", sibling.Name)
+						}
+						for _, c := range sibling.Subcommands {
+							if c.Used {
+								t.Fatalf("unexpected nested sibling %s marked used", c.Name)
+							}
+						}
+					}
+				})
+
+				for _, helpFlag := range flags {
+					helpName := fmt.Sprintf("help_root_%d_child_%d_flag_%s_count_%d", rootIdx+1, childIdx+1, helpFlag, rootCount)
+					t.Run(helpName, func(t *testing.T) {
+						parser, roots := buildNestedParser(rootCount, childCount)
+						root := roots[rootIdx]
+						child := root.Subcommands[childIdx]
+
+						defer func() {
+							r := recover()
+							if r == nil {
+								t.Fatalf("expected panic for help flag %s", helpFlag)
+							}
+							if msg, ok := r.(string); !ok || !strings.Contains(msg, "code: 0") {
+								t.Fatalf("unexpected panic value: %v", r)
+							}
+						}()
+
+						if err := parser.ParseArgs([]string{root.Name, child.Name, helpFlag}); err != nil {
+							t.Fatalf("ParseArgs error: %v", err)
+						}
+					})
+				}
+			}
+		}
+	}
+}
+
+func buildSequentialParser(count int) (*flaggy.Parser, []*flaggy.Subcommand) {
+	parser := flaggy.NewParser(fmt.Sprintf("multi_%d", count))
+	subs := make([]*flaggy.Subcommand, count)
+	for i := 0; i < count; i++ {
+		sub := flaggy.NewSubcommand(fmt.Sprintf("cmd%d", i+1))
+		parser.AttachSubcommand(sub, i+1)
+		subs[i] = sub
+	}
+	return parser, subs
+}
+
+func buildNestedParser(rootCount, childCount int) (*flaggy.Parser, []*flaggy.Subcommand) {
+	parser := flaggy.NewParser(fmt.Sprintf("nested_%d", rootCount))
+	roots := make([]*flaggy.Subcommand, rootCount)
+	for i := 0; i < rootCount; i++ {
+		root := flaggy.NewSubcommand(fmt.Sprintf("root%d", i+1))
+		parser.AttachSubcommand(root, i+1)
+		for j := 0; j < childCount; j++ {
+			child := flaggy.NewSubcommand(fmt.Sprintf("child%d_%d", i+1, j+1))
+			root.AttachSubcommand(child, j+1)
+		}
+		roots[i] = root
+	}
+	return parser, roots
 }
 
 func TestVersionWithVFlagB(t *testing.T) {
