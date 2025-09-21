@@ -154,24 +154,18 @@ print(flaggy.TrailingArguments[0])
 
 # Supported Flag Types
 
-Flaggy has specific flag types for all basic types included in go as well as a slice of any of those types.  This includes all of the following types:
+Flaggy has specific flag types for all basic Go types as well as slice variants, plus a selection of helpful standard library structures. You can target any of the following assignments when defining a flag:
 
-- string and []string
-- bool and []bool
-- all int types and all []int types
-- all float types and all []float types
-- all uint types and all []uint types
-
-Other more specific types can also be used as flag types.  They will be automatically parsed using the standard parsing functions included with those types in those packages.  This includes:
-
-- net.IP
-- []net.IP
-- net.HardwareAddr
-- []net.HardwareAddr
-- net.IPMask
-- []net.IPMask
-- time.Duration
-- []time.Duration
+- Text and truthy values: `string`, `[]string`, `bool`, `[]bool`
+- Signed integers: `int`, `int64`, `int32`, `int16`, `int8`, and a slice form for each type
+- Unsigned integers: `uint`, `uint64`, `uint32`, `uint16`, `uint8` (aka `byte`), and slice forms for each type
+- Floating point numbers: `float64`, `float32`, and slices of both precisions
+- Time utilities: `time.Duration`, `[]time.Duration`, `time.Time`, `time.Location`, `time.Month`, `time.Weekday`
+- Network primitives: `net.IP`, `[]net.IP`, `net.HardwareAddr`, `[]net.HardwareAddr`, `net.IPMask`, `[]net.IPMask`, `net.IPNet`, `net.TCPAddr`, `net.UDPAddr`
+- Modern IP types: `netip.Addr`, `netip.Prefix`, `netip.AddrPort`
+- URLs and filesystem helpers: `url.URL`, `os.FileMode`
+- Pattern and math types: `regexp.Regexp`, `big.Int`, `big.Rat`
+- Encoded byte helpers: `Base64Bytes` (a base64-decoded `[]byte`)
 
 # Shell Completion
 
