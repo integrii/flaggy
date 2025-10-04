@@ -42,7 +42,7 @@ Check out the [go doc](http://pkg.go.dev/github.com/integrii/flaggy), [examples 
 - Optional but default version output with `--version`
 - Optional but default help output with `-h` or `--help`
 - Optional but default help output when any invalid or unknown parameter is passed
-- bash and zsh shell completion generation by default
+- bash, zsh, fish, PowerShell, and Nushell shell completion generation by default
 - It's _fast_. All flag and subcommand parsing takes less than `1ms` in most programs.
 
 # Example Help Output
@@ -169,10 +169,24 @@ Flaggy has specific flag types for all basic Go types as well as slice variants,
 
 # Shell Completion
 
-Flaggy generates `bash` and `zsh` completion scripts automatically.
+Flaggy generates `bash`, `zsh`, `fish`, `PowerShell`, and `Nushell` completion scripts automatically.
 
 ```bash
+# Bash
 source <(./app completion bash)
+
+# Zsh
+source <(./app completion zsh)
+
+# Fish
+./app completion fish | source
+
+# PowerShell
+./app completion powershell | Out-String | Invoke-Expression
+
+# Nushell
+./app completion nushell | save --force ~/.cache/app-completions.nu
+source ~/.cache/app-completions.nu
 ```
 
 # An Example Program
