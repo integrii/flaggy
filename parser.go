@@ -28,6 +28,7 @@ type Parser struct {
 	ShowCompletion             bool               // indicates that bash and zsh completion output is possible
 	SortFlags                  bool               // when true, help output flags are sorted alphabetically
 	SortFlagsReverse           bool               // when true with SortFlags, sort order is reversed (Z..A)
+	ShowMetavars               bool               // display automatically generated value names for non-toggle flags
 }
 
 // supportedCompletionShells lists every shell that can receive generated completion output.
@@ -65,6 +66,7 @@ func NewParser(name string) *Parser {
 	p.ShowCompletion = true
 	p.SortFlags = false
 	p.SortFlagsReverse = false
+	p.ShowMetavars = false
 	p.SetHelpTemplate(DefaultHelpTemplate)
 	initialContext := &Subcommand{}
 	p.subcommandContext = initialContext
@@ -99,6 +101,17 @@ func (p *Parser) SortFlagsByLongName() {
 func (p *Parser) SortFlagsByLongNameReversed() {
 	p.SortFlags = true
 	p.SortFlagsReverse = true
+}
+
+// EnableMetavars makes help output show automatically generated value names for
+// flags that consume command-line values.
+func (p *Parser) EnableMetavars() {
+	p.ShowMetavars = true
+}
+
+// DisableMetavars hides automatically generated value names from help output.
+func (p *Parser) DisableMetavars() {
+	p.ShowMetavars = false
 }
 
 // ParseArgs parses as if the passed args were the os.Args, but without the

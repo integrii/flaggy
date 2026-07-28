@@ -50,6 +50,7 @@ type HelpFlag struct {
 	LongName     string
 	Description  string
 	DefaultValue string
+	Metavar      string
 	ShortDisplay string
 	LongDisplay  string
 }
@@ -166,13 +167,13 @@ func (h *Help) ExtractValues(p *Parser, message string) {
 	}
 
 	// go through every flag in the subcommand and add it to help output
-	h.parseFlagsToHelpFlags(ctx.Flags, &h.Flags)
+	h.parseFlagsToHelpFlags(ctx.Flags, &h.Flags, p.ShowMetavars)
 
 	// go through every flag in the parent parser and add it to help output
 	if isRootContext {
-		h.parseFlagsToHelpFlags(p.Flags, &h.Flags)
+		h.parseFlagsToHelpFlags(p.Flags, &h.Flags, p.ShowMetavars)
 	} else {
-		h.parseFlagsToHelpFlags(p.Flags, &h.GlobalFlags)
+		h.parseFlagsToHelpFlags(p.Flags, &h.GlobalFlags, p.ShowMetavars)
 	}
 
 	// Optionally sort flags alphabetically by long name (fallback to short name)
@@ -268,7 +269,7 @@ func (h *Help) ExtractValues(p *Parser, message string) {
 
 // parseFlagsToHelpFlags parses the specified slice of flags into
 // help flags on the the calling help command
-func (h *Help) parseFlagsToHelpFlags(flags []*Flag, dest *[]HelpFlag) {
+func (h *Help) parseFlagsToHelpFlags(flags []*Flag, dest *[]HelpFlag, showMetavars bool) {
 	for _, f := range flags {
 		if f.Hidden {
 			continue
@@ -303,6 +304,7 @@ func (h *Help) parseFlagsToHelpFlags(flags []*Flag, dest *[]HelpFlag) {
 			LongName:     f.LongName,
 			Description:  f.Description,
 			DefaultValue: defaultValue,
+			Metavar:      metavarForFlag(f, showMetavars),
 		}
 		h.addFlagToSlice(dest, newHelpFlag)
 	}
@@ -371,8 +373,8 @@ func alignHelpFlags(flags []HelpFlag) {
 	longWidth := 0
 
 	for _, flag := range flags {
-		shortCol := flagShortColumn(flag.ShortName)
-		longCol := flagLongColumn(flag.LongName)
+		shortCol := flagShortColumn(flag.ShortName, flag.Metavar)
+		longCol := flagLongColumn(flag.LongName, flag.Metavar)
 		if l := utf8.RuneCountInString(shortCol); l > shortWidth {
 			shortWidth = l
 		}
@@ -385,8 +387,8 @@ func alignHelpFlags(flags []HelpFlag) {
 	const descGap = "   "
 
 	for i := range flags {
-		shortCol := flagShortColumn(flags[i].ShortName)
-		longCol := flagLongColumn(flags[i].LongName)
+		shortCol := flagShortColumn(flags[i].ShortName, flags[i].Metavar)
+		longCol := flagLongColumn(flags[i].LongName, flags[i].Metavar)
 
 		if shortWidth > 0 {
 			flags[i].ShortDisplay = padRight(shortCol, shortWidth) + shortGap
@@ -402,18 +404,47 @@ func alignHelpFlags(flags []HelpFlag) {
 	}
 }
 
-func flagShortColumn(shortName string) string {
+func flagShortColumn(shortName string, metavar string) string {
 	if shortName == "" {
 		return ""
 	}
-	return "-" + shortName
+	return addMetavar("-"+shortName, metavar)
 }
 
-func flagLongColumn(longName string) string {
+func flagLongColumn(longName string, metavar string) string {
 	if longName == "" {
 		return ""
 	}
-	return "--" + longName
+	return addMetavar("--"+longName, metavar)
+}
+
+// metavarForFlag returns the default display name for a flag value when
+// metavars are enabled. Toggle flags do not consume values and remain unnamed.
+func metavarForFlag(f *Flag, showMetavars bool) string {
+	if !showMetavars || f.isToggle() {
+		return ""
+	}
+
+	name := f.LongName
+	if name == "" {
+		name = f.ShortName
+	}
+	if name == "" {
+		return ""
+	}
+
+	name = strings.ReplaceAll(name, "-", "_")
+	return strings.ToUpper(name)
+}
+
+// addMetavar appends a value display name to a rendered flag name when one is
+// available.
+func addMetavar(name string, metavar string) string {
+	if metavar == "" {
+		return name
+	}
+
+	return name + " " + metavar
 }
 
 func padRight(input string, width int) string {
