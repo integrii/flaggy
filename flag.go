@@ -28,6 +28,14 @@ type Flag struct {
 	parsed        bool   // indicates that this flag has already been parsed
 }
 
+// isToggle reports whether the flag is activated without consuming a value.
+func (f *Flag) isToggle() bool {
+	_, isBool := f.AssignmentVar.(*bool)
+	_, isBoolSlice := f.AssignmentVar.(*[]bool)
+
+	return isBool || isBoolSlice
+}
+
 // HasName indicates that this flag's short or long name matches the
 // supplied name string
 func (f *Flag) HasName(name string) bool {
@@ -588,9 +596,7 @@ func collectAllNestedFlags(sc *Subcommand) []*Flag {
 func flagIsBool(sc *Subcommand, p *Parser, key string) bool {
 	for _, f := range sc.Flags {
 		if f.HasName(key) {
-			_, isBool := f.AssignmentVar.(*bool)
-			_, isBoolSlice := f.AssignmentVar.(*[]bool)
-			if isBool || isBoolSlice {
+			if f.isToggle() {
 				return true
 			}
 		}
@@ -598,9 +604,7 @@ func flagIsBool(sc *Subcommand, p *Parser, key string) bool {
 
 	for _, f := range p.Flags {
 		if f.HasName(key) {
-			_, isBool := f.AssignmentVar.(*bool)
-			_, isBoolSlice := f.AssignmentVar.(*[]bool)
-			if isBool || isBoolSlice {
+			if f.isToggle() {
 				return true
 			}
 		}

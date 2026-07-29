@@ -73,6 +73,18 @@ func SortFlagsByLongNameReversed() {
 	DefaultParser.SortFlagsByLongNameReversed()
 }
 
+// EnableMetavars enables automatically generated value names in help output
+// for the default parser.
+func EnableMetavars() {
+	DefaultParser.EnableMetavars()
+}
+
+// DisableMetavars disables automatically generated value names in help output
+// for the default parser.
+func DisableMetavars() {
+	DefaultParser.DisableMetavars()
+}
+
 // Parse parses flags as requested in the default package parser.  All trailing arguments
 // that result from parsing are placed in the global TrailingArguments variable.
 func Parse() {

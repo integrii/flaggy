@@ -42,6 +42,7 @@ Check out the [go doc](http://pkg.go.dev/github.com/integrii/flaggy), [examples 
 - Optional but default version output with `--version`
 - Optional but default help output with `-h` or `--help`
 - Optional but default help output when any invalid or unknown parameter is passed
+- Optional metavars in help output for flags that consume values. Enable them with `flaggy.EnableMetavars()`.
 - bash, zsh, fish, PowerShell, and Nushell shell completion generation by default
 - It's _fast_. All flag and subcommand parsing takes less than `1ms` in most programs.
 
@@ -92,7 +93,10 @@ flaggy.Parse()
 // Use the flag
 print(stringFlag)
 ```
+# Help Metavars
 
+Metavars are disabled by default. Enable them with `flaggy.EnableMetavars()` to
+show example meta values in help output such as `--config-file CONFIG_FILE`.
 
 # Example with Subcommand
 
