@@ -93,13 +93,10 @@ flaggy.Parse()
 // Use the flag
 print(stringFlag)
 ```
+# Help Metavars
 
 Metavars are disabled by default. Enable them with `flaggy.EnableMetavars()` to
-show values such as `--config-file CONFIG_FILE`.
-
-Call `flaggy.DisableMetavars()` to turn them off again. Custom parsers provide
-the same methods.
-
+show example meta values in help output such as `--config-file CONFIG_FILE`.
 
 # Example with Subcommand
 
