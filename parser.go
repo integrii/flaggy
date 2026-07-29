@@ -28,7 +28,7 @@ type Parser struct {
 	ShowCompletion             bool               // indicates that bash and zsh completion output is possible
 	SortFlags                  bool               // when true, help output flags are sorted alphabetically
 	SortFlagsReverse           bool               // when true with SortFlags, sort order is reversed (Z..A)
-	ShowMetavars               bool               // display automatically generated value names for non-toggle flags
+	ShowMetavars               bool               // display automatically generated value names for non-toggle flags when enabled
 }
 
 // supportedCompletionShells lists every shell that can receive generated completion output.

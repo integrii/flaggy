@@ -94,15 +94,11 @@ flaggy.Parse()
 print(stringFlag)
 ```
 
-Metavars are disabled by default to keep help output compact. Enable them to
-show the value name for each non-toggle flag, such as `--flag FLAG`:
-
-```go
-flaggy.EnableMetavars()
-```
+Metavars are disabled by default. Enable them with `flaggy.EnableMetavars()` to
+show values such as `--config-file CONFIG_FILE`.
 
 Call `flaggy.DisableMetavars()` to turn them off again. Custom parsers provide
-the equivalent `EnableMetavars` and `DisableMetavars` methods.
+the same methods.
 
 
 # Example with Subcommand
