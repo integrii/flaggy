@@ -110,3 +110,32 @@ func TestMetavarsUseFlagNames(t *testing.T) {
 		t.Fatalf("expected long display with metavar, got %q", got)
 	}
 }
+
+// TestMetavarsAlignLongFlags verifies every long flag starts at one shared
+// column even when some short flags include metavars and others do not.
+func TestMetavarsAlignLongFlags(t *testing.T) {
+	p := NewParser("metavar-alignment")
+	p.EnableMetavars()
+
+	var config string
+	var toggle bool
+	p.String(&config, "c", "config", "Config file")
+	p.Bool(&toggle, "v", "verbose", "Verbose output")
+
+	var help Help
+	help.ExtractValues(p, "")
+
+	longStart := -1
+	for _, flag := range help.Flags {
+		if flag.LongName == "" {
+			continue
+		}
+		if longStart == -1 {
+			longStart = len(flag.ShortDisplay)
+			continue
+		}
+		if got := len(flag.ShortDisplay); got != longStart {
+			t.Fatalf("long flag %q starts at column %d, want %d", flag.LongName, got, longStart)
+		}
+	}
+}
